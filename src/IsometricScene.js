@@ -1,18 +1,20 @@
 import Phaser from 'phaser';
-
 // Import your assets
 import tilesetPNG from '../assets/isometric-sandbox-sheet.png';
 import mapJSON from '../assets/isometric-sandbox-map.json';
+import boatPNG from '../assets/boat.png'; // Add this line to import the boat image
 
 export default class IsometricScene extends Phaser.Scene {
     constructor() {
         super({ key: 'IsometricScene' });
+        this.boat = null;
+        this.cursors = null;
     }
 
     preload() {
         this.load.image('tiles', tilesetPNG);
         this.load.tilemapTiledJSON('map', mapJSON);
-
+        this.load.image('boat', boatPNG); // Load the boat image
         this.load.on('loaderror', (file) => {
             console.error('Error loading file:', file.key);
             console.error('File type:', file.type);
@@ -24,15 +26,13 @@ export default class IsometricScene extends Phaser.Scene {
         try {
             const map = this.make.tilemap({ key: 'map' });
             const tileset = map.addTilesetImage('isometric-sandbox-sheet', 'tiles');
-
             const layers = [];
             for (let i = 0; i < map.layers.length; i++) {
                 layers[i] = map.createLayer(i, tileset, 0, 0);
             }
-
             const worldWidth = map.widthInPixels;
             const worldHeight = map.heightInPixels;
-            // this.cameras.main.setBounds(0, 0, worldWidth, worldHeight);
+
             this.cameras.main.setZoom(0.6);
             this.cameras.main.centerOn(0, 500);
 
@@ -41,18 +41,45 @@ export default class IsometricScene extends Phaser.Scene {
             this.add.text(10, 30, 'Tile dimensions: ' + map.tileWidth + 'x' + map.tileHeight, { fill: '#ffffff' });
             this.add.text(10, 50, 'Tileset name: ' + tileset.name, { fill: '#ffffff' });
 
+            // Temp boat sprite
+            this.boat = this.add.image(400, 300, 'boat');
+            this.boat.setOrigin(0.5, 0.5);
+            this.boat.setScale(0.5); // Adjust scale as needed
+
+            // Set up camera to follow the boat
+            this.cameras.main.startFollow(this.boat, true);
+
+            // Set up keyboard controls
+            this.cursors = this.input.keyboard.createCursorKeys();
+
             // Log map information
             console.log('Map dimensions:', worldWidth, 'x', worldHeight);
             console.log('Tile dimensions:', map.tileWidth, 'x', map.tileHeight);
             console.log('Number of layers:', map.layers.length);
             console.log('Tileset name:', tileset.name);
-           
         } catch (error) {
             console.error('Error in create function:', error);
         }
     }
 
     update() {
-
+        // Move the boat based on keyboard input
+        const speed = 2;
+        if (this.cursors.left.isDown) {
+            this.boat.x -= speed;
+            this.boat.y -= speed / 2;
+        }
+        if (this.cursors.right.isDown) {
+    this.boat.x += speed;
+            this.boat.y += speed / 2;
+        }
+        if (this.cursors.up.isDown) {
+            this.boat.x += speed;
+            this.boat.y -= speed / 2;
+        }
+        if (this.cursors.down.isDown) {
+            this.boat.x -= speed;
+            this.boat.y += speed / 2;
+        }
     }
 }
