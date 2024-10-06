@@ -1,8 +1,14 @@
 import Phaser from 'phaser';
-// Import your assets
-import tilesetPNG from '../assets/isometric-sandbox-sheet.png';
-import mapJSON from '../assets/isometric-sandbox-map.json';
-import boatPNG from '../assets/boat.png'; // Add this line to import the boat image
+
+// import map & map tiles
+import tilesetPNG from '../assets/isometric-sandbox-32x32/isometric-sandbox-sheet.png';
+import mapJSON from '../assets/isometric-sandbox-32x32/isometric-sandbox-map.json';
+
+// import boat sprites
+import boatNorthEastPNG from '../assets/boat/ship15.png';
+import boatNorthWestPNG from '../assets/boat/ship3.png';
+import boatSouthEastPNG from '../assets/boat/ship11.png';
+import boatSouthWestPNG from '../assets/boat/ship7.png';
 
 export default class IsometricScene extends Phaser.Scene {
     constructor() {
@@ -14,7 +20,12 @@ export default class IsometricScene extends Phaser.Scene {
     preload() {
         this.load.image('tiles', tilesetPNG);
         this.load.tilemapTiledJSON('map', mapJSON);
-        this.load.image('boat', boatPNG); // Load the boat image
+
+        this.load.image('boat_ne', boatNorthEastPNG);
+        this.load.image('boat_nw', boatNorthWestPNG);
+        this.load.image('boat_se', boatSouthEastPNG);
+        this.load.image('boat_sw', boatSouthWestPNG);        
+        
         this.load.on('loaderror', (file) => {
             console.error('Error loading file:', file.key);
             console.error('File type:', file.type);
@@ -41,10 +52,10 @@ export default class IsometricScene extends Phaser.Scene {
             this.add.text(10, 30, 'Tile dimensions: ' + map.tileWidth + 'x' + map.tileHeight, { fill: '#ffffff' });
             this.add.text(10, 50, 'Tileset name: ' + tileset.name, { fill: '#ffffff' });
 
-            // Temp boat sprite
-            this.boat = this.add.image(400, 300, 'boat');
+            // Set boat default sprite before moving
+            this.boat = this.add.image(400, 300, 'boat_nw');
             this.boat.setOrigin(0.5, 0.5);
-            this.boat.setScale(0.5); // Adjust scale as needed
+            this.boat.setScale(1); // Adjust scale as needed
 
             // Set up camera to follow the boat
             this.cameras.main.startFollow(this.boat, true);
@@ -63,23 +74,29 @@ export default class IsometricScene extends Phaser.Scene {
     }
 
     update() {
-        // Move the boat based on keyboard input
         const speed = 2;
+
+        // Update boat movement and boat sprite direction
+        // according to user keypress
         if (this.cursors.left.isDown) {
             this.boat.x -= speed;
-            this.boat.y -= speed / 2;
+            this.boat.y += speed / 2;
+            this.boat.setTexture('boat_sw');
         }
         if (this.cursors.right.isDown) {
-    this.boat.x += speed;
-            this.boat.y += speed / 2;
-        }
-        if (this.cursors.up.isDown) {
             this.boat.x += speed;
             this.boat.y -= speed / 2;
+            this.boat.setTexture('boat_ne');
+        }
+        if (this.cursors.up.isDown) {
+            this.boat.x -= speed;
+            this.boat.y -= speed / 2;
+            this.boat.setTexture('boat_nw');
         }
         if (this.cursors.down.isDown) {
-            this.boat.x -= speed;
+            this.boat.x += speed;
             this.boat.y += speed / 2;
+            this.boat.setTexture('boat_se');
         }
     }
 }
