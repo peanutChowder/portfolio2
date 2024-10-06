@@ -1,5 +1,22 @@
 {
   "dependencies": {
     "phaser": "^3.85.2"
-  }
+  },
+  "name": "portfolio2",
+  "version": "1.0.0",
+  "description": "Portfolio: The sequel. Coming soon...",
+  "main": "index.js",
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.2",
+    "process": "^0.11.10",
+    "vite": "^5.4.8"
+  },
+"scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
 }
