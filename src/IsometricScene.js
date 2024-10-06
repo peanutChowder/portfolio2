@@ -83,17 +83,17 @@ export default class IsometricScene extends Phaser.Scene {
             this.boat.y += speed / 2;
             this.boat.setTexture('boat_sw');
         }
-        if (this.cursors.right.isDown) {
+        else if (this.cursors.right.isDown) {
             this.boat.x += speed;
             this.boat.y -= speed / 2;
             this.boat.setTexture('boat_ne');
         }
-        if (this.cursors.up.isDown) {
+        else if (this.cursors.up.isDown) {
             this.boat.x -= speed;
             this.boat.y -= speed / 2;
             this.boat.setTexture('boat_nw');
         }
-        if (this.cursors.down.isDown) {
+        else if (this.cursors.down.isDown) {
             this.boat.x += speed;
             this.boat.y += speed / 2;
             this.boat.setTexture('boat_se');
