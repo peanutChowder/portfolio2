@@ -30,25 +30,29 @@ export default class IsometricScene extends Phaser.Scene {
                 layers[i] = map.createLayer(i, tileset, 0, 0);
             }
 
-            this.character = this.add.circle(400, 300, 5, 0xff0000);
-            this.cameras.main.startFollow(this.character);
-            this.cursors = this.input.keyboard.createCursorKeys();
+            const worldWidth = map.widthInPixels;
+            const worldHeight = map.heightInPixels;
+            // this.cameras.main.setBounds(0, 0, worldWidth, worldHeight);
+            this.cameras.main.setZoom(0.6);
+            this.cameras.main.centerOn(0, 500);
+
+            // Add debug info
+            this.add.text(10, 10, 'Map dimensions: ' + worldWidth + 'x' + worldHeight, { fill: '#ffffff' });
+            this.add.text(10, 30, 'Tile dimensions: ' + map.tileWidth + 'x' + map.tileHeight, { fill: '#ffffff' });
+            this.add.text(10, 50, 'Tileset name: ' + tileset.name, { fill: '#ffffff' });
+
+            // Log map information
+            console.log('Map dimensions:', worldWidth, 'x', worldHeight);
+            console.log('Tile dimensions:', map.tileWidth, 'x', map.tileHeight);
+            console.log('Number of layers:', map.layers.length);
+            console.log('Tileset name:', tileset.name);
+           
         } catch (error) {
             console.error('Error in create function:', error);
         }
     }
 
     update() {
-        // const speed = 2;
-        // if (this.cursors.left.isDown) {
-        //     this.character.x -= speed;
-        // } else if (this.cursors.right.isDown) {
-        //     this.character.x += speed;
-        // }
-        // if (this.cursors.up.isDown) {
-        //     this.character.y -= speed;
-        // } else if (this.cursors.down.isDown) {
-        //     this.character.y += speed;
-        // }
+
     }
 }
