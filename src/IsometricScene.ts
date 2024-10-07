@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { Boat } from './Boat';
 
 // import map & map tiles
 import tilesetPNG from '../assets/isometric-sandbox-32x32/isometric-sandbox-sheet.png';
@@ -12,8 +13,7 @@ import boatSouthWestPNG from '../assets/boat/ship7.png';
 
 export default class IsometricScene extends Phaser.Scene {
     private map!: Phaser.Tilemaps.Tilemap;
-    private boat!: Phaser.GameObjects.Image;
-    private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
+    private boat!: Boat;
     private collisionLayers: Phaser.Tilemaps.TilemapLayer[];
     private collisionLayerNames: string[];
 
@@ -49,7 +49,7 @@ export default class IsometricScene extends Phaser.Scene {
     }
 
     create(): void {
-        console.group("create()")
+        console.group("create()");
         try {
             this.map = this.make.tilemap({ key: 'map' });
             const tileset = this.map.addTilesetImage('isometric-sandbox-sheet', 'tiles');
@@ -57,7 +57,7 @@ export default class IsometricScene extends Phaser.Scene {
                 throw new Error('Failed to load tileset');
             }
     
-            console.group("Adding map layers")
+            console.group("Adding map layers");
             const layers: Phaser.Tilemaps.TilemapLayer[] = [];
             for (let i = 0; i < this.map.layers.length; i++) {
                 const layer = this.map.createLayer(i, tileset, 0, 0);
@@ -65,16 +65,15 @@ export default class IsometricScene extends Phaser.Scene {
                     layers[i] = layer;
                     if (this.collisionLayerNames.includes(layer.layer.name)) {
                         this.collisionLayers.push(layer);
-                        console.log(this.collisionLayers)
+                        console.log(this.collisionLayers);
                         layer.setCollisionByProperty({ collides: true });
                     }
                     console.log(`Added layer ${layer.layer.name}`);
                 } else {
-                    console.error(`Error getting layer number '${i}'`)
+                    console.error(`Error getting layer number '${i}'`);
                 }
             }
-            console.groupEnd()
-
+            console.groupEnd();
 
             const worldWidth = this.map.widthInPixels;
             const worldHeight = this.map.heightInPixels;
@@ -87,17 +86,11 @@ export default class IsometricScene extends Phaser.Scene {
             this.add.text(10, 30, `Tile dimensions: ${this.map.tileWidth}x${this.map.tileHeight}`, { color: '#ffffff' });
             this.add.text(10, 50, `Tileset name: ${tileset.name}`, { color: '#ffffff' });
 
-            // Set boat default sprite before moving
-            this.boat = this.add.image(200, 200, 'boat_nw');
-            this.boat.setOrigin(0.7, 0.7);
-            this.boat.setScale(1); // Adjust scale as needed
+            // Create the boat
+            this.boat = new Boat(this, 200, 200);
 
             // Set up camera to follow the boat
             this.cameras.main.startFollow(this.boat, true);
-            // Set up keyboard controls
-            if (this.input.keyboard) {
-                this.cursors = this.input.keyboard.createCursorKeys();
-            }
 
             // Log map information
             console.log('Map dimensions:', worldWidth, 'x', worldHeight);
@@ -112,7 +105,26 @@ export default class IsometricScene extends Phaser.Scene {
             console.error('Error in create function:', error);
         }
 
-        console.groupEnd()
+        console.groupEnd();
+    }
+
+    update(): void {
+        this.boat.update();
+
+        // Update debug text with boat coordinates
+        if (this.debugMode) {
+            const { x: worldX, y: worldY } = this.boat.getPosition();
+            const tileCoords = this.map.worldToTileXY(worldX, worldY);
+            if (tileCoords) {
+                this.updateDebugText(worldX, worldY, tileCoords.x, tileCoords.y);
+            }
+
+            // Position the debug text relative to the boat in screen space
+            const cameraView = this.cameras.main.worldView;
+            const textX = worldX - cameraView.x + 10;
+            const textY = worldY - cameraView.y - 60; // Adjust this value to position the text above the boat
+            this.debugText.setPosition(textX, textY);
+        }
     }
 
     private setupDebuggingTool(): void {
@@ -121,19 +133,17 @@ export default class IsometricScene extends Phaser.Scene {
         this.debugText.setScrollFactor(0); // Make the text stay in the same position relative to the camera
 
         // Add a keyboard event to toggle debug mode
-        if (this.input.keyboard) {
-            this.input.keyboard.on('keydown-D', () => {
-                this.debugMode = !this.debugMode;
-                this.debugText.setText(this.debugMode ? 'Debug Mode: ON' : 'Debug Mode: OFF');
-                if (this.debugMode) {
-                    const { x: worldX, y: worldY } = this.boat;
-                    const tileCoords = this.map.worldToTileXY(worldX, worldY);
-                    if (tileCoords) {
-                        this.updateDebugText(worldX, worldY, tileCoords.x, tileCoords.y);
-                    }
+        this.input.keyboard.on('keydown-D', () => {
+            this.debugMode = !this.debugMode;
+            this.debugText.setText(this.debugMode ? 'Debug Mode: ON' : 'Debug Mode: OFF');
+            if (this.debugMode) {
+                const { x: worldX, y: worldY } = this.boat.getPosition();
+                const tileCoords = this.map.worldToTileXY(worldX, worldY);
+                if (tileCoords) {
+                    this.updateDebugText(worldX, worldY, tileCoords.x, tileCoords.y);
                 }
-            });
-        }
+            }
+        });
 
         // Add click event listener
         this.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
@@ -150,76 +160,13 @@ export default class IsometricScene extends Phaser.Scene {
                         tileY: tileCoords.y
                     };
                 }
-
             }
         });
     }
-
-    update(): void {
-        const speed = 2;
-        let dx = 0;
-        let dy = 0;
-        let newTexture: string | null = null;
-    
-        if (this.cursors.left.isDown) {
-            dx -= speed;
-            dy += speed / 2;
-            newTexture = 'boat_sw';
-        } else if (this.cursors.right.isDown) {
-            dx += speed;
-            dy -= speed / 2;
-            newTexture = 'boat_ne';
-        } else if (this.cursors.up.isDown) {
-            dx -= speed;
-            dy -= speed / 2;
-            newTexture = 'boat_nw';
-        } else if (this.cursors.down.isDown) {
-            dx += speed;
-            dy += speed / 2;
-            newTexture = 'boat_se';
-        }
-    
-        // Check for collisions before moving
-        if (dx !== 0 || dy !== 0) {
-            const newX = this.boat.x + dx;
-            const newY = this.boat.y + dy;
-            
-            let collided = this.checkCollision(newX, newY);
-            
-            if (!collided) {
-                // Move the boat if there's no collision
-                this.boat.x = newX;
-                this.boat.y = newY;
-                if (newTexture) {
-                    this.boat.setTexture(newTexture);
-                }
-            } else {
-                // Optional: Add some "bounce" effect when colliding
-                this.boat.x -= dx * 0.5;
-                this.boat.y -= dy * 0.5;
-            }
-        }
-    
-        // Update debug text with boat coordinates
-        if (this.debugMode) {
-            const worldX = this.boat.x;
-            const worldY = this.boat.y;
-            const tileCoords = this.map.worldToTileXY(this.boat.x, this.boat.y);
-            if (tileCoords) {
-                this.updateDebugText(worldX, worldY, tileCoords.x, tileCoords.y);
-            }
-
-            // Position the debug text relative to the boat in screen space
-            const cameraView = this.cameras.main.worldView;
-            const textX = this.boat.x - cameraView.x + 10;
-            const textY = this.boat.y - cameraView.y - 60; // Adjust this value to position the text above the boat
-            this.debugText.setPosition(textX, textY);
-        }
-    }
     
     private updateDebugText(worldX: number, worldY: number, tileX: number, tileY: number): void {
-        let debugText = `Boat World Coords: (${worldX}, ${worldY})\n`;
-        debugText += `Boat Tile Coords: (${tileX}, ${tileY})`;
+        let debugText = `Boat World Coords: (${worldX.toFixed(2)}, ${worldY.toFixed(2)})\n`;
+        debugText += `Boat Tile Coords: (${tileX.toFixed(2)}, ${tileY.toFixed(2)})`;
     
         if (this.clickCoords) {
             debugText += `\nClick World Coords: (${this.clickCoords.worldX.toFixed(2)}, ${this.clickCoords.worldY.toFixed(2)})`;
@@ -229,17 +176,17 @@ export default class IsometricScene extends Phaser.Scene {
         this.debugText.setText(debugText);
     }
 
-    private checkCollision(x: number, y: number): boolean {
+    public checkCollision(x: number, y: number): boolean {
         const tileCoords = this.map.worldToTileXY(x, y);
         
         if (tileCoords) {
-            const xCoord = Math.floor(tileCoords.x)
-            const yCoord = Math.floor(tileCoords.y)
+            const xCoord = Math.floor(tileCoords.x);
+            const yCoord = Math.floor(tileCoords.y);
 
             for (const layer of this.collisionLayers) {
                 const tile = layer.getTileAt(xCoord, yCoord);
-                if (tile) {
-                    console.info("Collision")
+                if (tile && tile.properties && tile.properties.collides) {
+                    console.info("Collision");
                     return true; // Collision detected
                 }
             }
