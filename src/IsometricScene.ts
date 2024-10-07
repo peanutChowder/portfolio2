@@ -85,8 +85,8 @@ export default class IsometricScene extends Phaser.Scene {
             this.add.text(10, 50, `Tileset name: ${tileset.name}`, { color: '#ffffff' });
 
             // Set boat default sprite before moving
-            this.boat = this.add.image(400, 300, 'boat_nw');
-            this.boat.setOrigin(0, 0);
+            this.boat = this.add.image(200, 200, 'boat_nw');
+            this.boat.setOrigin(0.5, 0.5);
             this.boat.setScale(1); // Adjust scale as needed
 
             // Set up camera to follow the boat
@@ -147,7 +147,7 @@ export default class IsometricScene extends Phaser.Scene {
         let dx = 0;
         let dy = 0;
         let newTexture: string | null = null;
-
+    
         if (this.cursors.left.isDown) {
             dx -= speed;
             dy += speed / 2;
@@ -165,7 +165,7 @@ export default class IsometricScene extends Phaser.Scene {
             dy += speed / 2;
             newTexture = 'boat_se';
         }
-
+    
         // Check for collisions before moving
         if (dx !== 0 || dy !== 0) {
             const newX = this.boat.x + dx;
@@ -186,6 +186,41 @@ export default class IsometricScene extends Phaser.Scene {
                 this.boat.y -= dy * 0.5;
             }
         }
+    
+        // Update debug text with boat coordinates
+        if (this.debugMode) {
+            const worldX = Math.round(this.boat.x);
+            const worldY = Math.round(this.boat.y);
+            const tileCoords = this.map.worldToTileXY(this.boat.x, this.boat.y);
+            
+            if (tileCoords) {
+                const tileX = Math.floor(tileCoords.x);
+                const tileY = Math.floor(tileCoords.y);
+                
+                // Update the debug text
+                this.updateDebugText(worldX, worldY, tileX, tileY);
+            }
+        }
+    }
+    
+    private updateDebugText(worldX: number, worldY: number, tileX: number, tileY: number): void {
+        const debugLines = this.debugText.text.split('\n');
+        const boatWorldCoordIndex = debugLines.findIndex(line => line.startsWith('Boat World Coords:'));
+        const boatTileCoordIndex = debugLines.findIndex(line => line.startsWith('Boat Tile Coords:'));
+    
+        if (boatWorldCoordIndex !== -1) {
+            debugLines[boatWorldCoordIndex] = `Boat World Coords: (${worldX}, ${worldY})`;
+        } else {
+            debugLines.push(`Boat World Coords: (${worldX}, ${worldY})`);
+        }
+    
+        if (boatTileCoordIndex !== -1) {
+            debugLines[boatTileCoordIndex] = `Boat Tile Coords: (${tileX}, ${tileY})`;
+        } else {
+            debugLines.push(`Boat Tile Coords: (${tileX}, ${tileY})`);
+        }
+    
+        this.debugText.setText(debugLines.join('\n'));
     }
 
     private checkCollision(x: number, y: number): boolean {
