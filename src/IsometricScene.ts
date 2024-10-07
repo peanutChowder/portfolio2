@@ -57,18 +57,39 @@ export default class IsometricScene extends Phaser.Scene {
                 throw new Error('Failed to load tileset');
             }
     
+            // Add first group of layers. 
+            // We add this first because it should appear under the boat on the Z-axis.
             console.group("Adding map layers");
             const layers: Phaser.Tilemaps.TilemapLayer[] = [];
-            for (let i = 0; i < this.map.layers.length; i++) {
+            for (let i = 0; i < 3; i++) {
                 const layer = this.map.createLayer(i, tileset, 0, 0);
                 if (layer) {
                     layers[i] = layer;
                     if (this.collisionLayerNames.includes(layer.layer.name)) {
                         this.collisionLayers.push(layer);
-                        console.log(this.collisionLayers);
                         layer.setCollisionByProperty({ collides: true });
                     }
-                    console.log(`Added layer ${layer.layer.name}`);
+                    console.log(`Added layer '${layer.layer.name}'`);
+                } else {
+                    console.error(`Error getting layer number '${i}'`);
+                }
+            }
+
+            // Create the boat
+            this.boat = new Boat(this, 200, 200);
+            console.log("Added boat")
+
+            // Add second group of layers.
+            // We add this after the boat so that these elements are displayed over the boat in the Z-axis
+            for (let i = 3; i < this.map.layers.length; i++) {
+                const layer = this.map.createLayer(i, tileset, 0, 0);
+                if (layer) {
+                    layers[i] = layer;
+                    if (this.collisionLayerNames.includes(layer.layer.name)) {
+                        this.collisionLayers.push(layer);
+                        layer.setCollisionByProperty({ collides: true });
+                    }
+                    console.log(`Added layer '${layer.layer.name}'`);
                 } else {
                     console.error(`Error getting layer number '${i}'`);
                 }
@@ -86,8 +107,7 @@ export default class IsometricScene extends Phaser.Scene {
             this.add.text(10, 30, `Tile dimensions: ${this.map.tileWidth}x${this.map.tileHeight}`, { color: '#ffffff' });
             this.add.text(10, 50, `Tileset name: ${tileset.name}`, { color: '#ffffff' });
 
-            // Create the boat
-            this.boat = new Boat(this, 200, 200);
+
 
             // Set up camera to follow the boat
             this.cameras.main.startFollow(this.boat, true);
