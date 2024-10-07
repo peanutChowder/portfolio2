@@ -3,7 +3,7 @@ import IsometricScene from './IsometricScene'; // Import the IsometricScene
 
 export class Boat extends Phaser.GameObjects.Image {
     private speed: number;
-    private cursors: Phaser.Types.Input.Keyboard.CursorKeys;
+    private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
     private isometricScene: IsometricScene;
 
     constructor(scene: IsometricScene, x: number, y: number) {

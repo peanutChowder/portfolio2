@@ -133,17 +133,22 @@ export default class IsometricScene extends Phaser.Scene {
         this.debugText.setScrollFactor(0); // Make the text stay in the same position relative to the camera
 
         // Add a keyboard event to toggle debug mode
-        this.input.keyboard.on('keydown-D', () => {
-            this.debugMode = !this.debugMode;
-            this.debugText.setText(this.debugMode ? 'Debug Mode: ON' : 'Debug Mode: OFF');
-            if (this.debugMode) {
-                const { x: worldX, y: worldY } = this.boat.getPosition();
-                const tileCoords = this.map.worldToTileXY(worldX, worldY);
-                if (tileCoords) {
-                    this.updateDebugText(worldX, worldY, tileCoords.x, tileCoords.y);
+        if (this.input.keyboard) {
+            this.input.keyboard.on('keydown-D', () => {
+                this.debugMode = !this.debugMode;
+                this.debugText.setText(this.debugMode ? 'Debug Mode: ON' : 'Debug Mode: OFF');
+                if (this.debugMode) {
+                    const { x: worldX, y: worldY } = this.boat.getPosition();
+                    const tileCoords = this.map.worldToTileXY(worldX, worldY);
+                    if (tileCoords) {
+                        this.updateDebugText(worldX, worldY, tileCoords.x, tileCoords.y);
+                    }
                 }
-            }
-        });
+            });
+        } else {
+            console.warn("'this.input.keyboard' is undefined")
+        }
+        
 
         // Add click event listener
         this.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
@@ -185,13 +190,13 @@ export default class IsometricScene extends Phaser.Scene {
 
             for (const layer of this.collisionLayers) {
                 const tile = layer.getTileAt(xCoord, yCoord);
-                if (tile && tile.properties && tile.properties.collides) {
+                if (tile) {
                     console.info("Collision");
-                    return true; // Collision detected
+                    return true; 
                 }
             }
             
-            return false; // No collision
+            return false;
         } else {
             return false;
         }
