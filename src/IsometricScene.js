@@ -15,6 +15,12 @@ export default class IsometricScene extends Phaser.Scene {
         super({ key: 'IsometricScene' });
         this.boat = null;
         this.cursors = null;
+
+        this.collisionLayers = [];
+        this.collisionLayerNames = [
+            "Tile Layer 4",
+            "Level 0"
+        ];
     }
 
     preload() {
@@ -40,6 +46,13 @@ export default class IsometricScene extends Phaser.Scene {
             const layers = [];
             for (let i = 0; i < map.layers.length; i++) {
                 layers[i] = map.createLayer(i, tileset, 0, 0);
+
+                if (this.collisionLayerNames.includes(layers[i].layer.name)) {
+                    this.collisionLayers.push(layers[i]);
+                    // Set collision for tiles with collides property
+                    layers[i].setCollisionByProperty({ collides: true });
+                }
+                console.log(layers[i].layer.name);
             }
             const worldWidth = map.widthInPixels;
             const worldHeight = map.heightInPixels;
@@ -54,12 +67,11 @@ export default class IsometricScene extends Phaser.Scene {
 
             // Set boat default sprite before moving
             this.boat = this.add.image(400, 300, 'boat_nw');
-            this.boat.setOrigin(0.5, 0.5);
+            this.boat.setOrigin(0, 0);
             this.boat.setScale(1); // Adjust scale as needed
 
             // Set up camera to follow the boat
             this.cameras.main.startFollow(this.boat, true);
-
             // Set up keyboard controls
             this.cursors = this.input.keyboard.createCursorKeys();
 
@@ -75,28 +87,64 @@ export default class IsometricScene extends Phaser.Scene {
 
     update() {
         const speed = 2;
+        let dx = 0;
+        let dy = 0;
+        let newTexture = null;
 
-        // Update boat movement and boat sprite direction
-        // according to user keypress
         if (this.cursors.left.isDown) {
-            this.boat.x -= speed;
-            this.boat.y += speed / 2;
-            this.boat.setTexture('boat_sw');
+            dx -= speed;
+            dy += speed / 2;
+            newTexture = 'boat_sw';
+        } else if (this.cursors.right.isDown) {
+            dx += speed;
+            dy -= speed / 2;
+            newTexture = 'boat_ne';
+        } else if (this.cursors.up.isDown) {
+            dx -= speed;
+            dy -= speed / 2;
+            newTexture = 'boat_nw';
+        } else if (this.cursors.down.isDown) {
+            dx += speed;
+            dy += speed / 2;
+            newTexture = 'boat_se';
         }
-        else if (this.cursors.right.isDown) {
-            this.boat.x += speed;
-            this.boat.y -= speed / 2;
-            this.boat.setTexture('boat_ne');
-        }
-        else if (this.cursors.up.isDown) {
-            this.boat.x -= speed;
-            this.boat.y -= speed / 2;
-            this.boat.setTexture('boat_nw');
-        }
-        else if (this.cursors.down.isDown) {
-            this.boat.x += speed;
-            this.boat.y += speed / 2;
-            this.boat.setTexture('boat_se');
+
+        // Check for collisions before moving
+        if (dx !== 0 || dy !== 0) {
+            const newX = this.boat.x + dx;
+            const newY = this.boat.y + dy;
+            
+            let collided = false;
+            
+
+
+            // // Check collision for each layer
+            // for (const layer of this.collisionLayers) {
+            //     // Convert world coordinates to tile coordinates
+            //     const tileX = layer.worldToTileX(newX);
+            //     const tileY = layer.worldToTileY(newY);
+                
+            //     // Check if the new position collides with a tile
+            //     const tile = layer.getTileAt(tileX, tileY);
+                
+            //     if (tile && tile.properties && tile.properties.collides) {
+            //         collided = true;
+            //         break;  // Exit the loop if we find a collision
+            //     }
+            // }
+
+            if (!collided) {
+                // Move the boat if there's no collision
+                this.boat.x = newX;
+                this.boat.y = newY;
+                if (newTexture) {
+                    this.boat.setTexture(newTexture);
+                }
+            } else {
+                // Optional: Add some "bounce" effect when colliding
+                this.boat.x -= dx * 0.5;
+                this.boat.y -= dy * 0.5;
+            }
         }
     }
 }
