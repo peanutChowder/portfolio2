@@ -46,12 +46,15 @@ export default class IsometricScene extends Phaser.Scene {
     }
 
     create(): void {
+        console.group("create()")
         try {
             this.map = this.make.tilemap({ key: 'map' });
             const tileset = this.map.addTilesetImage('isometric-sandbox-sheet', 'tiles');
             if (!tileset) {
                 throw new Error('Failed to load tileset');
             }
+    
+            console.group("Adding map layers")
             const layers: Phaser.Tilemaps.TilemapLayer[] = [];
             for (let i = 0; i < this.map.layers.length; i++) {
                 const layer = this.map.createLayer(i, tileset, 0, 0);
@@ -59,11 +62,17 @@ export default class IsometricScene extends Phaser.Scene {
                     layers[i] = layer;
                     if (this.collisionLayerNames.includes(layer.layer.name)) {
                         this.collisionLayers.push(layer);
+                        console.log(this.collisionLayers)
                         layer.setCollisionByProperty({ collides: true });
                     }
-                    console.log(layer.layer.name);
+                    console.log(`Added layer ${layer.layer.name}`);
+                } else {
+                    console.error(`Error getting layer number '${i}'`)
                 }
             }
+            console.groupEnd()
+
+
             const worldWidth = this.map.widthInPixels;
             const worldHeight = this.map.heightInPixels;
 
@@ -99,6 +108,8 @@ export default class IsometricScene extends Phaser.Scene {
         } catch (error) {
             console.error('Error in create function:', error);
         }
+
+        console.groupEnd()
     }
 
     private setupDebuggingTool(): void {
@@ -186,7 +197,8 @@ export default class IsometricScene extends Phaser.Scene {
 
             for (const layer of this.collisionLayers) {
                 const tile = layer.getTileAt(xCoord, yCoord);
-                if (tile && tile.properties.collides) {
+                if (tile) {
+                    console.info("Collision")
                     return true; // Collision detected
                 }
             }
