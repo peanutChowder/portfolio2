@@ -11,6 +11,7 @@ import boatSouthEastPNG from '../assets/boat/ship11.png';
 import boatSouthWestPNG from '../assets/boat/ship7.png';
 
 export default class IsometricScene extends Phaser.Scene {
+    private map!: Phaser.Tilemaps.Tilemap;
     private boat!: Phaser.GameObjects.Image;
     private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
     private collisionLayers: Phaser.Tilemaps.TilemapLayer[];
@@ -46,14 +47,14 @@ export default class IsometricScene extends Phaser.Scene {
 
     create(): void {
         try {
-            const map = this.make.tilemap({ key: 'map' });
-            const tileset = map.addTilesetImage('isometric-sandbox-sheet', 'tiles');
+            this.map = this.make.tilemap({ key: 'map' });
+            const tileset = this.map.addTilesetImage('isometric-sandbox-sheet', 'tiles');
             if (!tileset) {
                 throw new Error('Failed to load tileset');
             }
             const layers: Phaser.Tilemaps.TilemapLayer[] = [];
-            for (let i = 0; i < map.layers.length; i++) {
-                const layer = map.createLayer(i, tileset, 0, 0);
+            for (let i = 0; i < this.map.layers.length; i++) {
+                const layer = this.map.createLayer(i, tileset, 0, 0);
                 if (layer) {
                     layers[i] = layer;
                     if (this.collisionLayerNames.includes(layer.layer.name)) {
@@ -63,15 +64,15 @@ export default class IsometricScene extends Phaser.Scene {
                     console.log(layer.layer.name);
                 }
             }
-            const worldWidth = map.widthInPixels;
-            const worldHeight = map.heightInPixels;
+            const worldWidth = this.map.widthInPixels;
+            const worldHeight = this.map.heightInPixels;
 
             this.cameras.main.setZoom(0.6);
             this.cameras.main.centerOn(0, 500);
 
             // Add debug info
             this.add.text(10, 10, `Map dimensions: ${worldWidth}x${worldHeight}`, { color: '#ffffff' });
-            this.add.text(10, 30, `Tile dimensions: ${map.tileWidth}x${map.tileHeight}`, { color: '#ffffff' });
+            this.add.text(10, 30, `Tile dimensions: ${this.map.tileWidth}x${this.map.tileHeight}`, { color: '#ffffff' });
             this.add.text(10, 50, `Tileset name: ${tileset.name}`, { color: '#ffffff' });
 
             // Set boat default sprite before moving
@@ -88,19 +89,19 @@ export default class IsometricScene extends Phaser.Scene {
 
             // Log map information
             console.log('Map dimensions:', worldWidth, 'x', worldHeight);
-            console.log('Tile dimensions:', map.tileWidth, 'x', map.tileHeight);
-            console.log('Number of layers:', map.layers.length);
+            console.log('Tile dimensions:', this.map.tileWidth, 'x', this.map.tileHeight);
+            console.log('Number of layers:', this.map.layers.length);
             console.log('Tileset name:', tileset.name);
 
             // Set up debugging tool
-            this.setupDebuggingTool(map);
+            this.setupDebuggingTool();
 
         } catch (error) {
             console.error('Error in create function:', error);
         }
     }
 
-    private setupDebuggingTool(map: Phaser.Tilemaps.Tilemap): void {
+    private setupDebuggingTool(): void {
         // Add a text object to display coordinates
         this.debugText = this.add.text(10, 70, '', { color: '#ffffff' });
 
@@ -117,7 +118,7 @@ export default class IsometricScene extends Phaser.Scene {
             if (this.debugMode) {
                 const worldX = pointer.worldX;
                 const worldY = pointer.worldY;
-                const vector = map.worldToTileXY(worldX, worldY)
+                const vector = this.map.worldToTileXY(worldX, worldY)
 
                 if (vector) {
                     this.debugText.setText(
@@ -147,7 +148,7 @@ export default class IsometricScene extends Phaser.Scene {
         } else if (this.cursors.up.isDown) {
             dx -= speed;
             dy -= speed / 2;
-            newTexture = 'nw';
+            newTexture = 'boat_nw';
         } else if (this.cursors.down.isDown) {
             dx += speed;
             dy += speed / 2;
@@ -159,7 +160,7 @@ export default class IsometricScene extends Phaser.Scene {
             const newX = this.boat.x + dx;
             const newY = this.boat.y + dy;
             
-            let collided = false;
+            let collided = this.checkCollision(newX, newY);
             
             if (!collided) {
                 // Move the boat if there's no collision
@@ -173,6 +174,26 @@ export default class IsometricScene extends Phaser.Scene {
                 this.boat.x -= dx * 0.5;
                 this.boat.y -= dy * 0.5;
             }
+        }
+    }
+
+    private checkCollision(x: number, y: number): boolean {
+        const tileCoords = this.map.worldToTileXY(x, y);
+        
+        if (tileCoords) {
+            const xCoord = Math.floor(tileCoords.x)
+            const yCoord = Math.floor(tileCoords.y)
+
+            for (const layer of this.collisionLayers) {
+                const tile = layer.getTileAt(xCoord, yCoord);
+                if (tile && tile.properties.collides) {
+                    return true; // Collision detected
+                }
+            }
+            
+            return false; // No collision
+        } else {
+            return false;
         }
     }
 }
