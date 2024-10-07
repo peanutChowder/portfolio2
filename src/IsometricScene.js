@@ -21,6 +21,10 @@ export default class IsometricScene extends Phaser.Scene {
             "Tile Layer 4",
             "Level 0"
         ];
+        
+        // Coord Debugging
+        this.debugMode = true;
+        this.debugText = null;
     }
 
     preload() {
@@ -80,9 +84,39 @@ export default class IsometricScene extends Phaser.Scene {
             console.log('Tile dimensions:', map.tileWidth, 'x', map.tileHeight);
             console.log('Number of layers:', map.layers.length);
             console.log('Tileset name:', tileset.name);
+
+            // Set up debugging tool
+            this.setupDebuggingTool(map);
+
         } catch (error) {
             console.error('Error in create function:', error);
         }
+    }
+
+    setupDebuggingTool(map) {
+        // Add a text object to display coordinates
+        this.debugText = this.add.text(10, 70, '', { fill: '#ffffff' });
+
+        // Toggle debug text with 'D'
+        this.input.keyboard.on('keydown-D', () => {
+            this.debugMode = !this.debugMode;
+            this.debugText.setText(this.debugMode ? 'Debug Mode: ON' : 'Debug Mode: OFF');
+        });
+
+        // Add click event listener
+        this.input.on('pointerdown', (pointer) => {
+            if (this.debugMode) {
+                const worldX = pointer.worldX;
+                const worldY = pointer.worldY;
+                const tileX = map.worldToTileX(worldX, worldY);
+                const tileY = map.worldToTileY(worldX, worldY);
+
+                this.debugText.setText(
+                    `World Coords: (${Math.round(worldX)}, ${Math.round(worldY)})\n` +
+                    `Tile Coords: (${tileX}, ${tileY})`
+                );
+            }
+        });
     }
 
     update() {
@@ -116,23 +150,6 @@ export default class IsometricScene extends Phaser.Scene {
             
             let collided = false;
             
-
-
-            // // Check collision for each layer
-            // for (const layer of this.collisionLayers) {
-            //     // Convert world coordinates to tile coordinates
-            //     const tileX = layer.worldToTileX(newX);
-            //     const tileY = layer.worldToTileY(newY);
-                
-            //     // Check if the new position collides with a tile
-            //     const tile = layer.getTileAt(tileX, tileY);
-                
-            //     if (tile && tile.properties && tile.properties.collides) {
-            //         collided = true;
-            //         break;  // Exit the loop if we find a collision
-            //     }
-            // }
-
             if (!collided) {
                 // Move the boat if there's no collision
                 this.boat.x = newX;
