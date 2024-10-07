@@ -181,21 +181,30 @@ export default class IsometricScene extends Phaser.Scene {
         this.debugText.setText(debugText);
     }
 
-    public checkCollision(x: number, y: number): boolean {
+    public checkCollision(x: number, y: number, hitboxTileSize: number): boolean {
         const tileCoords = this.map.worldToTileXY(x, y);
-        
         if (tileCoords) {
-            const xCoord = Math.floor(tileCoords.x);
-            const yCoord = Math.floor(tileCoords.y);
-
-            for (const layer of this.collisionLayers) {
-                const tile = layer.getTileAt(xCoord, yCoord);
-                if (tile) {
-                    console.info("Collision");
-                    return true; 
+            const centerX = Math.floor(tileCoords.x);
+            const centerY = Math.floor(tileCoords.y);
+            
+            // Calculate the range of tiles to check
+            const startX = centerX - hitboxTileSize;
+            const endX = centerX + hitboxTileSize;
+            const startY = centerY - hitboxTileSize;
+            const endY = centerY + hitboxTileSize;
+    
+            // Check all tiles within the hitbox range
+            for (let x = startX; x <= endX; x++) {
+                for (let y = startY; y <= endY; y++) {
+                    for (const layer of this.collisionLayers) {
+                        const tile = layer.getTileAt(x, y);
+                        if (tile) {
+                            console.info("Collision at", x, y);
+                            return true;
+                        }
+                    }
                 }
             }
-            
             return false;
         } else {
             return false;

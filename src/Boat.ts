@@ -5,13 +5,14 @@ export class Boat extends Phaser.GameObjects.Image {
     private speed: number;
     private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
     private isometricScene: IsometricScene;
+    private hitboxTileSize = 2;
 
     constructor(scene: IsometricScene, x: number, y: number) {
         super(scene, x, y, 'boat_nw');
         
         this.isometricScene = scene;
         this.speed = 2;
-        this.setOrigin(0.7, 0.7);
+        this.setOrigin(0.6, 0.6);
         this.setScale(1);
 
         scene.add.existing(this);
@@ -48,7 +49,7 @@ export class Boat extends Phaser.GameObjects.Image {
             const newX = this.x + dx;
             const newY = this.y + dy;
             
-            if (!this.isometricScene.checkCollision(newX, newY)) {
+            if (!this.isometricScene.checkCollision(newX, newY, this.hitboxTileSize)) {
                 this.x = newX;
                 this.y = newY;
                 if (newTexture) {
