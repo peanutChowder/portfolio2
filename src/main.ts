@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import IsometricScene from './IsometricScene';
 
-const config = {
+const config: Phaser.Types.Core.GameConfig = {
     type: Phaser.AUTO,
     width: 800,
     height: 600,

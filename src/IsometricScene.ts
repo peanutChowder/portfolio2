@@ -11,23 +11,24 @@ import boatSouthEastPNG from '../assets/boat/ship11.png';
 import boatSouthWestPNG from '../assets/boat/ship7.png';
 
 export default class IsometricScene extends Phaser.Scene {
+    private boat!: Phaser.GameObjects.Image;
+    private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
+    private collisionLayers: Phaser.Tilemaps.TilemapLayer[];
+    private collisionLayerNames: string[];
+    private debugMode: boolean;
+    private debugText!: Phaser.GameObjects.Text;
+
     constructor() {
         super({ key: 'IsometricScene' });
-        this.boat = null;
-        this.cursors = null;
-
         this.collisionLayers = [];
         this.collisionLayerNames = [
             "Tile Layer 4",
             "Level 0"
         ];
-        
-        // Coord Debugging
-        this.debugMode = true;
-        this.debugText = null;
+        this.debugMode = false;
     }
 
-    preload() {
+    preload(): void {
         this.load.image('tiles', tilesetPNG);
         this.load.tilemapTiledJSON('map', mapJSON);
 
@@ -36,27 +37,31 @@ export default class IsometricScene extends Phaser.Scene {
         this.load.image('boat_se', boatSouthEastPNG);
         this.load.image('boat_sw', boatSouthWestPNG);        
         
-        this.load.on('loaderror', (file) => {
+        this.load.on('loaderror', (file: Phaser.Loader.File) => {
             console.error('Error loading file:', file.key);
             console.error('File type:', file.type);
             console.error('File url:', file.url);
         });
     }
 
-    create() {
+    create(): void {
         try {
             const map = this.make.tilemap({ key: 'map' });
             const tileset = map.addTilesetImage('isometric-sandbox-sheet', 'tiles');
-            const layers = [];
+            if (!tileset) {
+                throw new Error('Failed to load tileset');
+            }
+            const layers: Phaser.Tilemaps.TilemapLayer[] = [];
             for (let i = 0; i < map.layers.length; i++) {
-                layers[i] = map.createLayer(i, tileset, 0, 0);
-
-                if (this.collisionLayerNames.includes(layers[i].layer.name)) {
-                    this.collisionLayers.push(layers[i]);
-                    // Set collision for tiles with collides property
-                    layers[i].setCollisionByProperty({ collides: true });
+                const layer = map.createLayer(i, tileset, 0, 0);
+                if (layer) {
+                    layers[i] = layer;
+                    if (this.collisionLayerNames.includes(layer.layer.name)) {
+                        this.collisionLayers.push(layer);
+                        layer.setCollisionByProperty({ collides: true });
+                    }
+                    console.log(layer.layer.name);
                 }
-                console.log(layers[i].layer.name);
             }
             const worldWidth = map.widthInPixels;
             const worldHeight = map.heightInPixels;
@@ -65,9 +70,9 @@ export default class IsometricScene extends Phaser.Scene {
             this.cameras.main.centerOn(0, 500);
 
             // Add debug info
-            this.add.text(10, 10, 'Map dimensions: ' + worldWidth + 'x' + worldHeight, { fill: '#ffffff' });
-            this.add.text(10, 30, 'Tile dimensions: ' + map.tileWidth + 'x' + map.tileHeight, { fill: '#ffffff' });
-            this.add.text(10, 50, 'Tileset name: ' + tileset.name, { fill: '#ffffff' });
+            this.add.text(10, 10, `Map dimensions: ${worldWidth}x${worldHeight}`, { color: '#ffffff' });
+            this.add.text(10, 30, `Tile dimensions: ${map.tileWidth}x${map.tileHeight}`, { color: '#ffffff' });
+            this.add.text(10, 50, `Tileset name: ${tileset.name}`, { color: '#ffffff' });
 
             // Set boat default sprite before moving
             this.boat = this.add.image(400, 300, 'boat_nw');
@@ -77,7 +82,9 @@ export default class IsometricScene extends Phaser.Scene {
             // Set up camera to follow the boat
             this.cameras.main.startFollow(this.boat, true);
             // Set up keyboard controls
-            this.cursors = this.input.keyboard.createCursorKeys();
+            if (this.input.keyboard) {
+                this.cursors = this.input.keyboard.createCursorKeys();
+            }
 
             // Log map information
             console.log('Map dimensions:', worldWidth, 'x', worldHeight);
@@ -93,23 +100,25 @@ export default class IsometricScene extends Phaser.Scene {
         }
     }
 
-    setupDebuggingTool(map) {
+    private setupDebuggingTool(map: Phaser.Tilemaps.Tilemap): void {
         // Add a text object to display coordinates
-        this.debugText = this.add.text(10, 70, '', { fill: '#ffffff' });
+        this.debugText = this.add.text(10, 70, '', { color: '#ffffff' });
 
-        // Toggle debug text with 'D'
-        this.input.keyboard.on('keydown-D', () => {
-            this.debugMode = !this.debugMode;
-            this.debugText.setText(this.debugMode ? 'Debug Mode: ON' : 'Debug Mode: OFF');
-        });
+        // Add a keyboard event to toggle debug mode
+        if (this.input.keyboard) {
+            this.input.keyboard.on('keydown-D', () => {
+                this.debugMode = !this.debugMode;
+                this.debugText.setText(this.debugMode ? 'Debug Mode: ON' : 'Debug Mode: OFF');
+            });
+        }
 
         // Add click event listener
-        this.input.on('pointerdown', (pointer) => {
+        this.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
             if (this.debugMode) {
                 const worldX = pointer.worldX;
                 const worldY = pointer.worldY;
-                const tileX = map.worldToTileX(worldX, worldY);
-                const tileY = map.worldToTileY(worldX, worldY);
+                const tileX = map.worldToTileX(worldX);
+                const tileY = map.worldToTileY(worldY);
 
                 this.debugText.setText(
                     `World Coords: (${Math.round(worldX)}, ${Math.round(worldY)})\n` +
@@ -119,11 +128,11 @@ export default class IsometricScene extends Phaser.Scene {
         });
     }
 
-    update() {
+    update(): void {
         const speed = 2;
         let dx = 0;
         let dy = 0;
-        let newTexture = null;
+        let newTexture: string | null = null;
 
         if (this.cursors.left.isDown) {
             dx -= speed;
@@ -136,7 +145,7 @@ export default class IsometricScene extends Phaser.Scene {
         } else if (this.cursors.up.isDown) {
             dx -= speed;
             dy -= speed / 2;
-            newTexture = 'boat_nw';
+            newTexture = 'nw';
         } else if (this.cursors.down.isDown) {
             dx += speed;
             dy += speed / 2;
