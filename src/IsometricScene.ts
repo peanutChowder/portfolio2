@@ -117,13 +117,15 @@ export default class IsometricScene extends Phaser.Scene {
             if (this.debugMode) {
                 const worldX = pointer.worldX;
                 const worldY = pointer.worldY;
-                const tileX = map.worldToTileX(worldX);
-                const tileY = map.worldToTileY(worldY);
+                const vector = map.worldToTileXY(worldX, worldY)
 
-                this.debugText.setText(
-                    `World Coords: (${Math.round(worldX)}, ${Math.round(worldY)})\n` +
-                    `Tile Coords: (${tileX}, ${tileY})`
-                );
+                if (vector) {
+                    this.debugText.setText(
+                        `World Coords: (${Math.round(worldX)}, ${Math.round(worldY)})\n` +
+                        `Tile Coords: (${vector.x} ${vector.y})`
+                    );
+                }
+
             }
         });
     }
