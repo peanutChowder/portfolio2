@@ -2,8 +2,9 @@ import Phaser from 'phaser';
 import { Boat } from './Boat';
 
 // import map & map tiles
-import tilesetPNG from '../assets/isometric-sandbox-32x32/isometric-sandbox-sheet.png';
-import mapJSON from '../assets/isometric-sandbox-32x32/isometric-sandbox-map.json';
+import tileset256x256Cubes from '../assets/world2/256x256 Cubes.png';
+import tileset256x192Tiles from '../assets/world2/256x192 Tiles.png'
+import mapJSON from '../assets/world2/world2.json';
 
 // import boat sprites
 import boatNorthEastPNG from '../assets/boat/boatNE.png';
@@ -26,14 +27,14 @@ export default class IsometricScene extends Phaser.Scene {
         super({ key: 'IsometricScene' });
         this.collisionLayers = [];
         this.collisionLayerNames = [
-            "Tile Layer 4",
-            "Level 0"
+            "Land 1"
         ];
         this.debugMode = false;
     }
 
     preload(): void {
-        this.load.image('tiles', tilesetPNG);
+        this.load.image('256x256 Cubes', tileset256x256Cubes);
+        this.load.image('256x192 Tiles' ,tileset256x192Tiles)
         this.load.tilemapTiledJSON('map', mapJSON);
 
         this.load.image('boat_ne', boatNorthEastPNG);
@@ -50,19 +51,30 @@ export default class IsometricScene extends Phaser.Scene {
 
     create(): void {
         console.group("create()");
+        const tilesetNames = [
+            "256x256 Cubes",
+            "256x192 Tiles",
+        ]
         try {
             this.map = this.make.tilemap({ key: 'map' });
-            const tileset = this.map.addTilesetImage('isometric-sandbox-sheet', 'tiles');
-            if (!tileset) {
-                throw new Error('Failed to load tileset');
-            }
+            let tilesets: Phaser.Tilemaps.Tileset[] = []
+
+            tilesetNames.forEach((tilesetName) => {
+                const res = this.map.addTilesetImage(tilesetName, tilesetName)
+
+                if (res) {
+                    tilesets.push(res)
+                } else {
+                    console.error(`Error: Failed to load tileset '${tilesetName}'`)
+                }
+            })
     
             // Add first group of layers. 
             // We add this first because it should appear under the boat on the Z-axis.
             console.group("Adding map layers");
             const layers: Phaser.Tilemaps.TilemapLayer[] = [];
             for (let i = 0; i < 3; i++) {
-                const layer = this.map.createLayer(i, tileset, 0, 0);
+                const layer = this.map.createLayer(i, tilesets, 0, 0);
                 if (layer) {
                     layers[i] = layer;
                     if (this.collisionLayerNames.includes(layer.layer.name)) {
@@ -82,7 +94,7 @@ export default class IsometricScene extends Phaser.Scene {
             // Add second group of layers.
             // We add this after the boat so that these elements are displayed over the boat in the Z-axis
             for (let i = 3; i < this.map.layers.length; i++) {
-                const layer = this.map.createLayer(i, tileset, 0, 0);
+                const layer = this.map.createLayer(i, tilesets, 0, 0);
                 if (layer) {
                     layers[i] = layer;
                     if (this.collisionLayerNames.includes(layer.layer.name)) {
@@ -99,14 +111,12 @@ export default class IsometricScene extends Phaser.Scene {
             const worldWidth = this.map.widthInPixels;
             const worldHeight = this.map.heightInPixels;
 
-            this.cameras.main.setZoom(0.8);
+            this.cameras.main.setZoom(0.2);
             this.cameras.main.centerOn(0, 500);
 
             // Add debug info
             this.add.text(10, 10, `Map dimensions: ${worldWidth}x${worldHeight}`, { color: '#ffffff' });
             this.add.text(10, 30, `Tile dimensions: ${this.map.tileWidth}x${this.map.tileHeight}`, { color: '#ffffff' });
-            this.add.text(10, 50, `Tileset name: ${tileset.name}`, { color: '#ffffff' });
-
 
 
             // Set up camera to follow the boat
@@ -116,7 +126,7 @@ export default class IsometricScene extends Phaser.Scene {
             console.log('Map dimensions:', worldWidth, 'x', worldHeight);
             console.log('Tile dimensions:', this.map.tileWidth, 'x', this.map.tileHeight);
             console.log('Number of layers:', this.map.layers.length);
-            console.log('Tileset name:', tileset.name);
+            console.log('Tileset name:', tilesets.map((tileset) => {tileset}));
 
             // Set up debugging tool
             this.setupDebuggingTool();
