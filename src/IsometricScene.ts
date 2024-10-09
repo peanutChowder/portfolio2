@@ -6,10 +6,10 @@ import tilesetPNG from '../assets/isometric-sandbox-32x32/isometric-sandbox-shee
 import mapJSON from '../assets/isometric-sandbox-32x32/isometric-sandbox-map.json';
 
 // import boat sprites
-import boatNorthEastPNG from '../assets/boat/ship15.png';
-import boatNorthWestPNG from '../assets/boat/ship3.png';
-import boatSouthEastPNG from '../assets/boat/ship11.png';
-import boatSouthWestPNG from '../assets/boat/ship7.png';
+import boatNorthEastPNG from '../assets/boat/boatNE.png';
+import boatNorthWestPNG from '../assets/boat/boatNW.png';
+import boatSouthEastPNG from '../assets/boat/boatSE.png';
+import boatSouthWestPNG from '../assets/boat/boatSW.png';
 
 export default class IsometricScene extends Phaser.Scene {
     private map!: Phaser.Tilemaps.Tilemap;
