@@ -106,8 +106,12 @@ export default class IsometricScene extends Phaser.Scene {
                 2500, 1500
             )
 
+            const interactionAreas = {
+                "resumeArea": resumeArea
+            }
+
             // Create the boat
-            this.boat = new Boat(this, 500, 6400);
+            this.boat = new Boat(this, 500, 6400, interactionAreas);
             console.log("Added boat")
 
 

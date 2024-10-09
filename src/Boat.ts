@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import IsometricScene from './IsometricScene';
+import InteractionArea from './InteractionArea';
 
 export class Boat extends Phaser.GameObjects.Image {
     private speed: number;
@@ -11,12 +12,15 @@ export class Boat extends Phaser.GameObjects.Image {
     private bounceDuration: number = 400; // milliseconds
     private bounceDistance: number = 150; // pixels
 
-    constructor(scene: IsometricScene, x: number, y: number) {
+    private interactionAreas: {[key:string]: InteractionArea} = {}
+
+    constructor(scene: IsometricScene, x: number, y: number, interactionAreas: { [key: string]: InteractionArea }) {
         super(scene, x, y, 'boat_nw');
         this.isometricScene = scene;
         this.speed = 5;
         this.setOrigin(0.6, 0.6);
         this.setScale(1);
+        this.interactionAreas = interactionAreas
         scene.add.existing(this);
         if (scene.input.keyboard) {
             this.cursors = scene.input.keyboard.createCursorKeys();
@@ -50,9 +54,18 @@ export class Boat extends Phaser.GameObjects.Image {
             newTexture = 'boat_se';
         }
 
+        const newX = this.x + dx;
+        const newY = this.y + dy;
+
+        Object.entries(this.interactionAreas).forEach(([areaName, interactionArea]) => {
+            if (interactionArea.containsPoint(newX, newY)) {
+                // TODO: implement this
+                console.log(`Found ${areaName}`)
+            }
+        })
+
+
         if (dx !== 0 || dy !== 0) {
-            const newX = this.x + dx;
-            const newY = this.y + dy;
             if (!this.isometricScene.checkCollision(newX, newY, this.hitboxTileSize)) {
                 this.x = newX;
                 this.y = newY;
