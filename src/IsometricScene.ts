@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { Boat } from './Boat';
+import InteractionArea from './InteractionArea';
 
 // import map & map tiles
 import mapJSON from '../assets/world2/world2.json';
@@ -79,10 +80,11 @@ export default class IsometricScene extends Phaser.Scene {
             })
     
             // Add first group of layers. 
-            // We add this first because it should appear under the boat on the Z-axis.
+            // We add this first because it should appear behind other elements on the Z-axis.
+            // ------------------------------------------------------------------------
             console.group("Adding map layers");
             const layers: Phaser.Tilemaps.TilemapLayer[] = [];
-            for (let i = 0; i < 3; i++) {
+            for (let i = 0; i < 1; i++) {
                 const layer = this.map.createLayer(i, tilesets, 0, 0);
                 if (layer) {
                     layers[i] = layer;
@@ -96,13 +98,23 @@ export default class IsometricScene extends Phaser.Scene {
                 }
             }
 
+            // Drawing interactive elements that appear between the map layers
+            // ------------------------------------------------------------------------
+            let resumeArea = new InteractionArea(
+                this,
+                -900, 6800,
+                2500, 1500
+            )
+
             // Create the boat
             this.boat = new Boat(this, 500, 6400);
             console.log("Added boat")
 
+
             // Add second group of layers.
             // We add this after the boat so that these elements are displayed over the boat in the Z-axis
-            for (let i = 3; i < this.map.layers.length; i++) {
+            // ------------------------------------------------------------------------
+            for (let i = 1; i < this.map.layers.length; i++) {
                 const layer = this.map.createLayer(i, tilesets, 0, 0);
                 if (layer) {
                     layers[i] = layer;
@@ -119,17 +131,20 @@ export default class IsometricScene extends Phaser.Scene {
 
             const worldWidth = this.map.widthInPixels;
             const worldHeight = this.map.heightInPixels;
+            
 
             this.cameras.main.setZoom(0.2);
             this.cameras.main.centerOn(0, 500);
+
+            // Set up camera to follow the boat
+            this.cameras.main.startFollow(this.boat, true);
 
             // Add debug info
             this.add.text(10, 10, `Map dimensions: ${worldWidth}x${worldHeight}`, { color: fontColor, font: fontSize });
             this.add.text(10, 80, `Tile dimensions: ${this.map.tileWidth}x${this.map.tileHeight}`, { color: fontColor, font: fontSize  });
 
 
-            // Set up camera to follow the boat
-            this.cameras.main.startFollow(this.boat, true);
+
 
             // Log map information
             console.log('Map dimensions:', worldWidth, 'x', worldHeight);
