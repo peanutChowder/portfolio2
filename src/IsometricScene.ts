@@ -12,6 +12,9 @@ import boatNorthWestPNG from '../assets/boat/boatNW.png';
 import boatSouthEastPNG from '../assets/boat/boatSE.png';
 import boatSouthWestPNG from '../assets/boat/boatSW.png';
 
+const fontSize = "80px";
+const fontColor = "#ffffff"
+
 export default class IsometricScene extends Phaser.Scene {
     private map!: Phaser.Tilemaps.Tilemap;
     private boat!: Boat;
@@ -115,8 +118,8 @@ export default class IsometricScene extends Phaser.Scene {
             this.cameras.main.centerOn(0, 500);
 
             // Add debug info
-            this.add.text(10, 10, `Map dimensions: ${worldWidth}x${worldHeight}`, { color: '#ffffff' });
-            this.add.text(10, 30, `Tile dimensions: ${this.map.tileWidth}x${this.map.tileHeight}`, { color: '#ffffff' });
+            this.add.text(10, 10, `Map dimensions: ${worldWidth}x${worldHeight}`, { color: fontColor, font: fontSize });
+            this.add.text(10, 80, `Tile dimensions: ${this.map.tileWidth}x${this.map.tileHeight}`, { color: fontColor, font: fontSize  });
 
 
             // Set up camera to follow the boat
@@ -151,7 +154,7 @@ export default class IsometricScene extends Phaser.Scene {
 
             // Position the debug text relative to the boat in screen space
             const cameraView = this.cameras.main.worldView;
-            const textX = worldX - cameraView.x + 10;
+            const textX = worldX - cameraView.x - 1500;
             const textY = worldY - cameraView.y - 60; // Adjust this value to position the text above the boat
             this.debugText.setPosition(textX, textY);
         }
@@ -159,7 +162,7 @@ export default class IsometricScene extends Phaser.Scene {
 
     private setupDebuggingTool(): void {
         // Add a text object to display coordinates
-        this.debugText = this.add.text(10, 10, '', { color: '#ffffff' });
+        this.debugText = this.add.text(10, 10, '', { color: fontColor, font: fontSize });
         this.debugText.setScrollFactor(0); // Make the text stay in the same position relative to the camera
 
         // Add a keyboard event to toggle debug mode
