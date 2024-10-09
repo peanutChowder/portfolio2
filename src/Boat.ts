@@ -5,16 +5,16 @@ export class Boat extends Phaser.GameObjects.Image {
     private speed: number;
     private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
     private isometricScene: IsometricScene;
-    private hitboxTileSize = 2;
+    private hitboxTileSize = 1;
     private isBouncing: boolean = false;
     private bounceDirection: { x: number, y: number } = { x: 0, y: 0 };
     private bounceDuration: number = 400; // milliseconds
-    private bounceDistance: number = 20; // pixels
+    private bounceDistance: number = 150; // pixels
 
     constructor(scene: IsometricScene, x: number, y: number) {
         super(scene, x, y, 'boat_nw');
         this.isometricScene = scene;
-        this.speed = 2;
+        this.speed = 5;
         this.setOrigin(0.6, 0.6);
         this.setScale(1);
         scene.add.existing(this);
