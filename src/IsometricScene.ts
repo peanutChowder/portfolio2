@@ -2,9 +2,11 @@ import Phaser from 'phaser';
 import { Boat } from './Boat';
 
 // import map & map tiles
+import mapJSON from '../assets/world2/world2.json';
 import tileset256x256Cubes from '../assets/world2/256x256 Cubes.png';
 import tileset256x192Tiles from '../assets/world2/256x192 Tiles.png'
-import mapJSON from '../assets/world2/world2.json';
+import tileset256x512Trees from '../assets/world2/256x512 Trees.png'
+import tileset256x128TileOverlays from '../assets/world2/256x128 Tile Overlays.png'
 
 // import boat sprites
 import boatNorthEastPNG from '../assets/boat/boatNE.png';
@@ -37,7 +39,9 @@ export default class IsometricScene extends Phaser.Scene {
 
     preload(): void {
         this.load.image('256x256 Cubes', tileset256x256Cubes);
-        this.load.image('256x192 Tiles' ,tileset256x192Tiles)
+        this.load.image('256x192 Tiles' ,tileset256x192Tiles);
+        this.load.image('256x512 Trees', tileset256x512Trees);
+        this.load.image('256x128 Tile Overlays', tileset256x128TileOverlays);
         this.load.tilemapTiledJSON('map', mapJSON);
 
         this.load.image('boat_ne', boatNorthEastPNG);
@@ -57,6 +61,8 @@ export default class IsometricScene extends Phaser.Scene {
         const tilesetNames = [
             "256x256 Cubes",
             "256x192 Tiles",
+            "256x512 Trees",
+            "256x128 Tile Overlays"
         ]
         try {
             this.map = this.make.tilemap({ key: 'map' });
@@ -91,7 +97,7 @@ export default class IsometricScene extends Phaser.Scene {
             }
 
             // Create the boat
-            this.boat = new Boat(this, 200, 200);
+            this.boat = new Boat(this, 500, 6400);
             console.log("Added boat")
 
             // Add second group of layers.
