@@ -54,6 +54,11 @@ export class Boat extends Phaser.GameObjects.Image {
             newTexture = 'boat_se';
         }
 
+        // Update boat texture if user is facing a new direction
+        if (newTexture) {
+            this.setTexture(newTexture);
+        }
+
         const newX = this.x + dx;
         const newY = this.y + dy;
 
@@ -69,9 +74,6 @@ export class Boat extends Phaser.GameObjects.Image {
             if (!this.isometricScene.checkCollision(newX, newY, this.hitboxTileSize)) {
                 this.x = newX;
                 this.y = newY;
-                if (newTexture) {
-                    this.setTexture(newTexture);
-                }
             } else {
                 this.startBounce(dx, dy);
             }
