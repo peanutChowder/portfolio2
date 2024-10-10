@@ -11,11 +11,13 @@ export class Boat extends Phaser.GameObjects.Image {
     private bounceDirection: { x: number, y: number } = { x: 0, y: 0 };
     private bounceDuration: number = 400; // milliseconds
     private bounceDistance: number = 150; // pixels
+    private currOrientation!: string;
 
     private interactionAreas: {[key:string]: InteractionArea} = {}
 
     constructor(scene: IsometricScene, x: number, y: number, interactionAreas: { [key: string]: InteractionArea }) {
         super(scene, x, y, 'boat_nw');
+        this.currOrientation = 'boat_nw'
         this.isometricScene = scene;
         this.speed = 5;
         this.setOrigin(0.6, 0.6);
@@ -57,6 +59,7 @@ export class Boat extends Phaser.GameObjects.Image {
         // Update boat texture if user is facing a new direction
         if (newTexture) {
             this.setTexture(newTexture);
+            this.currOrientation = newTexture;
         }
 
         const newX = this.x + dx;
@@ -71,7 +74,7 @@ export class Boat extends Phaser.GameObjects.Image {
 
 
         if (dx !== 0 || dy !== 0) {
-            if (!this.isometricScene.checkCollision(newX, newY, this.hitboxTileSize)) {
+            if (!this.isometricScene.checkCollision(newX, newY, this.hitboxTileSize, this.currOrientation)) {
                 this.x = newX;
                 this.y = newY;
             } else {

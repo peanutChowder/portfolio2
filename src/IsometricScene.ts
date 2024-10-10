@@ -122,10 +122,12 @@ export default class IsometricScene extends Phaser.Scene {
                 const layer = this.map.createLayer(i, tilesets, 0, 0);
                 if (layer) {
                     layers[i] = layer;
+
                     if (this.collisionLayerNames.includes(layer.layer.name)) {
                         this.collisionLayers.push(layer);
                         layer.setCollisionByProperty({ collides: true });
                     }
+
                     console.log(`Added layer '${layer.layer.name}'`);
                 } else {
                     console.error(`Error getting layer number '${i}'`);
@@ -239,30 +241,32 @@ export default class IsometricScene extends Phaser.Scene {
         this.debugText.setText(debugText);
     }
 
-    public checkCollision(x: number, y: number, hitboxTileSize: number): boolean {
+    public checkCollision(x: number, y: number, tilesToCheckAhead: number, orientation: string): boolean {
         const tileCoords = this.map.worldToTileXY(x, y);
         if (tileCoords) {
             const centerX = Math.floor(tileCoords.x);
             const centerY = Math.floor(tileCoords.y);
-            
-            // Calculate the range of tiles to check
-            const startX = centerX - hitboxTileSize;
-            const endX = centerX + hitboxTileSize;
-            const startY = centerY - hitboxTileSize;
-            const endY = centerY + hitboxTileSize;
-    
-            // Check all tiles within the hitbox range
-            for (let x = startX; x <= endX; x++) {
-                for (let y = startY; y <= endY; y++) {
-                    for (const layer of this.collisionLayers) {
-                        const tile = layer.getTileAt(x, y);
-                        if (tile) {
-                            console.info("Collision at", x, y);
-                            return true;
-                        }
-                    }
+
+            for (const layer of this.collisionLayers) {
+                const tile = layer.getTileAt(centerX, centerY);
+
+                // Check if boat is currently within a collidable tile
+                if (tile) {
+                    console.info("Collision at", x, y);
+                    return true;
+                }
+
+                if (orientation == "boat_nw" && layer.getTileAt(centerX - tilesToCheckAhead, centerY)) {
+                    return true;
+                } else if (orientation == "boat_sw" && layer.getTileAt(centerX, centerY + tilesToCheckAhead)) {
+                    return true;
+                } else if (orientation == "boat_nw" && layer.getTileAt(centerX, centerY - tilesToCheckAhead)) {
+                    return true;
+                } else if (orientation == "boat_se" && layer.getTileAt(centerX + tilesToCheckAhead, centerY)) {
+                    return true;
                 }
             }
+
             return false;
         } else {
             return false;
