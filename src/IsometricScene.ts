@@ -78,47 +78,59 @@ export default class IsometricScene extends Phaser.Scene {
                     console.error(`Error: Failed to load tileset '${tilesetName}'`)
                 }
             })
-    
-            // Add first group of layers. 
-            // We add this first because it should appear behind other elements on the Z-axis.
-            // ------------------------------------------------------------------------
+
+
             console.group("Adding map layers");
+
+            // Add map layers. We do this in code sections to ensure certain elements are rendered beneath others,
+            // e.g. InteractionArea circles should be between layer 0 (ocean) and layer 1 (lowest land layer)
+            // ------------------------------------------------------------------------
+            // Draw the lowest layer, ocean
             const layers: Phaser.Tilemaps.TilemapLayer[] = [];
-            for (let i = 0; i < 2; i++) {
-                const layer = this.map.createLayer(i, tilesets, 0, 0);
-                if (layer) {
-                    layers[i] = layer;
-                    if (this.collisionLayerNames.includes(layer.layer.name)) {
-                        this.collisionLayers.push(layer);
-                        layer.setCollisionByProperty({ collides: true });
-                    }
-                    console.log(`Added layer '${layer.layer.name}'`);
-                } else {
-                    console.error(`Error getting layer number '${i}'`);
+            let layerNum = 0
+            let layer = this.map.createLayer(layerNum, tilesets, 0, 0);
+            if (layer) {
+                layers[layerNum] = layer;
+                if (this.collisionLayerNames.includes(layer.layer.name)) {
+                    this.collisionLayers.push(layer);
+                    layer.setCollisionByProperty({ collides: true });
                 }
+                console.log(`Added layer '${layer.layer.name}'`);
+            } else {
+                console.error(`Error getting layer number '${layerNum}'`);
             }
 
-            // Drawing interactive elements that appear between the map layers
-            // ------------------------------------------------------------------------
+            // Draw our interaction zones marked by an ellipse
             let resumeArea = new InteractionArea(
                 this,
                 -900, 6800,
                 2500, 1500
             )
-
             const interactionAreas = {
                 "resumeArea": resumeArea
             }
 
-            // Create the boat
+            // Draw layer 2 (layer number 1), the lowest land layer
+            layerNum = 1
+            layer = this.map.createLayer(layerNum, tilesets, 0, 0);
+            if (layer) {
+                layers[layerNum] = layer;
+                if (this.collisionLayerNames.includes(layer.layer.name)) {
+                    this.collisionLayers.push(layer);
+                    layer.setCollisionByProperty({ collides: true });
+                }
+                console.log(`Added layer '${layer.layer.name}'`);
+            } else {
+                console.error(`Error getting layer number '${layerNum}'`);
+            }
+
+            // Create and draw boat
             this.boat = new Boat(this, 500, 6400, interactionAreas);
             this.add.existing(this.boat)
             console.log("Added boat")
 
 
-            // Add second group of layers.
-            // We add this after the boat so that these elements are displayed over the boat in the Z-axis
-            // ------------------------------------------------------------------------
+            // Add remaining layers
             for (let i = 2; i < this.map.layers.length; i++) {
                 const layer = this.map.createLayer(i, tilesets, 0, 0);
                 if (layer) {
@@ -135,6 +147,8 @@ export default class IsometricScene extends Phaser.Scene {
                 }
             }
             console.groupEnd();
+            // End of map and element drawing
+            // ------------------------------------------------------------------------
 
             const worldWidth = this.map.widthInPixels;
             const worldHeight = this.map.heightInPixels;
