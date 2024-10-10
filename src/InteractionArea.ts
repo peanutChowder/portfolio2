@@ -1,11 +1,9 @@
 export default class InteractionArea {
-    private scene: Phaser.Scene;
     private ellipse: Phaser.Geom.Ellipse;
     private graphics: Phaser.GameObjects.Graphics;
     private isVisible: boolean;
 
     constructor(scene: Phaser.Scene, x: number, y: number, width: number, height: number) {
-        this.scene = scene;
         this.ellipse = new Phaser.Geom.Ellipse(x, y, width, height);
         this.graphics = scene.add.graphics();
         this.isVisible = true;
@@ -32,13 +30,16 @@ export default class InteractionArea {
     }
 
     containsPoint(x: number, y: number): boolean {
+        // Translate the point relative to the ellipse center
         const translatedX = x - this.ellipse.x;
         const translatedY = y - this.ellipse.y;
-        
-        const rotatedX = translatedX * Math.cos(-Math.PI / 4) - translatedY * Math.sin(-Math.PI / 4);
-        const rotatedY = translatedX * Math.sin(-Math.PI / 4) + translatedY * Math.cos(-Math.PI / 4);
-        
-        return (rotatedX * rotatedX) / (this.ellipse.width * this.ellipse.width / 4) + 
+    
+        // Rotate the point by Math.PI (180 degrees) to match the drawn rotation
+        const rotatedX = -translatedX;
+        const rotatedY = -translatedY;
+    
+        // Check if the rotated point is inside the ellipse
+        return (rotatedX * rotatedX) / (this.ellipse.width * this.ellipse.width / 4) +
                (rotatedY * rotatedY) / (this.ellipse.height * this.ellipse.height / 4) <= 1;
     }
 
