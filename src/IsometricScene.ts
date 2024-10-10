@@ -104,7 +104,7 @@ export default class IsometricScene extends Phaser.Scene {
             let resumeArea = new InteractionArea(
                 this,
                 -900, 6800,
-                2500, 1500
+                2500, 1800
             )
             const interactionAreas = {
                 "resumeArea": resumeArea

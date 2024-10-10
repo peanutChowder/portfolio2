@@ -2,6 +2,8 @@ export default class InteractionArea {
     private ellipse: Phaser.Geom.Ellipse;
     private graphics: Phaser.GameObjects.Graphics;
     private isVisible: boolean;
+    private areaLineColor = 0x52f778;
+    private areaFillColor = 0x81f79c;
 
     constructor(scene: Phaser.Scene, x: number, y: number, width: number, height: number) {
         this.ellipse = new Phaser.Geom.Ellipse(x, y, width, height);
@@ -15,8 +17,8 @@ export default class InteractionArea {
 
         if (!this.isVisible) return;
 
-        this.graphics.lineStyle(2, 0xffff00, 1);
-        this.graphics.fillStyle(0xffff00, 0.2);
+        this.graphics.lineStyle(10, this.areaLineColor, 1);
+        this.graphics.fillStyle(this.areaFillColor, 0.4);
 
         this.graphics.save();
         this.graphics.translateCanvas(this.ellipse.x, this.ellipse.y);
