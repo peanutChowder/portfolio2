@@ -84,7 +84,7 @@ export default class IsometricScene extends Phaser.Scene {
             // ------------------------------------------------------------------------
             console.group("Adding map layers");
             const layers: Phaser.Tilemaps.TilemapLayer[] = [];
-            for (let i = 0; i < 1; i++) {
+            for (let i = 0; i < 2; i++) {
                 const layer = this.map.createLayer(i, tilesets, 0, 0);
                 if (layer) {
                     layers[i] = layer;
@@ -112,13 +112,14 @@ export default class IsometricScene extends Phaser.Scene {
 
             // Create the boat
             this.boat = new Boat(this, 500, 6400, interactionAreas);
+            this.add.existing(this.boat)
             console.log("Added boat")
 
 
             // Add second group of layers.
             // We add this after the boat so that these elements are displayed over the boat in the Z-axis
             // ------------------------------------------------------------------------
-            for (let i = 1; i < this.map.layers.length; i++) {
+            for (let i = 2; i < this.map.layers.length; i++) {
                 const layer = this.map.createLayer(i, tilesets, 0, 0);
                 if (layer) {
                     layers[i] = layer;
@@ -241,35 +242,42 @@ export default class IsometricScene extends Phaser.Scene {
         this.debugText.setText(debugText);
     }
 
-    public checkCollision(x: number, y: number, tilesToCheckAhead: number, orientation: string): boolean {
-        const tileCoords = this.map.worldToTileXY(x, y);
-        if (tileCoords) {
-            const centerX = Math.floor(tileCoords.x);
-            const centerY = Math.floor(tileCoords.y);
+    public checkCollision(x: number, y: number, hitboxRadius: number): boolean {
+        // Convert the boat's center position to tile coordinates
+        const centerTile = this.map.worldToTileXY(x, y);
+        if (!centerTile) return false;
 
-            for (const layer of this.collisionLayers) {
-                const tile = layer.getTileAt(centerX, centerY);
+        // Calculate the number of tiles to check in each direction
+        const tileRadius = Math.ceil(hitboxRadius / this.map.tileWidth);
 
-                // Check if boat is currently within a collidable tile
-                if (tile) {
-                    console.info("Collision at", x, y);
-                    return true;
-                }
+        // Check all tiles within the circular area
+        for (let offsetX = -tileRadius; offsetX <= tileRadius; offsetX++) {
+            for (let offsetY = -tileRadius; offsetY <= tileRadius; offsetY++) {
+                const tileX = Math.floor(centerTile.x + offsetX);
+                const tileY = Math.floor(centerTile.y + offsetY);
 
-                if (orientation == "boat_nw" && layer.getTileAt(centerX - tilesToCheckAhead, centerY)) {
-                    return true;
-                } else if (orientation == "boat_sw" && layer.getTileAt(centerX, centerY + tilesToCheckAhead)) {
-                    return true;
-                } else if (orientation == "boat_nw" && layer.getTileAt(centerX, centerY - tilesToCheckAhead)) {
-                    return true;
-                } else if (orientation == "boat_se" && layer.getTileAt(centerX + tilesToCheckAhead, centerY)) {
-                    return true;
+                // Calculate the distance from the center of the boat to the center of this tile
+                const tileCenter = this.map.tileToWorldXY(tileX, tileY);
+                if (!tileCenter) continue;
+
+                const distanceX = tileCenter.x + this.map.tileWidth / 2 - x;
+                const distanceY = tileCenter.y + this.map.tileHeight / 2 - y;
+                const distanceSquared = distanceX * distanceX + distanceY * distanceY;
+
+                // Check if this tile is within the circular hitbox
+                if (distanceSquared <= hitboxRadius * hitboxRadius) {
+                    // Check if any collision layer has a collidable tile at this position
+                    for (const layer of this.collisionLayers) {
+                        const tile = layer.getTileAt(tileX, tileY);
+                        if (tile) {
+                            console.info("Collision at", x, y, "with tile", tileX, tileY);
+                            return true;
+                        }
+                    }
                 }
             }
-
-            return false;
-        } else {
-            return false;
         }
+
+        return false;
     }
 }

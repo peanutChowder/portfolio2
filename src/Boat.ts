@@ -2,31 +2,52 @@ import Phaser from 'phaser';
 import IsometricScene from './IsometricScene';
 import InteractionArea from './InteractionArea';
 
-export class Boat extends Phaser.GameObjects.Image {
+export class Boat extends Phaser.GameObjects.Container {
+    private boatSprite: Phaser.GameObjects.Image;
+    private hitboxGraphics: Phaser.GameObjects.Graphics;
     private speed: number;
     private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
     private isometricScene: IsometricScene;
-    private hitboxTileSize = 1;
+    private hitboxRadius: number;
     private isBouncing: boolean = false;
     private bounceDirection: { x: number, y: number } = { x: 0, y: 0 };
     private bounceDuration: number = 400; // milliseconds
     private bounceDistance: number = 150; // pixels
     private currOrientation!: string;
-
     private interactionAreas: {[key:string]: InteractionArea} = {}
 
     constructor(scene: IsometricScene, x: number, y: number, interactionAreas: { [key: string]: InteractionArea }) {
-        super(scene, x, y, 'boat_nw');
-        this.currOrientation = 'boat_nw'
+        super(scene, x, y);
+
         this.isometricScene = scene;
-        this.speed = 5;
-        this.setOrigin(0.6, 0.6);
-        this.setScale(1);
-        this.interactionAreas = interactionAreas
+        this.speed = 10;
+        this.interactionAreas = interactionAreas;
+
+        // Create boat sprite
+        this.boatSprite = scene.add.image(0, 0, 'boat_nw');
+        this.boatSprite.setOrigin(0.5, 0.8);
+        this.boatSprite.setScale(1);
+        this.add(this.boatSprite);
+
+        // Set current orientation
+        this.currOrientation = 'boat_nw';
+
+        // Create hitbox
+        this.hitboxRadius = 270;
+        this.hitboxGraphics = scene.add.graphics();
+        this.hitboxGraphics.lineStyle(10, 0xffffff);
+        this.hitboxGraphics.strokeCircle(0, 0, this.hitboxRadius);
+        this.add(this.hitboxGraphics);
+
+        // Add container to scene
         scene.add.existing(this);
+
         if (scene.input.keyboard) {
             this.cursors = scene.input.keyboard.createCursorKeys();
         }
+
+        // Add key listener to toggle hitbox visibility
+        // this.toggleHitboxVisibility()
     }
 
     update(): void {
@@ -57,8 +78,8 @@ export class Boat extends Phaser.GameObjects.Image {
         }
 
         // Update boat texture if user is facing a new direction
-        if (newTexture) {
-            this.setTexture(newTexture);
+        if (newTexture && newTexture !== this.currOrientation) {
+            this.boatSprite.setTexture(newTexture);
             this.currOrientation = newTexture;
         }
 
@@ -68,13 +89,12 @@ export class Boat extends Phaser.GameObjects.Image {
         Object.entries(this.interactionAreas).forEach(([areaName, interactionArea]) => {
             if (interactionArea.containsPoint(newX, newY)) {
                 // TODO: implement this
-                console.log(`Found ${areaName}`)
+                console.log(`Found ${areaName}`);
             }
-        })
-
+        });
 
         if (dx !== 0 || dy !== 0) {
-            if (!this.isometricScene.checkCollision(newX, newY, this.hitboxTileSize, this.currOrientation)) {
+            if (!this.isometricScene.checkCollision(newX, newY, this.hitboxRadius)) {
                 this.x = newX;
                 this.y = newY;
             } else {
@@ -108,5 +128,9 @@ export class Boat extends Phaser.GameObjects.Image {
 
     getPosition(): { x: number, y: number } {
         return { x: this.x, y: this.y };
+    }
+
+    private toggleHitboxVisibility(): void {
+        this.hitboxGraphics.visible = !this.hitboxGraphics.visible;
     }
 }
