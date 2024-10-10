@@ -198,6 +198,7 @@ export default class IsometricScene extends Phaser.Scene {
             this.input.keyboard.on('keydown-D', () => {
                 this.debugMode = !this.debugMode;
                 this.debugText.setText(this.debugMode ? 'Debug Mode: ON' : 'Debug Mode: OFF');
+                this.boat.setHitboxVisibility(this.debugMode);
                 if (this.debugMode) {
                     const { x: worldX, y: worldY } = this.boat.getPosition();
                     const tileCoords = this.map.worldToTileXY(worldX, worldY);

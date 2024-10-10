@@ -46,8 +46,8 @@ export class Boat extends Phaser.GameObjects.Container {
             this.cursors = scene.input.keyboard.createCursorKeys();
         }
 
-        // Add key listener to toggle hitbox visibility
-        // this.toggleHitboxVisibility()
+        // hide hitbox graphics
+        this.hitboxGraphics.visible = false
     }
 
     update(): void {
@@ -130,7 +130,7 @@ export class Boat extends Phaser.GameObjects.Container {
         return { x: this.x, y: this.y };
     }
 
-    private toggleHitboxVisibility(): void {
-        this.hitboxGraphics.visible = !this.hitboxGraphics.visible;
+    setHitboxVisibility(isVisible: boolean): void {
+        this.hitboxGraphics.visible = isVisible;
     }
 }
