@@ -27,9 +27,6 @@ export default class IsometricScene extends Phaser.Scene {
     // Interaction Area and Overlay attributes 
     private overlay!: Phaser.GameObjects.DOMElement;
     private interactionAreas: { [key: string]: InteractionArea } = {};
-    private overlayBackground!: Phaser.GameObjects.Rectangle;
-    private overlayContent: { [key: string]: Phaser.GameObjects.Container } = {};
-    private currentContent: Phaser.GameObjects.Container | null = null;
 
     // Debug text attributes
     private debugMode: boolean;
