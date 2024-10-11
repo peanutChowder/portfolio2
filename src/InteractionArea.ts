@@ -19,12 +19,19 @@ export default class InteractionArea {
         this.contentKey = contentKey;
         this.draw();
 
-        // Add prompt text
-        this.promptText = scene.add.text(x, y - height / 2 - 50, promptMessage, {
-            font: '80px',
-            color: '#ffffff'
-        });
-        this.promptText.setOrigin(0.5);
+        // Add prompt text at the bottom of the screen
+        this.promptText = scene.add.text(
+            scene.cameras.main.width / 2,
+            scene.cameras.main.height - 50,
+            promptMessage,
+            {
+                font: '40px Arial',
+                color: '#ffffff'
+            }
+        );
+        this.promptText.setOrigin(0.5, 1);
+        this.promptText.setScrollFactor(0);
+        this.promptText.setDepth(1000);
         this.promptText.setVisible(false);
     }
 
@@ -40,10 +47,16 @@ export default class InteractionArea {
     checkPlayerInArea(x: number, y: number): void {
         const wasInside = this.isPlayerInside;
         this.isPlayerInside = this.containsPoint(x, y);
-
         if (this.isPlayerInside !== wasInside) {
             this.promptText.setVisible(this.isPlayerInside);
+            this.updatePromptPosition();
         }
+    }
+
+    private updatePromptPosition = (): void => {
+        const camera = this.scene.cameras.main;
+        this.promptText.setPosition(camera.width / 2, camera.height - 50);
+        this.promptText.setScale(1 / camera.zoom);
     }
 
     handleInteraction(): void {
