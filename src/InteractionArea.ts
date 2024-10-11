@@ -11,7 +11,14 @@ export default class InteractionArea {
     private isPlayerInside: boolean = false;
     private contentKey: string;
 
-    constructor(scene: Phaser.Scene, x: number, y: number, width: number, height: number, promptMessage: string, contentKey: string) {
+    constructor(
+        scene: Phaser.Scene, 
+        x: number, y: number, 
+        width: number, height: number, 
+        promptMessage: string, 
+        contentKey: string,
+        fontFamilies: {"header": string, "body": string}
+    ) {
         this.scene = scene;
         this.ellipse = new Phaser.Geom.Ellipse(x, y, width, height);
         this.graphics = scene.add.graphics();
@@ -25,13 +32,15 @@ export default class InteractionArea {
             scene.cameras.main.height - 50,
             promptMessage,
             {
-                font: '40px Arial',
+                font: '30px',
                 color: '#ffffff'
             }
         );
         this.promptText.setOrigin(0.5, 1);
         this.promptText.setScrollFactor(0);
         this.promptText.setDepth(1000);
+        this.promptText.setFontFamily(fontFamilies["header"])
+        this.promptText.setColor("#ffffff")
         this.promptText.setVisible(false);
     }
 
