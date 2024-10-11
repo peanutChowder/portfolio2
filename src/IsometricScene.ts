@@ -17,6 +17,10 @@ import boatSouthWestPNG from '../assets/boat/boatSW.png';
 
 const fontSize = "80px";
 const fontColor = "#ffffff"
+const fontFamilies = {
+    "header": "Prompt",
+    "body": ""
+}
 
 export default class IsometricScene extends Phaser.Scene {
     private map!: Phaser.Tilemaps.Tilemap;
@@ -110,7 +114,8 @@ export default class IsometricScene extends Phaser.Scene {
                 -900, 6800,
                 2500, 1800,
                 "Press 'X' to see resume",
-                "resume"
+                "resume",
+                fontFamilies
             )
 
             if (this.input.keyboard) {
@@ -327,14 +332,14 @@ export default class IsometricScene extends Phaser.Scene {
         content.style.width = '80%';
         content.style.height = '80%';
         content.style.backgroundColor = 'rgba(255, 0, 0, 0.8)';
-        content.style.display = 'flex';
+        content.style.display = 'none';
         content.style.padding = '20px';
         content.style.borderRadius = '10px';
         content.style.pointerEvents = 'auto';  // Re-enable pointer events for the content
         content.style.overflow = 'auto';  // Add scrollbars if content overflows
     
         content.innerHTML = `
-            <h2 style="color: white; font-size: 24px;">Test Overlay</h2>
+            <h2 style="color: white; font-size: 20px;">Test Overlay</h2>
             <p style="color: white; font-size: 18px;">hello</p>
             <button id="closeButton" style="font-size: 18px; padding: 10px;">Close</button>
         `;
@@ -358,10 +363,8 @@ export default class IsometricScene extends Phaser.Scene {
     toggleOverlay() {
         console.log("Toggling overlay");
         const overlayElement = this.overlay.getChildByID('simple-overlay') as HTMLElement;
-        console.log("Overlay element:", overlayElement);
         if (overlayElement) {
             overlayElement.style.display = overlayElement.style.display === 'none' ? 'flex' : 'none';
-            console.log("Overlay display set to:", overlayElement.style.display);
         } else {
             console.error("Overlay element not found");
         }
