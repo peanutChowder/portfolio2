@@ -20,7 +20,7 @@ export class Boat extends Phaser.GameObjects.Container {
         super(scene, x, y);
 
         this.isometricScene = scene;
-        this.speed = 10;
+        this.speed = 20;
         this.interactionAreas = interactionAreas;
 
         // Create boat sprite
@@ -86,11 +86,8 @@ export class Boat extends Phaser.GameObjects.Container {
         const newX = this.x + dx;
         const newY = this.y + dy;
 
-        Object.entries(this.interactionAreas).forEach(([areaName, interactionArea]) => {
-            if (interactionArea.containsPoint(newX, newY)) {
-                // TODO: implement this
-                console.log(`Found ${areaName}`);
-            }
+        Object.entries(this.interactionAreas).forEach(([_, interactionArea]) => {
+            interactionArea.checkPlayerInArea(newX, newY)
         });
 
         if (dx !== 0 || dy !== 0) {

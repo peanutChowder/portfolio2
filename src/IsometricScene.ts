@@ -24,6 +24,13 @@ export default class IsometricScene extends Phaser.Scene {
     private collisionLayers: Phaser.Tilemaps.TilemapLayer[];
     private collisionLayerNames: string[];
 
+    // Interaction Area and Overlay attributes 
+    private overlay!: Phaser.GameObjects.DOMElement;
+    private interactionAreas: { [key: string]: InteractionArea } = {};
+    private overlayBackground!: Phaser.GameObjects.Rectangle;
+    private overlayContent: { [key: string]: Phaser.GameObjects.Container } = {};
+    private currentContent: Phaser.GameObjects.Container | null = null;
+
     // Debug text attributes
     private debugMode: boolean;
     private debugText!: Phaser.GameObjects.Text;
@@ -101,13 +108,18 @@ export default class IsometricScene extends Phaser.Scene {
             }
 
             // Draw our interaction zones marked by an ellipse
-            let resumeArea = new InteractionArea(
+            this.interactionAreas["resumeArea"] = new InteractionArea(
                 this,
                 -900, 6800,
-                2500, 1800
+                2500, 1800,
+                "Press 'X' to see resume",
+                "resume"
             )
-            const interactionAreas = {
-                "resumeArea": resumeArea
+
+            if (this.input.keyboard) {
+                this.input.keyboard.on('keydown-X', this.handleXKeyPress, this);
+            } else {
+                console.error("Error: Could not add 'x' key listener")
             }
 
             // Draw layer 2 (layer number 1), the lowest land layer
@@ -125,7 +137,7 @@ export default class IsometricScene extends Phaser.Scene {
             }
 
             // Create and draw boat
-            this.boat = new Boat(this, 500, 6400, interactionAreas);
+            this.boat = new Boat(this, 500, 6400, this.interactionAreas);
             this.add.existing(this.boat)
             console.log("Added boat")
 
@@ -154,7 +166,8 @@ export default class IsometricScene extends Phaser.Scene {
             const worldHeight = this.map.heightInPixels;
             
 
-            this.cameras.main.setZoom(0.2);
+            this.cameras.main.setZoom(0.05);
+            this.setupOverlay()
             this.cameras.main.centerOn(0, 500);
 
             // Set up camera to follow the boat
@@ -295,4 +308,37 @@ export default class IsometricScene extends Phaser.Scene {
 
         return false;
     }
-}
+
+    private setupOverlay(): void {
+        this.overlay = this.add.dom(this.scale.width / 2, this.scale.height / 2).createFromHTML(`
+            <div id="simple-overlay" style="width: 300px; height: 200px; background-color: red; display: none;">
+                <p>Test Overlay</p>
+                <button id="closeButton">Close</button>
+            </div>
+        `);
+        this.overlay.setOrigin(0.5);
+        this.overlay.setDepth(1000);
+        const closeButton = this.overlay.getChildByID('closeButton');
+        if (closeButton) {
+            closeButton.addEventListener('click', () => this.toggleOverlay());
+        }
+
+        this.overlay.setDepth(1000);
+    }
+
+    toggleOverlay() {
+        console.log("Toggling overlay");
+        const overlayElement = this.overlay.getChildByID('simple-overlay') as HTMLElement;
+        console.log("Overlay element:", overlayElement);
+        if (overlayElement) {
+            overlayElement.style.display = overlayElement.style.display === 'none' ? 'flex' : 'none';
+            console.log("Overlay display set to:", overlayElement.style.display);
+        } else {
+            console.error("Overlay element not found");
+        }
+    }
+
+    private handleXKeyPress(): void {
+        Object.values(this.interactionAreas).forEach(area => area.handleInteraction());
+    }
+}   
