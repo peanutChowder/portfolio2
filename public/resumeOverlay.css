@@ -6,30 +6,97 @@
     justify-content: center;
     align-items: center;
     pointer-events: none;
+    font-family: 'Arial', sans-serif;
 }
 
 #simple-overlay {
     width: 80%;
+    max-width: 600px;
     height: 80%;
-    background-color: rgba(255, 255, 0, 0.8);
-    display: none;
-    padding: 20px;
-    border-radius: 10px;
+    max-height: 800px;
+    background-color: rgba(255, 253, 240, 0.95);
+    display: flex;
+    flex-direction: column;
+    padding: 30px;
+    border-radius: 15px;
     pointer-events: auto;
-    overflow: auto;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    border: 2px solid #F0E6D2;
 }
 
 #simple-overlay h2 {
-    color: white;
-    font-size: 20px;
+    color: #7E6D5A;
+    font-size: 24px;
+    margin-bottom: 20px;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 2px;
 }
 
-#simple-overlay p {
-    color: white;
+#experience-list {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding-right: 15px;
+}
+
+#experience-list::-webkit-scrollbar {
+    width: 8px;
+}
+
+#experience-list::-webkit-scrollbar-track {
+    background: #F0E6D2;
+    border-radius: 4px;
+}
+
+#experience-list::-webkit-scrollbar-thumb {
+    background-color: #D0B49F;
+    border-radius: 4px;
+}
+
+.experience {
+    margin-bottom: 25px;
+}
+
+.experience h3 {
+    color: #A79B8E;
     font-size: 18px;
+    margin-bottom: 10px;
+}
+
+.experience ul {
+    list-style-type: none;
+    padding-left: 20px;
+}
+
+.experience li {
+    color: #5A5A5A;
+    font-size: 16px;
+    margin-bottom: 8px;
+    position: relative;
+}
+
+.experience li:before {
+    content: "•";
+    color: #D0B49F;
+    font-size: 20px;
+    position: absolute;
+    left: -15px;
+    top: -2px;
 }
 
 #closeButton {
-    font-size: 18px;
-    padding: 10px;
+    font-size: 16px;
+    padding: 10px 20px;
+    background-color: #D0B49F;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    display: block;
+    margin: 20px auto 0;
+}
+
+#closeButton:hover {
+    background-color: #C0A48F;
 }
