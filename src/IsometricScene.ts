@@ -171,7 +171,7 @@ export default class IsometricScene extends Phaser.Scene {
             
 
             this.cameras.main.setZoom(0.2);
-            this.setupOverlay()
+            this.setupOverlay('resumeOverlay')
             this.cameras.main.centerOn(0, 500);
 
             // Set up camera to follow the boat
@@ -313,16 +313,16 @@ export default class IsometricScene extends Phaser.Scene {
         return false;
     }
 
-    private setupOverlay(): void {
+    private setupOverlay(overlayName: string): void {
         if (this.overlay) {
             this.overlay.destroy();
         }
     
-        // Get the HTML content from the cache
-        const htmlContent = this.cache.html.get('resumeOverlay');
+        // Load HTML content
+        const htmlContent = this.cache.html.get(overlayName);
         
     
-        // Create a temporary div to hold the content
+        // Create wrapper
         const htmlWrapper = document.createElement('div');
         htmlWrapper.style.position = 'absolute';
         htmlWrapper.style.width = '100%';
@@ -340,7 +340,7 @@ export default class IsometricScene extends Phaser.Scene {
         this.overlay.setDepth(1000);
         this.overlay.setScale(1 / this.cameras.main.zoom);
     
-        // Add click event to close button
+        // Close button for overlay
         const closeButton = htmlWrapper.querySelector('#closeButton');
         if (closeButton) {
             closeButton.addEventListener('click', () => this.toggleOverlay());
