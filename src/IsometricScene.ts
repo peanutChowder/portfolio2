@@ -63,6 +63,8 @@ export default class IsometricScene extends Phaser.Scene {
             console.error('File type:', file.type);
             console.error('File url:', file.url);
         });
+
+        this.load.html('resumeOverlay', 'resumeOverlay.html')
     }
 
     create(): void {
@@ -316,48 +318,38 @@ export default class IsometricScene extends Phaser.Scene {
             this.overlay.destroy();
         }
     
-        // Create a wrapper div to handle positioning and scaling
-        const wrapper = document.createElement('div');
-        wrapper.style.position = 'absolute';
-        wrapper.style.width = '100%';
-        wrapper.style.height = '100%';
-        wrapper.style.display = 'flex';
-        wrapper.style.justifyContent = 'center';
-        wrapper.style.alignItems = 'center';
-        wrapper.style.pointerEvents = 'none';  // Allow clicks to pass through when overlay is hidden
+        // Get the HTML content from the cache
+        const htmlContent = this.cache.html.get('resumeOverlay');
+        
     
-        // Create the overlay content
-        const content = document.createElement('div');
-        content.id = 'simple-overlay';
-        content.style.width = '80%';
-        content.style.height = '80%';
-        content.style.backgroundColor = 'rgba(255, 0, 0, 0.8)';
-        content.style.display = 'none';
-        content.style.padding = '20px';
-        content.style.borderRadius = '10px';
-        content.style.pointerEvents = 'auto';  // Re-enable pointer events for the content
-        content.style.overflow = 'auto';  // Add scrollbars if content overflows
-    
-        content.innerHTML = `
-            <h2 style="color: white; font-size: 20px;">Test Overlay</h2>
-            <p style="color: white; font-size: 18px;">hello</p>
-            <button id="closeButton" style="font-size: 18px; padding: 10px;">Close</button>
-        `;
-    
-        wrapper.appendChild(content);
+        // Create a temporary div to hold the content
+        const htmlWrapper = document.createElement('div');
+        htmlWrapper.style.position = 'absolute';
+        htmlWrapper.style.width = '100%';
+        htmlWrapper.style.height = '100%';
+        htmlWrapper.style.display = 'flex';
+        htmlWrapper.style.justifyContent = 'center';
+        htmlWrapper.style.alignItems = 'center';
+        htmlWrapper.style.pointerEvents = 'none';  // Allow clicks to pass through when overlay is hidden
+        htmlWrapper.innerHTML = htmlContent;
     
         // Add the wrapper to the game
-        this.overlay = this.add.dom(0, 0, wrapper);
-        this.overlay.setOrigin(0.32); // hardcoded through trial and error. perhaps change this to be adaptive to camera zoom
-        this.overlay.setScrollFactor(0); 
+        this.overlay = this.add.dom(0, 0, htmlWrapper);
+        this.overlay.setOrigin(0.4);
+        this.overlay.setScrollFactor(0);
         this.overlay.setDepth(1000);
-        this.overlay.setScale(1 / this.cameras.main.zoom)
+        this.overlay.setScale(1 / this.cameras.main.zoom);
     
         // Add click event to close button
-        const closeButton = content.querySelector('#closeButton');
+        const closeButton = htmlWrapper.querySelector('#closeButton');
         if (closeButton) {
             closeButton.addEventListener('click', () => this.toggleOverlay());
+        } else {
+            console.error("Close button not found")
         }
+    
+        // Initially hide the overlay
+        this.toggleOverlay();
     }
 
     toggleOverlay() {
