@@ -12,10 +12,10 @@ export default class InteractionArea {
     private contentKey: string;
 
     constructor(
-        scene: Phaser.Scene, 
-        x: number, y: number, 
-        width: number, height: number, 
-        promptMessage: string, 
+        scene: Phaser.Scene,
+        x: number, y: number,
+        width: number, height: number,
+        promptMessage: string,
         contentKey: string,
         fontFamilies: {"header": string, "body": string}
     ) {
@@ -81,7 +81,7 @@ export default class InteractionArea {
         const rotatedX = -translatedX;
         const rotatedY = -translatedY;
         return (rotatedX * rotatedX) / (this.ellipse.width * this.ellipse.width / 4) +
-               (rotatedY * rotatedY) / (this.ellipse.height * this.ellipse.height / 4) <= 1;
+            (rotatedY * rotatedY) / (this.ellipse.height * this.ellipse.height / 4) <= 1;
     }
 
     setVisible(visible: boolean) {
@@ -92,5 +92,13 @@ export default class InteractionArea {
     destroy() {
         this.graphics.destroy();
         this.promptText.destroy();
+    }
+
+    getCenter(): { x: number, y: number } {
+        return { x: this.ellipse.x, y: this.ellipse.y };
+    }
+
+    getName(): string {
+        return this.contentKey;
     }
 }

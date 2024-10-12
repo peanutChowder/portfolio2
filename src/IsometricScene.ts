@@ -14,6 +14,7 @@ import boatNorthEastPNG from '../assets/boat/boatNE.png';
 import boatNorthWestPNG from '../assets/boat/boatNW.png';
 import boatSouthEastPNG from '../assets/boat/boatSE.png';
 import boatSouthWestPNG from '../assets/boat/boatSW.png';
+import { ArrowIndicator } from './ArrowIndicator';
 
 const fontSize = "80px";
 const fontColor = "#ffffff"
@@ -31,6 +32,9 @@ export default class IsometricScene extends Phaser.Scene {
     // Interaction Area and Overlay attributes 
     private overlay!: Phaser.GameObjects.DOMElement;
     private interactionAreas: { [key: string]: InteractionArea } = {};
+
+    // Arrows for pointing towards interaction areas
+    private arrowIndicators: { [key: string]: ArrowIndicator } = {};
 
     // Debug text attributes
     private debugMode: boolean;
@@ -120,6 +124,17 @@ export default class IsometricScene extends Phaser.Scene {
                 fontFamilies
             )
 
+            // Create arrow indicators for each interaction area
+            Object.entries(this.interactionAreas).forEach(([key, area]) => {
+                const { x, y } = area.getCenter();
+                this.arrowIndicators[key] = new ArrowIndicator(this, 0, 0, x, y, area.getName(), {
+                    arrowSize: 200,
+                    textSize: 80,
+                    arrowColor: 0xffff00, // Yellow arrow
+                    textColor: '#ffff00' // Yellow text
+                });
+            });
+
             if (this.input.keyboard) {
                 this.input.keyboard.on('keydown-X', this.handleXKeyPress, this);
             } else {
@@ -202,6 +217,20 @@ export default class IsometricScene extends Phaser.Scene {
 
     update(): void {
         this.boat.update();
+
+        const { x: boatX, y: boatY } = this.boat.getPosition();
+        Object.entries(this.interactionAreas).forEach(([key, area]) => {
+            const { x: areaX, y: areaY } = area.getCenter();
+            const distance = Phaser.Math.Distance.Between(boatX, boatY, areaX, areaY);
+            const distanceInTiles = distance / this.map.tileWidth;
+
+            if (area.containsPoint(boatX, boatY)) {
+                this.arrowIndicators[key].setVisible(false);
+            } else {
+                this.arrowIndicators[key].setVisible(true);
+                this.arrowIndicators[key].update(boatX, boatY, distanceInTiles);
+            }
+        });
 
         // Update debug text with boat coordinates
         if (this.debugMode) {
