@@ -117,8 +117,8 @@ export default class IsometricScene extends Phaser.Scene {
             // Draw our interaction zones marked by an ellipse
             this.interactionAreas["resumeArea"] = new InteractionArea(
                 this,
-                -900, 6800,
-                2500, 1800,
+                -900, 6600,
+                2500, 2000,
                 "Press 'X' to see resume",
                 "Resume",
                 0x52f778,
