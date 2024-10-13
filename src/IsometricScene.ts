@@ -392,16 +392,40 @@ export default class IsometricScene extends Phaser.Scene {
         }
     
         // Initially hide the overlay
-        this.toggleOverlay();
+        this.toggleOverlay(false);
     }
 
-    toggleOverlay() {
+    toggleOverlay(useAnimation: boolean = true) {
         console.log("Toggling overlay");
         const overlayElement = this.overlay.getChildByID('simple-overlay') as HTMLElement;
+        
         if (overlayElement) {
-            overlayElement.style.display = overlayElement.style.display === 'none' ? 'flex' : 'none';
+          if (overlayElement.style.display === 'none') {
+            overlayElement.style.display = 'flex';
+            
+            // Fade in animation
+            if (useAnimation) {
+                overlayElement.style.opacity = '0';
+                overlayElement.style.transition = 'opacity 0.5s ease-in-out';
+                setTimeout(() => {
+                  overlayElement.style.opacity = '1';
+                }, 10);
+            }
+          } else {
+
+            // Fade out animation
+            if (useAnimation) {
+                overlayElement.style.opacity = '0';
+                overlayElement.style.transition = 'opacity 0.5s ease-in-out';
+                setTimeout(() => {
+                    overlayElement.style.display = 'none';
+                  }, 500);
+            } else {
+                overlayElement.style.display = 'none'
+            }
+          }
         } else {
-            console.error("Overlay element not found");
+          console.error("Overlay element not found");
         }
     }
 
