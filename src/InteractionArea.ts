@@ -4,8 +4,8 @@ export default class InteractionArea {
     private ellipse: Phaser.Geom.Ellipse;
     private graphics: Phaser.GameObjects.Graphics;
     private isVisible: boolean;
-    private areaLineColor = 0x52f778;
-    private areaFillColor = 0x81f79c;
+    private areaLineColor;
+    private areaFillColor;
     private promptText: Phaser.GameObjects.Text;
     private scene: Phaser.Scene;
     private isPlayerInside: boolean = false;
@@ -17,6 +17,8 @@ export default class InteractionArea {
         width: number, height: number,
         promptMessage: string,
         contentKey: string,
+        lineColor: number,
+        fillColor: number,
         fontFamilies: {"header": string, "body": string}
     ) {
         this.scene = scene;
@@ -24,6 +26,8 @@ export default class InteractionArea {
         this.graphics = scene.add.graphics();
         this.isVisible = true;
         this.contentKey = contentKey;
+        this.areaLineColor = lineColor;
+        this.areaFillColor = fillColor;
         this.draw();
 
         // Add prompt text at the bottom of the screen
@@ -100,5 +104,9 @@ export default class InteractionArea {
 
     getName(): string {
         return this.contentKey;
+    }
+
+    getLineColor(): number {
+        return this.areaLineColor;
     }
 }

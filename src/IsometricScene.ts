@@ -120,19 +120,27 @@ export default class IsometricScene extends Phaser.Scene {
                 -900, 6800,
                 2500, 1800,
                 "Press 'X' to see resume",
-                "resume",
+                "Resume",
+                0x52f778,
+                0x81f79c,
                 fontFamilies
             )
 
             // Create arrow indicators for each interaction area
             Object.entries(this.interactionAreas).forEach(([key, area]) => {
                 const { x, y } = area.getCenter();
-                this.arrowIndicators[key] = new ArrowIndicator(this, x, y, area.getName(), {
-                    arrowSize: 80,
-                    textSize: 28,
-                    arrowColor: 0xffff00, // Yellow arrow
-                    textColor: '#ffff00', // Yellow text
-                    radius: 800 // Distance from boat to arrow
+                this.arrowIndicators[key] = new ArrowIndicator(
+                    this, 
+                    x, 
+                    y, 
+                    area.getName(), 
+                    fontFamilies,
+                    {
+                        arrowSize: 80,
+                        textSize: 120,
+                        arrowColor: 0xffffff, 
+                        textColor: '#ffffff', 
+                        radius: 1000 // Distance from boat to arrow
                 });
             });
 
@@ -157,7 +165,7 @@ export default class IsometricScene extends Phaser.Scene {
             }
 
             // Create and draw boat
-            this.boat = new Boat(this, 0, 6400, this.interactionAreas);
+            this.boat = new Boat(this, -1000, 5620, this.interactionAreas);
             this.add.existing(this.boat)
             console.log("Added boat")
 

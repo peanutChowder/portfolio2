@@ -9,13 +9,20 @@ export class ArrowIndicator extends Phaser.GameObjects.Container {
     private textSize: number;
     private radius: number;
 
-    constructor(scene: Phaser.Scene, targetX: number, targetY: number, areaName: string, options: {
-        arrowSize?: number,
-        textSize?: number,
-        arrowColor?: number,
-        textColor?: string,
-        radius?: number
-    } = {}) {
+    constructor(
+        scene: Phaser.Scene, 
+        targetX: number, 
+        targetY: number, 
+        areaName: string, 
+        fontFamilies: {"header": string, "body": string},
+        options: {
+            arrowSize?: number,
+            textSize?: number,
+            arrowColor?: number,
+            textColor?: string,
+            radius?: number
+        }
+    ) {
         super(scene, 0, 0);
 
         this.targetX = targetX;
@@ -27,7 +34,13 @@ export class ArrowIndicator extends Phaser.GameObjects.Container {
         const textColor = options.textColor || '#ffffff';
 
         // Create arrow
-        this.arrow = scene.add.triangle(0, 0, 0, -this.arrowSize / 2, this.arrowSize / 2, this.arrowSize / 2, -this.arrowSize / 2, this.arrowSize / 2, arrowColor);
+        this.arrow = scene.add.triangle(
+            0, -100, 
+            0, -this.arrowSize, 
+            this.arrowSize / 2, this.arrowSize / 2, 
+            -this.arrowSize / 2, this.arrowSize / 2, 
+            arrowColor
+        );
         this.add(this.arrow);
 
         // Create text
@@ -35,9 +48,8 @@ export class ArrowIndicator extends Phaser.GameObjects.Container {
             fontSize: `${this.textSize}px`,
             color: textColor,
             align: 'center',
-            stroke: '#000000',
-            strokeThickness: 20
-        }).setOrigin(0.5);
+        }).setOrigin(0);
+        this.text.setFontFamily(fontFamilies["header"]);
         this.add(this.text);
         this.setDepth(999)
 
@@ -53,8 +65,9 @@ export class ArrowIndicator extends Phaser.GameObjects.Container {
         let y = boatY + this.radius * Math.sin(angle);
 
         this.setPosition(x, y);
-        this.arrow.rotation = angle + Math.PI / 2;
-        this.text.setText(`${this.text.text.split('\n')[0]}\n${Math.round(distance)} tiles`);
+        this.arrow.setRotation(angle + Math.PI / 2);
+        this.text.setText(`${this.text.text.split('\n')[0]}\n[${Math.round(distance)} tiles]`);
+
     }
 
     destroy(): void {
