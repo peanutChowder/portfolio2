@@ -4,12 +4,13 @@ export default class InteractionArea {
     private ellipse: Phaser.Geom.Ellipse;
     private graphics: Phaser.GameObjects.Graphics;
     private isVisible: boolean;
-    private areaLineColor;
-    private areaFillColor;
+    private areaLineColor: number;
+    private areaFillColor: number;
     private promptText: Phaser.GameObjects.Text;
     private scene: Phaser.Scene;
     private isPlayerInside: boolean = false;
     private contentKey: string;
+    private floatingText: Phaser.GameObjects.Text | null = null;
 
     constructor(
         scene: Phaser.Scene,
@@ -19,7 +20,8 @@ export default class InteractionArea {
         contentKey: string,
         lineColor: number,
         fillColor: number,
-        fontFamilies: {"header": string, "body": string}
+        fontFamilies: {"header": string, "body": string},
+        floatingTextInfo?: {text: string, offset: {x: number, y: number}, font: string, fontSize: string, color: string}
     ) {
         this.scene = scene;
         this.ellipse = new Phaser.Geom.Ellipse(x, y, width, height);
@@ -46,6 +48,31 @@ export default class InteractionArea {
         this.promptText.setFontFamily(fontFamilies["header"])
         this.promptText.setColor("#ffffff")
         this.promptText.setVisible(false);
+
+        // Add spinning text if provided
+        if (floatingTextInfo) {
+            this.addFloatingText(floatingTextInfo);
+        }
+    }
+
+    private addFloatingText(info: {text: string, offset: {x: number, y: number}, font: string, fontSize: string, color: string}) {
+        this.floatingText = this.scene.add.text(this.ellipse.x + info.offset.x, this.ellipse.y + info.offset.y, info.text, {
+            font: info.fontSize,
+            fontFamily: info.font,
+            color: info.color
+        });
+        this.floatingText.setOrigin(0.5);
+        this.floatingText.setDepth(100); 
+
+        // Pulsing animation
+        this.scene.tweens.add({
+            targets: this.floatingText,
+            scale: { from: 1, to: 1.2 },
+            duration: 1000,
+            yoyo: true,
+            repeat: -1,
+            ease: 'Sine.easeInOut'
+        });
     }
 
     private draw() {
@@ -91,11 +118,17 @@ export default class InteractionArea {
     setVisible(visible: boolean) {
         this.isVisible = visible;
         this.draw();
+        if (this.floatingText) {
+            this.floatingText.setVisible(visible);
+        }
     }
 
     destroy() {
         this.graphics.destroy();
         this.promptText.destroy();
+        if (this.floatingText) {
+            this.floatingText.destroy();
+        }
     }
 
     getCenter(): { x: number, y: number } {

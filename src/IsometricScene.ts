@@ -123,7 +123,16 @@ export default class IsometricScene extends Phaser.Scene {
                 "Resume",
                 0x52f778,
                 0x81f79c,
-                fontFamilies
+                fontFamilies,
+                {
+                    text: "Resume",
+                    color: "#175235",
+                    font: fontFamilies["header"],
+                    fontSize: "200px",
+                    offset: {
+                        x: -100, y: -1200
+                    }
+                }
             )
 
             // Create arrow indicators for each interaction area
