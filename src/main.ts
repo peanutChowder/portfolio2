@@ -3,8 +3,8 @@ import IsometricScene from './IsometricScene';
 
 const config: Phaser.Types.Core.GameConfig = {
     type: Phaser.AUTO,
-    width: 800,
-    height: 600,
+    width: '100%',
+    height: '100%',
     scene: [IsometricScene],
     scale: {
         mode: Phaser.Scale.FIT,
