@@ -365,6 +365,45 @@ export default class IsometricScene extends Phaser.Scene {
         return false;
     }
 
+    private showOverlay(overlayHtmlKey: string): void {
+        if (this.overlay) {
+            this.overlay.destroy();
+        }
+
+        // Load HTML content
+        const htmlContent = this.cache.html.get(overlayHtmlKey);
+    
+
+        // Create wrapper
+        const htmlWrapper = document.createElement('div');
+        htmlWrapper.style.position = 'absolute';
+        htmlWrapper.style.width = '100%';
+        htmlWrapper.style.height = '100%';
+        htmlWrapper.style.display = 'flex';
+        htmlWrapper.style.justifyContent = 'center';
+        htmlWrapper.style.alignItems = 'center';
+        htmlWrapper.style.pointerEvents = 'none';  // Allow clicks to pass through when overlay is hidden
+        htmlWrapper.innerHTML = htmlContent;
+    
+        // Add the wrapper to the game
+        this.overlay = this.add.dom(0, 0, htmlWrapper);
+        this.overlay.setOrigin(0.4);
+        this.overlay.setScrollFactor(0);
+        this.overlay.setDepth(1000);
+        this.overlay.setScale(1 / this.cameras.main.zoom);
+    
+        // Close button for overlay
+        const closeButton = htmlWrapper.querySelector('#closeButton');
+        if (closeButton) {
+            closeButton.addEventListener('click', () => this.toggleOverlay());
+        } else {
+            console.error("Close button not found")
+        }
+    
+        // Initially hide the overlay
+        this.toggleOverlay(false);
+    }
+
     private setupOverlay(overlayName: string): void {
         if (this.overlay) {
             this.overlay.destroy();
