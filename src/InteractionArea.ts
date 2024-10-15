@@ -9,7 +9,8 @@ export default class InteractionArea {
     private promptText: Phaser.GameObjects.Text;
     private scene: Phaser.Scene;
     private isPlayerInside: boolean = false;
-    private contentKey: string;
+    private overlayName: string;
+    private displayName: string;
     private floatingText: Phaser.GameObjects.Text | null = null;
 
     constructor(
@@ -17,7 +18,8 @@ export default class InteractionArea {
         x: number, y: number,
         width: number, height: number,
         promptMessage: string,
-        contentKey: string,
+        displayName: string,
+        overlayName: string,
         lineColor: number,
         fillColor: number,
         fontFamilies: {"header": string, "body": string},
@@ -27,7 +29,8 @@ export default class InteractionArea {
         this.ellipse = new Phaser.Geom.Ellipse(x, y, width, height);
         this.graphics = scene.add.graphics();
         this.isVisible = true;
-        this.contentKey = contentKey;
+        this.overlayName = overlayName;
+        this.displayName = displayName;
         this.areaLineColor = lineColor;
         this.areaFillColor = fillColor;
         this.draw();
@@ -101,8 +104,8 @@ export default class InteractionArea {
 
     handleInteraction(): void {
         if (this.isPlayerInside) {
-            console.info(`Player inside area '${this.contentKey}'`);
-            (this.scene as any).toggleOverlay();
+            console.info(`Player inside area '${this.displayName}'`);
+            (this.scene as any).showOverlay(this.overlayName);
         }
     }
 
@@ -136,7 +139,7 @@ export default class InteractionArea {
     }
 
     getName(): string {
-        return this.contentKey;
+        return this.displayName;
     }
 
     getLineColor(): number {

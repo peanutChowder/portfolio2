@@ -30,7 +30,7 @@ export default class IsometricScene extends Phaser.Scene {
     private collisionLayerNames: string[];
 
     // Interaction Area and Overlay attributes 
-    private overlay!: Phaser.GameObjects.DOMElement;
+    private overlay!: Phaser.GameObjects.DOMElement | null;
     private interactionAreas: { [key: string]: InteractionArea } = {};
 
     // Arrows for pointing towards interaction areas
@@ -69,6 +69,7 @@ export default class IsometricScene extends Phaser.Scene {
         });
 
         this.load.html('resumeOverlay', 'resumeOverlay.html')
+        this.load.html('owOverlay', 'owOverlay.html')
     }
 
     create(): void {
@@ -114,13 +115,15 @@ export default class IsometricScene extends Phaser.Scene {
                 console.error(`Error getting layer number '${layerNum}'`);
             }
 
-            // Draw our interaction zones marked by an ellipse
-            this.interactionAreas["resumeArea"] = new InteractionArea(
+            // Draw our interaction zones marked by an ellipse.
+            // Interaction zones are areas where users can activate an overlay to see embedded content.
+            this.interactionAreas["resume"] = new InteractionArea(
                 this,
                 -900, 6600,
                 2500, 2000,
-                "Press 'X' to see resume",
+                "Press 'X' to see resume!",
                 "Resume",
+                "resumeOverlay",
                 0x52f778,
                 0x81f79c,
                 fontFamilies,
@@ -128,12 +131,34 @@ export default class IsometricScene extends Phaser.Scene {
                     text: "Resume",
                     color: "#175235",
                     font: fontFamilies["header"],
-                    fontSize: "200px",
+                    fontSize: "300px",
                     offset: {
                         x: -100, y: -1200
                     }
                 }
             )
+
+            this.interactionAreas["olympicWeightlifting"] = new InteractionArea(
+                this,
+                600, 3600,
+                2000, 1500,
+                "Press 'X' to see Olympic\nWeightlifting content!",
+                "Olympic Weightlifting",
+                "owOverlay",
+                0x52f778,
+                0x81f79c,
+                fontFamilies,
+                {
+                    text: "Olympic Weightlifting",
+                    color: "#6a6e25",
+                    font: fontFamilies["header"],
+                    fontSize: "130px",
+                    offset: {
+                        x: 0, y: -800
+                    }
+                }
+            )
+
 
             // Create arrow indicators for each interaction area
             Object.entries(this.interactionAreas).forEach(([key, area]) => {
@@ -174,7 +199,7 @@ export default class IsometricScene extends Phaser.Scene {
             }
 
             // Create and draw boat
-            this.boat = new Boat(this, -1000, 5620, this.interactionAreas);
+            this.boat = new Boat(this, -200, 3740, this.interactionAreas);
             this.add.existing(this.boat)
             console.log("Added boat")
 
@@ -204,7 +229,6 @@ export default class IsometricScene extends Phaser.Scene {
             
 
             this.cameras.main.setZoom(0.2);
-            this.setupOverlay('resumeOverlay')
             this.cameras.main.centerOn(0, 500);
 
             // Set up camera to follow the boat
@@ -366,14 +390,23 @@ export default class IsometricScene extends Phaser.Scene {
     }
 
     private showOverlay(overlayHtmlKey: string): void {
+        // Toggle overlay (destroy it) if it is currently shown
         if (this.overlay) {
-            this.overlay.destroy();
-        }
+            this.destroyOverlayWithAnimation()
+            return
+        } 
+
+        console.group("Creating overlay")
 
         // Load HTML content
         const htmlContent = this.cache.html.get(overlayHtmlKey);
-    
 
+        if (!htmlContent) {
+            console.error(`Failed to load overlay content '${overlayHtmlKey}'`)
+            console.groupEnd()
+            return;
+        }
+    
         // Create wrapper
         const htmlWrapper = document.createElement('div');
         htmlWrapper.style.position = 'absolute';
@@ -382,7 +415,6 @@ export default class IsometricScene extends Phaser.Scene {
         htmlWrapper.style.display = 'flex';
         htmlWrapper.style.justifyContent = 'center';
         htmlWrapper.style.alignItems = 'center';
-        htmlWrapper.style.pointerEvents = 'none';  // Allow clicks to pass through when overlay is hidden
         htmlWrapper.innerHTML = htmlContent;
     
         // Add the wrapper to the game
@@ -395,85 +427,48 @@ export default class IsometricScene extends Phaser.Scene {
         // Close button for overlay
         const closeButton = htmlWrapper.querySelector('#closeButton');
         if (closeButton) {
-            closeButton.addEventListener('click', () => this.toggleOverlay());
+            closeButton.addEventListener('click', () => this.destroyOverlayWithAnimation());
         } else {
             console.error("Close button not found")
         }
-    
-        // Initially hide the overlay
-        this.toggleOverlay(false);
+
+        const overlayWrapperDiv = this.overlay.getChildByID('overlay-wrapper') as HTMLElement;
+        overlayWrapperDiv.style.display = 'none';
+
+        console.groupEnd()
+
+        this.time.delayedCall(0, () => {
+            if (overlayWrapperDiv) {
+                if (overlayWrapperDiv.style.display === 'none') {
+                    overlayWrapperDiv.style.display = 'flex';
+
+                    // Fade in animation
+                    overlayWrapperDiv.style.opacity = '0';
+                    overlayWrapperDiv.style.transition = 'opacity 0.5s ease-in-out';
+                    setTimeout(() => {
+                        overlayWrapperDiv.style.opacity = '1';
+                    }, 5);
+                }
+            }
+        })  
     }
 
-    private setupOverlay(overlayName: string): void {
+    private destroyOverlayWithAnimation() {
         if (this.overlay) {
-            this.overlay.destroy();
-        }
-    
-        // Load HTML content
-        const htmlContent = this.cache.html.get(overlayName);
-        
-    
-        // Create wrapper
-        const htmlWrapper = document.createElement('div');
-        htmlWrapper.style.position = 'absolute';
-        htmlWrapper.style.width = '100%';
-        htmlWrapper.style.height = '100%';
-        htmlWrapper.style.display = 'flex';
-        htmlWrapper.style.justifyContent = 'center';
-        htmlWrapper.style.alignItems = 'center';
-        htmlWrapper.style.pointerEvents = 'none';  // Allow clicks to pass through when overlay is hidden
-        htmlWrapper.innerHTML = htmlContent;
-    
-        // Add the wrapper to the game
-        this.overlay = this.add.dom(0, 0, htmlWrapper);
-        this.overlay.setOrigin(0.4);
-        this.overlay.setScrollFactor(0);
-        this.overlay.setDepth(1000);
-        this.overlay.setScale(1 / this.cameras.main.zoom);
-    
-        // Close button for overlay
-        const closeButton = htmlWrapper.querySelector('#closeButton');
-        if (closeButton) {
-            closeButton.addEventListener('click', () => this.toggleOverlay());
-        } else {
-            console.error("Close button not found")
-        }
-    
-        // Initially hide the overlay
-        this.toggleOverlay(false);
-    }
+            const overlayWrapperDiv = this.overlay.getChildByID('overlay-wrapper') as HTMLElement;
 
-    toggleOverlay(useAnimation: boolean = true) {
-        console.log("Toggling overlay");
-        const overlayElement = this.overlay.getChildByID('simple-overlay') as HTMLElement;
-        
-        if (overlayElement) {
-          if (overlayElement.style.display === 'none') {
-            overlayElement.style.display = 'flex';
-            
-            // Fade in animation
-            if (useAnimation) {
-                overlayElement.style.opacity = '0';
-                overlayElement.style.transition = 'opacity 0.5s ease-in-out';
-                setTimeout(() => {
-                  overlayElement.style.opacity = '1';
-                }, 10);
-            }
-          } else {
-
-            // Fade out animation
-            if (useAnimation) {
-                overlayElement.style.opacity = '0';
-                overlayElement.style.transition = 'opacity 0.5s ease-in-out';
-                setTimeout(() => {
-                    overlayElement.style.display = 'none';
-                  }, 500);
-            } else {
-                overlayElement.style.display = 'none'
-            }
-          }
+            // Fade out and destroy
+            overlayWrapperDiv.style.opacity = '0';
+            overlayWrapperDiv.style.transition = 'opacity 0.5s ease-in-out';
+            setTimeout(() => {
+                overlayWrapperDiv.style.display = 'none';
+                if (this.overlay) {
+                    this.overlay.destroy();
+                    this.overlay = null;
+                }
+            }, 500);
         } else {
-          console.error("Overlay element not found");
+            console.warn("No overlay destroyed: currently null")
         }
     }
 
