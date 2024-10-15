@@ -33,55 +33,44 @@
     letter-spacing: 2px;
 }
 
-#experience-list {
+#weightlifting-content {
     flex-grow: 1;
     overflow-y: auto;
     padding-right: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
 }
 
-#experience-list::-webkit-scrollbar {
-    width: 8px;
-}
-
-#experience-list::-webkit-scrollbar-track {
-    background: #F0E6D2;
-    border-radius: 4px;
-}
-
-#experience-list::-webkit-scrollbar-thumb {
-    background-color: #D0B49F;
-    border-radius: 4px;
-}
-
-.experience {
-    margin-bottom: 25px;
-}
-
-.experience h3 {
+#weightlifting-content h3 {
     color: #A79B8E;
     font-size: 18px;
     margin-bottom: 10px;
 }
 
-.experience ul {
-    list-style-type: none;
-    padding-left: 20px;
+#weightlifting-content::-webkit-scrollbar {
+    width: 8px;
 }
 
-.experience * {
+#weightlifting-content::-webkit-scrollbar-track {
+    background: #F0E6D2;
+    border-radius: 4px;
+}
+
+#weightlifting-content::-webkit-scrollbar-thumb {
+    background-color: #D0B49F;
+    border-radius: 4px;
+}
+
+.video-container {
+    margin-bottom: 20px;
+}
+
+#my-journey {
     color: #757474;
     font-size: 16px;
-    margin-bottom: 8px;
-    position: relative;
-}
-
-.experience li:before {
-    content: "•";
-    color: #D0B49F;
-    font-size: 20px;
-    position: absolute;
-    left: -15px;
-    top: -2px;
+    text-align: left;
 }
 
 #closeButton {
