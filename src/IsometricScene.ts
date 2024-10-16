@@ -174,7 +174,7 @@ export default class IsometricScene extends Phaser.Scene {
                         textSize: 120,
                         arrowColor: 0xffffff, 
                         textColor: '#ffffff', 
-                        radius: 1000 // Distance from boat to arrow
+                        radius: 2000 // Distance from boat to arrow
                 });
             });
 
@@ -267,7 +267,7 @@ export default class IsometricScene extends Phaser.Scene {
            const distance = Phaser.Math.Distance.Between(boatX, boatY, areaX, areaY);
            const distanceInTiles = distance / this.map.tileWidth;
 
-           if (area.containsPoint(boatX, boatY)) {
+           if (area.containsPoint(boatX, boatY, 3)) {
                this.arrowIndicators[key].setVisible(false);
            } else {
                this.arrowIndicators[key].setVisible(true);

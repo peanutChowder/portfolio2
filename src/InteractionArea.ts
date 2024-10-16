@@ -109,13 +109,13 @@ export default class InteractionArea {
         }
     }
 
-    containsPoint(x: number, y: number): boolean {
+    containsPoint(x: number, y: number, threshold: number = 1): boolean {
         const translatedX = x - this.ellipse.x;
         const translatedY = y - this.ellipse.y;
         const rotatedX = -translatedX;
         const rotatedY = -translatedY;
         return (rotatedX * rotatedX) / (this.ellipse.width * this.ellipse.width / 4) +
-            (rotatedY * rotatedY) / (this.ellipse.height * this.ellipse.height / 4) <= 1;
+            (rotatedY * rotatedY) / (this.ellipse.height * this.ellipse.height / 4) <= threshold;
     }
 
     setVisible(visible: boolean) {
