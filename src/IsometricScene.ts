@@ -68,8 +68,9 @@ export default class IsometricScene extends Phaser.Scene {
             console.error('File url:', file.url);
         });
 
-        this.load.html('resumeOverlay', 'resumeOverlay.html')
-        this.load.html('owOverlay', 'owOverlay.html')
+        this.load.html('resumeOverlay', 'resumeOverlay.html');
+        this.load.html('owOverlay', 'owOverlay.html');
+        this.load.html('ffOverlay', 'ffOverlay.html');
     }
 
     create(): void {
@@ -155,6 +156,27 @@ export default class IsometricScene extends Phaser.Scene {
                     fontSize: "130px",
                     offset: {
                         x: 0, y: -800
+                    }
+                }
+            )
+
+            this.interactionAreas["formFitness"] = new InteractionArea(
+                this,
+                2445, 8750,
+                2000, 1500,
+                "Press 'X' to see FormFitness!",
+                "iOS App",
+                "ffOverlay",
+                0xffa405,
+                0xffdb9c,
+                fontFamilies,
+                {
+                    text: "FormFitness",
+                    color: "#9e4a09",
+                    font: fontFamilies["header"],
+                    fontSize: "130px",
+                    offset: {
+                        x: 1100, y: -600
                     }
                 }
             )

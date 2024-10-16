@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FormFitness Overlay</title>
+    <link rel="stylesheet" href="ffOverlay.css">
+</head>
+<body>
+    <div id="overlay-wrapper">
+        <div id="simple-overlay">
+            <div id="formfitness-content">
+                <h2>FormFitness</h2>
+                <h3>An iOS app to make good form accessible.</h3>
+                <div class="video-container">
+                    <iframe width="560" height="315" src="https://www.youtube.com/embed/3DyschBFdBE" frameborder="0"
+                        allow="autoplay; encrypted-media" allowfullscreen></iframe>
+                </div>
+                <div id="description">
+                    FormFitness is a project I started in September 2024. My first venture with Swift, it is an exciting project 
+                    that combines my love for biomechanics and software.
+                    <br><br>
+                    <h3>How does it work?</h3>
+                    FormFitness uses AVFoundation in Swift to generate two AR skeletons -- One for the user, and another for
+                    a reference image. By calculating the offset between the user's pose skeleton and the reference, FormFitness
+                    uses pose color gradients to highlight where the user's form needs improvement.
+                </div>
+            </div>
+            <button id="closeButton">Close</button>
+        </div>
+    </div>
+</body>
+</html>
