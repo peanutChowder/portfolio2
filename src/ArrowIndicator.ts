@@ -68,7 +68,7 @@ export class ArrowIndicator extends Phaser.GameObjects.Container {
 
         this.setPosition(x, y);
         this.arrow.setRotation(angle + Math.PI / 2);
-        this.text.setText(`${this.areaName}\n[${Math.round(distance)} tiles]`);
+        this.text.setText(`${this.areaName}\n[${Math.round(distance)} KM]`);
 
     }
 
