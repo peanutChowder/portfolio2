@@ -143,7 +143,7 @@ export default class IsometricScene extends Phaser.Scene {
                 600, 3600,
                 2000, 1500,
                 "Press 'X' to see Olympic\nWeightlifting content!",
-                "Olympic Weightlifting",
+                "Olympic\nWeightlifting",
                 "owOverlay",
                 0x52f778,
                 0x81f79c,
@@ -199,7 +199,7 @@ export default class IsometricScene extends Phaser.Scene {
             }
 
             // Create and draw boat
-            this.boat = new Boat(this, -200, 3740, this.interactionAreas);
+            this.boat = new Boat(this, 1540, 9000, this.interactionAreas);
             this.add.existing(this.boat)
             console.log("Added boat")
 

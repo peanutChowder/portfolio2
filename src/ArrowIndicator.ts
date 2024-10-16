@@ -3,6 +3,7 @@ import Phaser from 'phaser';
 export class ArrowIndicator extends Phaser.GameObjects.Container {
     private arrow: Phaser.GameObjects.Triangle;
     private text: Phaser.GameObjects.Text;
+    private areaName: string;
     private targetX: number;
     private targetY: number;
     private arrowSize: number;
@@ -30,6 +31,7 @@ export class ArrowIndicator extends Phaser.GameObjects.Container {
         this.arrowSize = options.arrowSize || 60;
         this.textSize = options.textSize || 24;
         this.radius = options.radius || 200; // Distance from boat to arrow
+        this.areaName = areaName;
         const arrowColor = options.arrowColor || 0xffffff;
         const textColor = options.textColor || '#ffffff';
 
@@ -66,7 +68,7 @@ export class ArrowIndicator extends Phaser.GameObjects.Container {
 
         this.setPosition(x, y);
         this.arrow.setRotation(angle + Math.PI / 2);
-        this.text.setText(`${this.text.text.split('\n')[0]}\n[${Math.round(distance)} tiles]`);
+        this.text.setText(`${this.areaName}\n[${Math.round(distance)} tiles]`);
 
     }
 
