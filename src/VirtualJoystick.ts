@@ -11,7 +11,6 @@ export class VirtualJoystick extends Phaser.GameObjects.Container {
 
     constructor(scene: Phaser.Scene, x: number, y: number, baseRadius: number = 60, stickRadius: number = 30) {
         super(scene, x, y);
-
         this.baseRadius = baseRadius;
         this.stickRadius = stickRadius;
         this.maxDistance = baseRadius - stickRadius;
@@ -22,21 +21,24 @@ export class VirtualJoystick extends Phaser.GameObjects.Container {
         this.stick = scene.add.arc(0, 0, stickRadius, 0, 360, false, 0x888888);
         this.add(this.stick);
 
-        this.base.setInteractive({ useHandCursor: true });
-        this.setupEventListeners();
+        this.setScrollFactor(0);
+        this.setDepth(1000);
 
+        this.setupEventListeners();
         scene.add.existing(this);
     }
 
     private setupEventListeners(): void {
-        this.base.on('pointerdown', this.onPointerDown, this);
+        this.scene.input.on('pointerdown', this.onPointerDown, this);
         this.scene.input.on('pointermove', this.onPointerMove, this);
         this.scene.input.on('pointerup', this.onPointerUp, this);
     }
 
     private onPointerDown(pointer: Phaser.Input.Pointer): void {
-        this.pointerDown = true;
-        this.updateStickPosition(pointer);
+        if (this.isPointerOverBase(pointer)) {
+            this.pointerDown = true;
+            this.updateStickPosition(pointer);
+        }
     }
 
     private onPointerMove(pointer: Phaser.Input.Pointer): void {
@@ -50,9 +52,19 @@ export class VirtualJoystick extends Phaser.GameObjects.Container {
         this.resetStickPosition();
     }
 
+    private isPointerOverBase(pointer: Phaser.Input.Pointer): boolean {
+        const localX = pointer.x - this.x - 494;
+        const localY = pointer.y - this.y - 392;
+        const distance = Math.sqrt(localX * localX + localY * localY);
+        console.log(`Distance: ${distance}`)
+        return distance <= (this.baseRadius * this.scene.cameras.main.zoom);
+    }
+
     private updateStickPosition(pointer: Phaser.Input.Pointer): void {
-        const dx = pointer.x - (this.x + this.scene.cameras.main.scrollX);
-        const dy = pointer.y - (this.y + this.scene.cameras.main.scrollY);
+        console.log(`${pointer.x} ${pointer.y}\n${this.x} ${this.y}`)
+
+        const dx = pointer.x - this.x - 494;
+        const dy = pointer.y - this.y - 392;
         const distance = Math.sqrt(dx * dx + dy * dy);
 
         if (distance <= this.maxDistance) {

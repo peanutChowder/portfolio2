@@ -136,7 +136,7 @@ export default class IsometricScene extends Phaser.Scene {
             }
 
             // Create and draw boat
-            this.boat = new Boat(this, 1540, 9000, this.interactionAreas);
+            this.boat = new Boat(this, 620, 490, this.interactionAreas);
             this.add.existing(this.boat)
             console.log("Added boat")
 
@@ -172,7 +172,10 @@ export default class IsometricScene extends Phaser.Scene {
             this.cameras.main.startFollow(this.boat, true);
 
             // TODO: properly integrate into this
-            const joystick = new VirtualJoystick(this, 1000, 9500, 500, 200);
+            const joystick = new VirtualJoystick(this, 0, 0, 500, 200);
+            // joystick.setScrollFactor(0);
+
+
             // Add debug info
             this.add.text(10, 10, `Map dimensions: ${worldWidth}x${worldHeight}`, { color: fontColor, font: fontSize });
             this.add.text(10, 80, `Tile dimensions: ${this.map.tileWidth}x${this.map.tileHeight}`, { color: fontColor, font: fontSize  });
