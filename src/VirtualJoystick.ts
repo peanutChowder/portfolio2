@@ -12,6 +12,8 @@ export class VirtualJoystick extends Phaser.GameObjects.Container {
     private xPointerOffset: number;
     private yPointerOffset: number;
 
+    private joystickStrength: number = 0.3;
+
     constructor(scene: Phaser.Scene, x: number, y: number, baseRadius: number = 60, stickRadius: number = 30) {
         super(scene, x, y);
         console.log(`Camera dimensions: ${scene.cameras.main.width} x ${scene.cameras.main.height}`)
@@ -80,12 +82,12 @@ export class VirtualJoystick extends Phaser.GameObjects.Container {
         const distance = Math.sqrt(dx * dx + dy * dy);
 
         if (distance <= this.maxDistance) {
-            this.stick.setPosition(dx, dy);
+            this.stick.setPosition(dx / this.joystickStrength, dy / this.joystickStrength);
         } else {
             const angle = Math.atan2(dy, dx);
             this.stick.setPosition(
-                Math.cos(angle) * this.maxDistance,
-                Math.sin(angle) * this.maxDistance
+                (Math.cos(angle) * this.maxDistance) / this.joystickStrength,
+                (Math.sin(angle) * this.maxDistance) / this.joystickStrength
             );
         }
 
