@@ -15,6 +15,7 @@ import boatNorthWestPNG from '../assets/boat/boatNW.png';
 import boatSouthEastPNG from '../assets/boat/boatSE.png';
 import boatSouthWestPNG from '../assets/boat/boatSW.png';
 import { ArrowIndicator } from './ArrowIndicator';
+import { VirtualJoystick } from './VirtualJoystick';
 
 const fontSize = "80px";
 const fontColor = "#ffffff"
@@ -170,6 +171,8 @@ export default class IsometricScene extends Phaser.Scene {
             // Set up camera to follow the boat
             this.cameras.main.startFollow(this.boat, true);
 
+            // TODO: properly integrate into this
+            const joystick = new VirtualJoystick(this, 1000, 9500, 500, 200);
             // Add debug info
             this.add.text(10, 10, `Map dimensions: ${worldWidth}x${worldHeight}`, { color: fontColor, font: fontSize });
             this.add.text(10, 80, `Tile dimensions: ${this.map.tileWidth}x${this.map.tileHeight}`, { color: fontColor, font: fontSize  });
