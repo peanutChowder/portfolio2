@@ -82,12 +82,15 @@ export class VirtualJoystick extends Phaser.GameObjects.Container {
         const distance = Math.sqrt(dx * dx + dy * dy);
 
         if (distance <= this.maxDistance) {
-            this.stick.setPosition(dx / this.joystickStrength, dy / this.joystickStrength);
+            this.stick.setPosition(
+                Phaser.Math.Clamp(dx / this.joystickStrength, -this.maxDistance, this.maxDistance),
+                Phaser.Math.Clamp(dy / this.joystickStrength, -this.maxDistance, this.maxDistance)
+            );
         } else {
             const angle = Math.atan2(dy, dx);
             this.stick.setPosition(
-                (Math.cos(angle) * this.maxDistance) / this.joystickStrength,
-                (Math.sin(angle) * this.maxDistance) / this.joystickStrength
+                Phaser.Math.Clamp((Math.cos(angle) * this.maxDistance) / this.joystickStrength, -this.maxDistance, this.maxDistance),
+                Phaser.Math.Clamp((Math.sin(angle) * this.maxDistance) / this.joystickStrength, -this.maxDistance, this.maxDistance)
             );
         }
 
