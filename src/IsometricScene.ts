@@ -118,93 +118,7 @@ export default class IsometricScene extends Phaser.Scene {
 
             // Draw our interaction zones marked by an ellipse.
             // Interaction zones are areas where users can activate an overlay to see embedded content.
-            this.interactionAreas["resume"] = new InteractionArea(
-                this,
-                -900, 6600,
-                2500, 2000,
-                "Press 'X' to see resume!",
-                "Resume",
-                "resumeOverlay",
-                0x52f778,
-                0x81f79c,
-                fontFamilies,
-                {
-                    text: "Resume",
-                    color: "#175235",
-                    font: fontFamilies["header"],
-                    fontSize: "300px",
-                    offset: {
-                        x: -100, y: -1200
-                    }
-                }
-            )
-
-            this.interactionAreas["olympicWeightlifting"] = new InteractionArea(
-                this,
-                600, 3600,
-                2000, 1500,
-                "Press 'X' to see Olympic\nWeightlifting content!",
-                "Olympic\nWeightlifting",
-                "owOverlay",
-                0x52f778,
-                0x81f79c,
-                fontFamilies,
-                {
-                    text: "Olympic Weightlifting",
-                    color: "#6a6e25",
-                    font: fontFamilies["header"],
-                    fontSize: "130px",
-                    offset: {
-                        x: 0, y: -800
-                    }
-                }
-            )
-
-            this.interactionAreas["formFitness"] = new InteractionArea(
-                this,
-                2445, 8750,
-                2000, 1500,
-                "Press 'X' to see FormFitness!",
-                "iOS App",
-                "ffOverlay",
-                0xffa405,
-                0xffdb9c,
-                fontFamilies,
-                {
-                    text: "FormFitness",
-                    color: "#9e4a09",
-                    font: fontFamilies["header"],
-                    fontSize: "130px",
-                    offset: {
-                        x: 1100, y: -600
-                    }
-                }
-            )
-
-
-            // Create arrow indicators for each interaction area
-            Object.entries(this.interactionAreas).forEach(([key, area]) => {
-                const { x, y } = area.getCenter();
-                this.arrowIndicators[key] = new ArrowIndicator(
-                    this, 
-                    x, 
-                    y, 
-                    area.getName(), 
-                    fontFamilies,
-                    {
-                        arrowSize: 80,
-                        textSize: 120,
-                        arrowColor: 0xffffff, 
-                        textColor: '#ffffff', 
-                        radius: 2000 // Distance from boat to arrow
-                });
-            });
-
-            if (this.input.keyboard) {
-                this.input.keyboard.on('keydown-X', this.handleXKeyPress, this);
-            } else {
-                console.error("Error: Could not add 'x' key listener")
-            }
+            this.setupInteractiveAreas();
 
             // Draw layer 2 (layer number 1), the lowest land layer
             layerNum = 1
@@ -277,6 +191,96 @@ export default class IsometricScene extends Phaser.Scene {
         }
 
         console.groupEnd();
+    }
+
+    private setupInteractiveAreas(): void {
+        this.interactionAreas["resume"] = new InteractionArea(
+            this,
+            -900, 6600,
+            2500, 2000,
+            "Press 'X' to see resume!",
+            "Resume",
+            "resumeOverlay",
+            0x52f778,
+            0x81f79c,
+            fontFamilies,
+            {
+                text: "Resume",
+                color: "#175235",
+                font: fontFamilies["header"],
+                fontSize: "300px",
+                offset: {
+                    x: -100, y: -1200
+                }
+            }
+        )
+
+        this.interactionAreas["olympicWeightlifting"] = new InteractionArea(
+            this,
+            600, 3600,
+            2000, 1500,
+            "Press 'X' to see Olympic\nWeightlifting content!",
+            "Olympic\nWeightlifting",
+            "owOverlay",
+            0x52f778,
+            0x81f79c,
+            fontFamilies,
+            {
+                text: "Olympic Weightlifting",
+                color: "#6a6e25",
+                font: fontFamilies["header"],
+                fontSize: "130px",
+                offset: {
+                    x: 0, y: -800
+                }
+            }
+        )
+
+        this.interactionAreas["formFitness"] = new InteractionArea(
+            this,
+            2445, 8750,
+            2000, 1500,
+            "Press 'X' to see FormFitness!",
+            "iOS App",
+            "ffOverlay",
+            0xffa405,
+            0xffdb9c,
+            fontFamilies,
+            {
+                text: "FormFitness",
+                color: "#9e4a09",
+                font: fontFamilies["header"],
+                fontSize: "130px",
+                offset: {
+                    x: 1100, y: -600
+                }
+            }
+        )
+
+
+        // Create arrow indicators for each interaction area
+        Object.entries(this.interactionAreas).forEach(([key, area]) => {
+            const { x, y } = area.getCenter();
+            this.arrowIndicators[key] = new ArrowIndicator(
+                this, 
+                x, 
+                y, 
+                area.getName(), 
+                fontFamilies,
+                {
+                    arrowSize: 80,
+                    textSize: 120,
+                    arrowColor: 0xffffff, 
+                    textColor: '#ffffff', 
+                    radius: 2000 // Distance from boat to arrow
+            });
+        });
+
+        if (this.input.keyboard) {
+            this.input.keyboard.on('keydown-X', this.handleXKeyPress, this);
+        } else {
+            console.error("Error: Could not add 'x' key listener")
+        }
     }
 
     update(): void {
