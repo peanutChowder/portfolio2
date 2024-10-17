@@ -37,6 +37,9 @@ export default class IsometricScene extends Phaser.Scene {
     // Arrows for pointing towards interaction areas
     private arrowIndicators: { [key: string]: ArrowIndicator } = {};
 
+    // joystick for mobile users
+    private joystick!: VirtualJoystick;
+
     // Debug text attributes
     private debugMode: boolean;
     private debugText!: Phaser.GameObjects.Text;
@@ -171,10 +174,7 @@ export default class IsometricScene extends Phaser.Scene {
             // Set up camera to follow the boat
             this.cameras.main.startFollow(this.boat, true);
 
-            // TODO: properly integrate into this
-            const joystick = new VirtualJoystick(this, 0, 0, 500, 200);
-            // joystick.setScrollFactor(0);
-
+            this.joystick = new VirtualJoystick(this, 600, 2000, 500, 200);
 
             // Add debug info
             this.add.text(10, 10, `Map dimensions: ${worldWidth}x${worldHeight}`, { color: fontColor, font: fontSize });

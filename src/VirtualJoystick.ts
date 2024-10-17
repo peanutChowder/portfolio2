@@ -9,8 +9,12 @@ export class VirtualJoystick extends Phaser.GameObjects.Container {
     private pointerDown: boolean = false;
     private direction: Phaser.Math.Vector2 = new Phaser.Math.Vector2();
 
+    private xPointerOffset: number;
+    private yPointerOffset: number;
+
     constructor(scene: Phaser.Scene, x: number, y: number, baseRadius: number = 60, stickRadius: number = 30) {
         super(scene, x, y);
+        console.log(`Camera dimensions: ${scene.cameras.main.width} x ${scene.cameras.main.height}`)
         this.baseRadius = baseRadius;
         this.stickRadius = stickRadius;
         this.maxDistance = baseRadius - stickRadius;
@@ -24,6 +28,13 @@ export class VirtualJoystick extends Phaser.GameObjects.Container {
         this.setScrollFactor(0);
         this.setDepth(1000);
 
+        // Offset between clicks and where the invisible joystick is. Joystick coords are messed up due to
+        // camera movement. 
+        // Zoom influences the x and y coords, which is why we multiply it. 
+        // No clue why the 2.5 factor divisor is required for camera dimensions. 
+        this.xPointerOffset = -(this.x * this.scene.cameras.main.zoom + this.scene.cameras.main.width / 2.5)
+        this.yPointerOffset = -(this.y * this.scene.cameras.main.zoom + this.scene.cameras.main.height / 2.5)
+
         this.setupEventListeners();
         scene.add.existing(this);
     }
@@ -36,6 +47,7 @@ export class VirtualJoystick extends Phaser.GameObjects.Container {
 
     private onPointerDown(pointer: Phaser.Input.Pointer): void {
         if (this.isPointerOverBase(pointer)) {
+            console.log("Found")
             this.pointerDown = true;
             this.updateStickPosition(pointer);
         }
@@ -53,8 +65,8 @@ export class VirtualJoystick extends Phaser.GameObjects.Container {
     }
 
     private isPointerOverBase(pointer: Phaser.Input.Pointer): boolean {
-        const localX = pointer.x - this.x - 494;
-        const localY = pointer.y - this.y - 392;
+        const localX = pointer.x + this.xPointerOffset;
+        const localY = pointer.y + this.yPointerOffset;
         const distance = Math.sqrt(localX * localX + localY * localY);
         console.log(`Distance: ${distance}`)
         return distance <= (this.baseRadius * this.scene.cameras.main.zoom);
@@ -63,8 +75,8 @@ export class VirtualJoystick extends Phaser.GameObjects.Container {
     private updateStickPosition(pointer: Phaser.Input.Pointer): void {
         console.log(`${pointer.x} ${pointer.y}\n${this.x} ${this.y}`)
 
-        const dx = pointer.x - this.x - 494;
-        const dy = pointer.y - this.y - 392;
+        const dx = pointer.x + this.xPointerOffset;
+        const dy = pointer.y + this.yPointerOffset;
         const distance = Math.sqrt(dx * dx + dy * dy);
 
         if (distance <= this.maxDistance) {
