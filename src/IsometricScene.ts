@@ -415,6 +415,7 @@ export default class IsometricScene extends Phaser.Scene {
         return false;
     }
 
+    // @ts-ignore
     private showOverlay(overlayHtmlKey: string): void {
         // Toggle overlay (destroy it) if it is currently shown
         if (this.overlay) {
