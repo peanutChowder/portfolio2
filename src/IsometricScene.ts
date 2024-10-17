@@ -174,7 +174,11 @@ export default class IsometricScene extends Phaser.Scene {
             // Set up camera to follow the boat
             this.cameras.main.startFollow(this.boat, true);
 
-            this.joystick = new VirtualJoystick(this, 600, 2000, 500, 200);
+            const joyStickOrigin = this.cameras.main.getWorldPoint(
+                this.cameras.main.width / 2,
+                this.cameras.main.height * 1.5
+            )
+            this.joystick = new VirtualJoystick(this, joyStickOrigin.x, joyStickOrigin.y, 500, 200);
 
             // Add debug info
             this.add.text(10, 10, `Map dimensions: ${worldWidth}x${worldHeight}`, { color: fontColor, font: fontSize });
