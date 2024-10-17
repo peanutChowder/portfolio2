@@ -55,26 +55,45 @@ export class Boat extends Phaser.GameObjects.Container {
             return; // Don't allow movement while bouncing
         }
 
+        const diagonalSpeed = this.speed;
+        const cardinalSpeed = this.speed * 0.7071; // approx sqrt(2)/2
+        const eastWestCompensation = 1.6; // Compensates for the slow feeling east/west travel
+        
         let dx = 0;
         let dy = 0;
-        let newTexture: string | null = null;
+        let newTexture = '';
 
-        if (this.cursors.left.isDown) {
-            dx -= this.speed;
-            dy += this.speed / 2;
-            newTexture = 'boat_sw';
-        } else if (this.cursors.right.isDown) {
-            dx += this.speed;
-            dy -= this.speed / 2;
-            newTexture = 'boat_ne';
-        } else if (this.cursors.up.isDown) {
-            dx -= this.speed;
-            dy -= this.speed / 2;
+        // Check for diagonal movements first
+        if (this.cursors.left.isDown && this.cursors.up.isDown) {
+            dx -= diagonalSpeed;
+            dy -= diagonalSpeed / 2;
             newTexture = 'boat_nw';
-        } else if (this.cursors.down.isDown) {
-            dx += this.speed;
-            dy += this.speed / 2;
+        } else if (this.cursors.left.isDown && this.cursors.down.isDown) {
+            dx -= diagonalSpeed;
+            dy += diagonalSpeed / 2;
+            newTexture = 'boat_sw';
+        } else if (this.cursors.right.isDown && this.cursors.up.isDown) {
+            dx += diagonalSpeed;
+            dy -= diagonalSpeed / 2;
+            newTexture = 'boat_ne';
+        } else if (this.cursors.right.isDown && this.cursors.down.isDown) {
+            dx += diagonalSpeed;
+            dy += diagonalSpeed / 2;
             newTexture = 'boat_se';
+        }
+        // then check for cardinal directions.
+        else if (this.cursors.left.isDown) {
+            dx -= cardinalSpeed * eastWestCompensation;
+            newTexture = 'boat_w';
+        } else if (this.cursors.right.isDown) {
+            dx += cardinalSpeed * eastWestCompensation;
+            newTexture = 'boat_e';
+        } else if (this.cursors.up.isDown) {
+            dy -= cardinalSpeed;
+            newTexture = 'boat_n';
+        } else if (this.cursors.down.isDown) {
+            dy += cardinalSpeed;
+            newTexture = 'boat_s';
         }
 
         // Update boat texture if user is facing a new direction
