@@ -300,6 +300,12 @@ export default class IsometricScene extends Phaser.Scene {
 
 
         // Create arrow indicators for each interaction area
+        let arrowRadius;
+        if (this.game.device.os.desktop) {
+            arrowRadius = 2000;
+        } else {
+            arrowRadius = 900;
+        }
         Object.entries(this.interactionAreas).forEach(([key, area]) => {
             const { x, y } = area.getCenter();
             this.arrowIndicators[key] = new ArrowIndicator(
@@ -313,7 +319,7 @@ export default class IsometricScene extends Phaser.Scene {
                     textSize: 120,
                     arrowColor: 0xffffff, 
                     textColor: '#ffffff', 
-                    radius: 2000 // Distance from boat to arrow
+                    radius: arrowRadius // Distance from boat to arrow
             });
         });
 
