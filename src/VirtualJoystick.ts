@@ -4,6 +4,7 @@ export class VirtualJoystick extends Phaser.GameObjects.Container {
     private base: Phaser.GameObjects.Arc;
     private stick: Phaser.GameObjects.Arc;
     private baseRadius: number;
+    // @ts-ignore
     private stickRadius: number;
     private maxDistance: number;
     private pointerDown: boolean = false;
@@ -71,7 +72,6 @@ export class VirtualJoystick extends Phaser.GameObjects.Container {
         const localX = pointer.x + this.xPointerOffset;
         const localY = pointer.y + this.yPointerOffset;
         const distance = Math.sqrt(localX * localX + localY * localY);
-        console.log(`Distance: ${distance}`)
         return distance <= (this.baseRadius * this.scene.cameras.main.zoom);
     }
 

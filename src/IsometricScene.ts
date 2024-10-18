@@ -478,8 +478,13 @@ export default class IsometricScene extends Phaser.Scene {
         // Create wrapper
         const htmlWrapper = document.createElement('div');
         htmlWrapper.style.position = 'absolute';
-        htmlWrapper.style.width = '100%';
-        htmlWrapper.style.height = '100%';
+        if (this.game.device.os.desktop) {
+            htmlWrapper.style.width = '100%';
+            htmlWrapper.style.height = '100%';
+        } else {
+            htmlWrapper.style.width = '85%';
+            htmlWrapper.style.height = '80%';
+        }
         htmlWrapper.style.display = 'flex';
         htmlWrapper.style.justifyContent = 'center';
         htmlWrapper.style.alignItems = 'center';
@@ -487,7 +492,13 @@ export default class IsometricScene extends Phaser.Scene {
     
         // Add the wrapper to the game
         this.overlay = this.add.dom(0, 0, htmlWrapper);
-        this.overlay.setOrigin(0.4);
+        if (this.game.device.os.desktop) {
+            this.overlay.setOrigin(0.38, 0.4);
+        } else {
+            this.overlay.setOrigin(0.38, 0.3);
+
+        }
+        
         this.overlay.setScrollFactor(0);
         this.overlay.setDepth(1000);
         this.overlay.setScale(1 / this.cameras.main.zoom);

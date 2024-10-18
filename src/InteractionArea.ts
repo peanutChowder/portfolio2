@@ -52,8 +52,14 @@ export default class InteractionArea {
         this.hoverColor = buttonInfo.hoverColor;
         this.buttonX = 0;
         this.buttonY = 0;
-        this.buttonWidth = 400;
-        this.buttonHeight = 100;
+        if (this.scene.sys.game.device.os.desktop) {
+            this.buttonWidth = 300;
+            this.buttonHeight = 90;
+        } else {
+            this.buttonWidth = 0.7 * this.scene.cameras.main.width;
+            this.buttonHeight = 0.1 * this.scene.cameras.main.height;
+        }
+
         this.initInteractionButton(buttonInfo.text, buttonInfo.font);
     }
 
