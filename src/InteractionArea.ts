@@ -11,23 +11,26 @@ export default class InteractionArea {
     private overlayName: string;
     private displayName: string;
     private floatingText: Phaser.GameObjects.Text | null = null;
+
     private interactionButton!: Phaser.GameObjects.Container;
-    private buttonOffset: Phaser.Math.Vector2 = new Phaser.Math.Vector2(0, 0);
     private buttonBg!: Phaser.GameObjects.Graphics;
     private buttonText!: Phaser.GameObjects.Text;
-    private normalColor: number = 0x4a9a4a;
-    private hoverColor: number = 0x5aba5a;
+    private normalColor: number;
+    private hoverColor: number;
+    private buttonX: number;
+    private buttonY: number;
+    private buttonHeight: number;
+    private buttonWidth: number;
 
     constructor(
         scene: Phaser.Scene,
         x: number, y: number,
         width: number, height: number,
-        promptMessage: string,
         displayName: string,
         overlayName: string,
         lineColor: number,
         fillColor: number,
-        fontFamilies: {"header": string, "body": string},
+        buttonInfo: {text: string, font: string, fontColor: string, color: number, hoverColor: number},
         floatingTextInfo?: {text: string, offset: {x: number, y: number}, font: string, fontSize: string, color: string}
     ) {
         this.scene = scene;
@@ -44,10 +47,20 @@ export default class InteractionArea {
             this.addFloatingText(floatingTextInfo);
         }
 
+        // Init the button used to open the overlay
+        this.normalColor = buttonInfo.color;
+        this.hoverColor = buttonInfo.hoverColor;
+        this.buttonX = 0;
+        this.buttonY = 0;
+        this.buttonWidth = 400;
+        this.buttonHeight = 100;
+        this.initInteractionButton(buttonInfo.text, buttonInfo.font);
+    }
+
+    private initInteractionButton(text: string, font: string) {
         // Create container that will act as the bounds for the interaction prompt button
         this.interactionButton = this.scene.add.container(
-            this.scene.cameras.main.width / 2,
-            this.scene.cameras.main.height - 50
+            this.buttonX, this.buttonY
         );
         this.interactionButton.setScrollFactor(0);
         this.interactionButton.setDepth(1000);
@@ -56,18 +69,24 @@ export default class InteractionArea {
         this.drawButtonBackground(this.normalColor);
 
         // Add button text
-        this.buttonText = this.scene.add.text(0, 0, promptMessage, {
+        this.buttonText = this.scene.add.text(this.buttonX, this.buttonY, text, {
             font: '20px',
             color: '#ffffff'
         });
         this.buttonText.setOrigin(0.5);
-        this.buttonText.setFontFamily(fontFamilies.header);
+        this.buttonText.setFontFamily(font);
 
         this.interactionButton.add([this.buttonBg, this.buttonText]);
         this.interactionButton.setVisible(false);
 
         // Add hover effect
-        this.interactionButton.setInteractive(new Phaser.Geom.Rectangle(-200, -50, 400, 100), Phaser.Geom.Rectangle.Contains);
+        this.interactionButton.setInteractive(
+            new Phaser.Geom.Rectangle(
+                this.buttonX - (this.buttonWidth / 2), this.buttonY - (this.buttonHeight / 2), 
+                this.buttonWidth, this.buttonHeight, 
+            ), 
+            Phaser.Geom.Rectangle.Contains
+        );
         this.interactionButton.on('pointerover', this.onButtonHover, this);
         this.interactionButton.on('pointerout', this.onButtonOut, this);
         this.interactionButton.on('pointerdown', this.handleClick, this);
@@ -76,9 +95,17 @@ export default class InteractionArea {
     private drawButtonBackground(color: number) {
         this.buttonBg.clear();
         this.buttonBg.fillStyle(color, 1);
-        this.buttonBg.fillRoundedRect(-200, -50, 400, 100, 20);
+        this.buttonBg.fillRoundedRect(
+            this.buttonX - (this.buttonWidth / 2), this.buttonY - (this.buttonHeight / 2), 
+            this.buttonWidth, this.buttonHeight, 
+            20
+        );
         this.buttonBg.lineStyle(4, 0xffffff, 1);
-        this.buttonBg.strokeRoundedRect(-200, -50, 400, 100, 20);
+        this.buttonBg.strokeRoundedRect(
+            this.buttonX - (this.buttonWidth / 2), this.buttonY - (this.buttonHeight / 2), 
+            this.buttonWidth, this.buttonHeight, 
+            20
+        );
     }
 
     private onButtonHover() {
@@ -100,7 +127,6 @@ export default class InteractionArea {
             // Check if the click position is within the button's dimensions
             if (relativeClickX >= 0 && relativeClickX <= buttonBounds.width &&
                 relativeClickY >= 0 && relativeClickY <= buttonBounds.height) {
-                console.log(`Found: ${relativeClickX} ${relativeClickY}`);
                 this.handleInteraction();
             }
         }
@@ -152,7 +178,8 @@ export default class InteractionArea {
 
     handleInteraction(): void {
         if (this.isPlayerInside) {
-            // TODO: implement
+            console.info(`Player inside area '${this.displayName}'`);
+            (this.scene as any).showOverlay(this.overlayName);
         }
     }
 

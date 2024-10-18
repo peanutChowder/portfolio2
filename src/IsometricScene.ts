@@ -150,7 +150,7 @@ export default class IsometricScene extends Phaser.Scene {
             }
 
             // Create and draw boat
-            this.boat = new Boat(this, 620, 490, this.interactionAreas);
+            this.boat = new Boat(this, 530, 2990, this.interactionAreas);
             this.add.existing(this.boat)
             console.log("Added boat")
 
@@ -195,9 +195,7 @@ export default class IsometricScene extends Phaser.Scene {
             // Add debug info
             this.add.text(10, 10, `Map dimensions: ${worldWidth}x${worldHeight}`, { color: fontColor, font: fontSize });
             this.add.text(10, 80, `Tile dimensions: ${this.map.tileWidth}x${this.map.tileHeight}`, { color: fontColor, font: fontSize  });
-
-
-
+            this.add.text(10, 150, `Desktop?: ${this.sys.game.device.os.desktop}`, { color: fontColor, font: fontSize  })
 
             // Log map information
             console.log('Map dimensions:', worldWidth, 'x', worldHeight);
@@ -220,12 +218,17 @@ export default class IsometricScene extends Phaser.Scene {
             this,
             -900, 6600,
             2500, 2000,
-            "Press 'X' to see resume!",
             "Resume",
             "resumeOverlay",
             0x52f778,
             0x81f79c,
-            fontFamilies,
+            {
+                text: "Click to see Resume",
+                font: fontFamilies["header"],
+                fontColor: "#ffffff",
+                color: 0x4a9a4a,
+                hoverColor: 0x5aba5a
+            },
             {
                 text: "Resume",
                 color: "#175235",
@@ -241,12 +244,17 @@ export default class IsometricScene extends Phaser.Scene {
             this,
             600, 3600,
             2000, 1500,
-            "Press 'X' to see Olympic\nWeightlifting content!",
             "Olympic\nWeightlifting",
             "owOverlay",
             0x52f778,
             0x81f79c,
-            fontFamilies,
+            {
+                text: "Click to see Olympic\nWeightlifting Content",
+                font: fontFamilies["header"],
+                fontColor: "#ffffff",
+                color: 0x4a9a4a,
+                hoverColor: 0x5aba5a
+            },
             {
                 text: "Olympic Weightlifting",
                 color: "#6a6e25",
@@ -262,12 +270,17 @@ export default class IsometricScene extends Phaser.Scene {
             this,
             2445, 8750,
             2000, 1500,
-            "Press 'X' to see FormFitness!",
             "iOS App",
             "ffOverlay",
             0xffa405,
             0xffdb9c,
-            fontFamilies,
+            {
+                text: "Click to see FormFitness",
+                font: fontFamilies["header"],
+                fontColor: "#ffffff",
+                color: 0x4a9a4a,
+                hoverColor: 0x5aba5a
+            },
             {
                 text: "FormFitness",
                 color: "#9e4a09",
