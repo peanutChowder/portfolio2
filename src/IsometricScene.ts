@@ -191,9 +191,9 @@ export default class IsometricScene extends Phaser.Scene {
             if (!this.sys.game.device.os.desktop) {
                 const joyStickOrigin = this.cameras.main.getWorldPoint(
                     this.cameras.main.width / 2,
-                    this.cameras.main.height * 1.5
+                    this.cameras.main.height * 0.8
                 )
-                this.joystick = new VirtualJoystick(this, joyStickOrigin.x, joyStickOrigin.y, 500, 200);
+                this.joystick = new VirtualJoystick(this, joyStickOrigin.x, joyStickOrigin.y, 300, 100);
                 this.boat.setJoystickDirectionGetter(() => this.joystick.getDirection())
             }
 
