@@ -227,13 +227,13 @@ export default class IsometricScene extends Phaser.Scene {
             "Resume",
             "resumeOverlay",
             0x52f778,
-            0x81f79c,
+            0xa1f7ce,
             {
                 text: "Click to see Resume",
                 font: fontFamilies["header"],
                 fontColor: "#ffffff",
-                color: 0x4a9a4a,
-                hoverColor: 0x5aba5a
+                color: 0x418045,
+                hoverColor: 0x46914b
             },
             {
                 text: "Resume",
@@ -252,18 +252,18 @@ export default class IsometricScene extends Phaser.Scene {
             2000, 1500,
             "Olympic\nWeightlifting",
             "owOverlay",
-            0x52f778,
-            0x81f79c,
+            0x45fff9,
+            0x68e2ed,
             {
                 text: "Click to see Olympic\nWeightlifting Content",
                 font: fontFamilies["header"],
                 fontColor: "#ffffff",
-                color: 0x4a9a4a,
-                hoverColor: 0x5aba5a
+                color: 0x438a88,
+                hoverColor: 0x48a3a1
             },
             {
                 text: "Olympic Weightlifting",
-                color: "#6a6e25",
+                color: "#268784",
                 font: fontFamilies["header"],
                 fontSize: "130px",
                 offset: {
@@ -284,8 +284,8 @@ export default class IsometricScene extends Phaser.Scene {
                 text: "Click to see FormFitness",
                 font: fontFamilies["header"],
                 fontColor: "#ffffff",
-                color: 0x4a9a4a,
-                hoverColor: 0x5aba5a
+                color: 0xa38b48,
+                hoverColor: 0xb89944
             },
             {
                 text: "FormFitness",
