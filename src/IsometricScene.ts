@@ -152,7 +152,7 @@ export default class IsometricScene extends Phaser.Scene {
             }
 
             // Create and draw boat
-            this.boat = new Boat(this, 530, 2990, this.interactionAreas);
+            this.boat = new Boat(this, -187, 5338, this.interactionAreas);
             this.add.existing(this.boat)
             console.log("Added boat")
 
