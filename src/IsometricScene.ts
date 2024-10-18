@@ -26,9 +26,11 @@ import { VirtualJoystick } from './VirtualJoystick';
 const fontSize = "80px";
 const fontColor = "#ffffff"
 const fontFamilies = {
-    "header": "Prompt",
+    "header": "Arial",
     "body": ""
 }
+
+const debugMode = false;
 
 export default class IsometricScene extends Phaser.Scene {
     private map!: Phaser.Tilemaps.Tilemap;
@@ -192,20 +194,21 @@ export default class IsometricScene extends Phaser.Scene {
             this.joystick = new VirtualJoystick(this, joyStickOrigin.x, joyStickOrigin.y, 500, 200);
             this.boat.setJoystickDirectionGetter(() => this.joystick.getDirection())
 
-            // Add debug info
-            this.add.text(10, 10, `Map dimensions: ${worldWidth}x${worldHeight}`, { color: fontColor, font: fontSize });
-            this.add.text(10, 80, `Tile dimensions: ${this.map.tileWidth}x${this.map.tileHeight}`, { color: fontColor, font: fontSize  });
-            this.add.text(10, 150, `Desktop?: ${this.sys.game.device.os.desktop}`, { color: fontColor, font: fontSize  })
+            if (debugMode) {
+                // Add debug info
+                this.add.text(10, 10, `Map dimensions: ${worldWidth}x${worldHeight}`, { color: fontColor, font: fontSize });
+                this.add.text(10, 80, `Tile dimensions: ${this.map.tileWidth}x${this.map.tileHeight}`, { color: fontColor, font: fontSize  });
+                this.add.text(10, 150, `Desktop?: ${this.sys.game.device.os.desktop}`, { color: fontColor, font: fontSize  })
 
-            // Log map information
-            console.log('Map dimensions:', worldWidth, 'x', worldHeight);
-            console.log('Tile dimensions:', this.map.tileWidth, 'x', this.map.tileHeight);
-            console.log('Number of layers:', this.map.layers.length);
-            console.log('Tileset name:', tilesets.map((tileset) => {tileset}));
+                // Log map information
+                console.log('Map dimensions:', worldWidth, 'x', worldHeight);
+                console.log('Tile dimensions:', this.map.tileWidth, 'x', this.map.tileHeight);
+                console.log('Number of layers:', this.map.layers.length);
+                console.log('Tileset name:', tilesets.map((tileset) => {tileset}));
 
-            // Set up debugging tool
-            this.setupDebuggingTool();
-
+                // Set up debugging tool
+                this.setupDebuggingTool();
+            }
         } catch (error) {
             console.error('Error in create function:', error);
         }
