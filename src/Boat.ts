@@ -16,6 +16,8 @@ export class Boat extends Phaser.GameObjects.Container {
     private currOrientation!: string;
     private interactionAreas: {[key:string]: InteractionArea} = {}
 
+    private getJoyStickDirection: (() => string) | undefined;
+
     constructor(scene: IsometricScene, x: number, y: number, interactionAreas: { [key: string]: InteractionArea }) {
         super(scene, x, y);
 
@@ -50,6 +52,10 @@ export class Boat extends Phaser.GameObjects.Container {
         this.hitboxGraphics.visible = false
     }
 
+    setJoystickDirectionGetter(joystickDirectionGetter: () => string) {
+        this.getJoyStickDirection = joystickDirectionGetter;
+    }
+
     update(): void {
         if (this.isBouncing) {
             return; // Don't allow movement while bouncing
@@ -58,40 +64,46 @@ export class Boat extends Phaser.GameObjects.Container {
         const diagonalSpeed = this.speed;
         const cardinalSpeed = this.speed * 0.7071; // approx sqrt(2)/2
         const eastWestCompensation = 1.6; // Compensates for the slow feeling east/west travel
+
+        let joystickDirection = "C";
+        if (this.getJoyStickDirection != undefined) {
+            joystickDirection = this.getJoyStickDirection()
+        }
+        
         
         let dx = 0;
         let dy = 0;
         let newTexture = '';
 
         // Check for diagonal movements first
-        if (this.cursors.left.isDown && this.cursors.up.isDown) {
+        if (this.cursors.left.isDown && this.cursors.up.isDown || (joystickDirection == "NW")) {
             dx -= diagonalSpeed;
             dy -= diagonalSpeed / 2;
             newTexture = 'boat_nw';
-        } else if (this.cursors.left.isDown && this.cursors.down.isDown) {
+        } else if (this.cursors.left.isDown && this.cursors.down.isDown || (joystickDirection == "SW")) {
             dx -= diagonalSpeed;
             dy += diagonalSpeed / 2;
             newTexture = 'boat_sw';
-        } else if (this.cursors.right.isDown && this.cursors.up.isDown) {
+        } else if (this.cursors.right.isDown && this.cursors.up.isDown || (joystickDirection == "NE")) {
             dx += diagonalSpeed;
             dy -= diagonalSpeed / 2;
             newTexture = 'boat_ne';
-        } else if (this.cursors.right.isDown && this.cursors.down.isDown) {
+        } else if (this.cursors.right.isDown && this.cursors.down.isDown || (joystickDirection == "SE")) {
             dx += diagonalSpeed;
             dy += diagonalSpeed / 2;
             newTexture = 'boat_se';
         }
         // then check for cardinal directions.
-        else if (this.cursors.left.isDown) {
+        else if (this.cursors.left.isDown || (joystickDirection == "W")) {
             dx -= cardinalSpeed * eastWestCompensation;
             newTexture = 'boat_w';
-        } else if (this.cursors.right.isDown) {
+        } else if (this.cursors.right.isDown || (joystickDirection == "E")) {
             dx += cardinalSpeed * eastWestCompensation;
             newTexture = 'boat_e';
-        } else if (this.cursors.up.isDown) {
+        } else if (this.cursors.up.isDown || (joystickDirection == "N")) {
             dy -= cardinalSpeed;
             newTexture = 'boat_n';
-        } else if (this.cursors.down.isDown) {
+        } else if (this.cursors.down.isDown || (joystickDirection == "S")) {
             dy += cardinalSpeed;
             newTexture = 'boat_s';
         }

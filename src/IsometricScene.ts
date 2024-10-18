@@ -190,6 +190,7 @@ export default class IsometricScene extends Phaser.Scene {
                 this.cameras.main.height * 1.5
             )
             this.joystick = new VirtualJoystick(this, joyStickOrigin.x, joyStickOrigin.y, 500, 200);
+            this.boat.setJoystickDirectionGetter(() => this.joystick.getDirection())
 
             // Add debug info
             this.add.text(10, 10, `Map dimensions: ${worldWidth}x${worldHeight}`, { color: fontColor, font: fontSize });

@@ -8,6 +8,7 @@ export class VirtualJoystick extends Phaser.GameObjects.Container {
     private maxDistance: number;
     private pointerDown: boolean = false;
     private direction: Phaser.Math.Vector2 = new Phaser.Math.Vector2();
+    private currDirection: string = 'C'; // Default 'C' for Center
 
     private xPointerOffset: number;
     private yPointerOffset: number;
@@ -75,8 +76,6 @@ export class VirtualJoystick extends Phaser.GameObjects.Container {
     }
 
     private updateStickPosition(pointer: Phaser.Input.Pointer): void {
-        console.log(`${pointer.x} ${pointer.y}\n${this.x} ${this.y}`)
-
         const dx = pointer.x + this.xPointerOffset;
         const dy = pointer.y + this.yPointerOffset;
         const distance = Math.sqrt(dx * dx + dy * dy);
@@ -95,14 +94,39 @@ export class VirtualJoystick extends Phaser.GameObjects.Container {
         }
 
         this.direction.set(this.stick.x, this.stick.y).normalize();
+        this.updateDirection();
     }
 
     private resetStickPosition(): void {
         this.stick.setPosition(0, 0);
         this.direction.set(0, 0);
+        this.currDirection = 'C'; // Reset to center
     }
 
-    public getDirection(): Phaser.Math.Vector2 {
-        return this.direction;
+    private updateDirection(): void {
+        const angle = Phaser.Math.RadToDeg(Math.atan2(this.direction.y, this.direction.x));
+        const normalizedAngle = (angle + 360) % 360;
+
+        if (normalizedAngle >= 337.5 || normalizedAngle < 22.5) {
+            this.currDirection = 'E';
+        } else if (normalizedAngle >= 22.5 && normalizedAngle < 67.5) {
+            this.currDirection = 'SE';
+        } else if (normalizedAngle >= 67.5 && normalizedAngle < 112.5) {
+            this.currDirection = 'S';
+        } else if (normalizedAngle >= 112.5 && normalizedAngle < 157.5) {
+            this.currDirection = 'SW';
+        } else if (normalizedAngle >= 157.5 && normalizedAngle < 202.5) {
+            this.currDirection = 'W';
+        } else if (normalizedAngle >= 202.5 && normalizedAngle < 247.5) {
+            this.currDirection = 'NW';
+        } else if (normalizedAngle >= 247.5 && normalizedAngle < 292.5) {
+            this.currDirection = 'N';
+        } else if (normalizedAngle >= 292.5 && normalizedAngle < 337.5) {
+            this.currDirection = 'NE';
+        }
+    }
+
+    public getDirection(): string {
+        return this.currDirection;
     }
 }
