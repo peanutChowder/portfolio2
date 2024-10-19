@@ -1,19 +1,36 @@
 import Phaser from 'phaser';
 import IsometricScene from './IsometricScene';
 
+// manually remove margin so that game takes full horizontal width
+const style = document.createElement('style');
+style.textContent = `
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+  }
+  #game-container {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+`;
+document.head.appendChild(style);
+
 const config: Phaser.Types.Core.GameConfig = {
     type: Phaser.AUTO,
-    width: '100%',
-    height: '100%',
-    scene: [IsometricScene],
     scale: {
-        mode: Phaser.Scale.FIT,
-        autoCenter: Phaser.Scale.CENTER_BOTH
+        mode: Phaser.Scale.RESIZE,
+        width: '100%',
+        height: '100%',
+        parent: 'game-container',
     },
-    parent: "game-container",
+    scene: [IsometricScene],
     dom: {
         createContainer: true
-    }
+    },
 };
 
 window.addEventListener('load', () => {
