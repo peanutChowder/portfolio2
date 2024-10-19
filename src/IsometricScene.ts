@@ -469,8 +469,8 @@ export default class IsometricScene extends Phaser.Scene {
     private showOverlay(overlayHtmlKey: string): void {
         // Toggle overlay (destroy it) if it is currently shown
         if (this.overlay) {
-            this.destroyOverlayWithAnimation()
-            return
+            this.destroyOverlayWithAnimation(overlayHtmlKey);
+            return;
         } 
 
         console.group("Creating overlay")
@@ -510,7 +510,7 @@ export default class IsometricScene extends Phaser.Scene {
         // Close button for overlay
         const closeButton = htmlWrapper.querySelector('#closeButton');
         if (closeButton) {
-            closeButton.addEventListener('click', () => this.destroyOverlayWithAnimation());
+            closeButton.addEventListener('click', () => this.destroyOverlayWithAnimation(overlayHtmlKey));
         } else {
             console.error("Close button not found")
         }
@@ -536,7 +536,7 @@ export default class IsometricScene extends Phaser.Scene {
         })  
     }
 
-    private destroyOverlayWithAnimation() {
+    private destroyOverlayWithAnimation(overlayHtmlKey: string) {
         if (this.overlay) {
             const overlayWrapperDiv = this.overlay.getChildByID('overlay-wrapper') as HTMLElement;
 
@@ -552,6 +552,13 @@ export default class IsometricScene extends Phaser.Scene {
             }, 500);
         } else {
             console.warn("No overlay destroyed: currently null")
+        }
+
+        const interactionArea = Object.values(this.interactionAreas).find(child => child["overlayName"] === overlayHtmlKey)
+        if (interactionArea) {
+            interactionArea.setIgnoreButtonClick(false);
+        } else {
+            console.error(`Could not re-enable button after overlay ${overlayHtmlKey} closed.`)
         }
     }
 

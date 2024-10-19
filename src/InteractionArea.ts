@@ -21,6 +21,7 @@ export default class InteractionArea {
     private buttonY: number;
     private buttonHeight: number;
     private buttonWidth: number;
+    private ignoreButtonClick: boolean = false;
 
     constructor(
         scene: Phaser.Scene,
@@ -69,7 +70,7 @@ export default class InteractionArea {
             this.buttonX, this.buttonY
         );
         this.interactionButton.setScrollFactor(0);
-        this.interactionButton.setDepth(1000);
+        this.interactionButton.setDepth(50);
 
         this.buttonBg = this.scene.add.graphics();
         this.drawButtonBackground(this.normalColor);
@@ -122,19 +123,13 @@ export default class InteractionArea {
         this.drawButtonBackground(this.normalColor);
     }
 
-    private handleClick = (pointer: Phaser.Input.Pointer): void => {
-        if (this.isPlayerInside && this.interactionButton.visible) {
-            const buttonBounds = this.interactionButton.getBounds();
-
-            // Calculate the click position relative to the button in screen space
-            const relativeClickX = (pointer.x - buttonBounds.x);
-            const relativeClickY = (pointer.y - buttonBounds.y + 300);
-
-            // Check if the click position is within the button's dimensions
-            if (relativeClickX >= 0 && relativeClickX <= buttonBounds.width &&
-                relativeClickY >= 0 && relativeClickY <= buttonBounds.height) {
-                this.handleInteraction();
-            }
+    private handleClick = (_: Phaser.Input.Pointer): void => {
+        if (this.isPlayerInside && this.interactionButton.visible && !this.ignoreButtonClick) {   
+            // We ignore button clicks after the first click to avoid the player clicking the button
+            // through the overlay. Thus this attribute MUST be set back to false once the overlay is 
+            // closed. 
+            this.ignoreButtonClick = true; 
+            this.handleInteraction();
         }
     }
 
@@ -227,5 +222,9 @@ export default class InteractionArea {
 
     getLineColor(): number {
         return this.areaLineColor;
+    }
+
+    setIgnoreButtonClick(ignore: boolean): void {
+        this.ignoreButtonClick = ignore;
     }
 }
