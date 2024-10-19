@@ -527,7 +527,7 @@ export default class IsometricScene extends Phaser.Scene {
                     overlayWrapperDiv.style.transition = 'opacity 0.5s ease-in-out';
                     setTimeout(() => {
                         overlayWrapperDiv.style.opacity = '1';
-                    }, 5);
+                    }, 100);
                 }
             }
         })  
