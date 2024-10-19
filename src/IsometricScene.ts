@@ -525,10 +525,10 @@ export default class IsometricScene extends Phaser.Scene {
         this.time.delayedCall(0, () => {
             if (overlayWrapperDiv) {
                 if (overlayWrapperDiv.style.display === 'none') {
-                    overlayWrapperDiv.style.display = 'flex';
 
                     // Fade in animation
                     overlayWrapperDiv.style.opacity = '0';
+                    overlayWrapperDiv.style.display = 'flex';
                     overlayWrapperDiv.style.transition = 'opacity 0.5s ease-in-out';
                     setTimeout(() => {
                         overlayWrapperDiv.style.opacity = '1';
