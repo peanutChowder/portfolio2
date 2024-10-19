@@ -48,6 +48,8 @@ export default class IsometricScene extends Phaser.Scene {
     // joystick for mobile users
     private joystick!: VirtualJoystick;
 
+    public isMobileDevice!: boolean;
+
     // Debug text attributes
     private debugMode: boolean;
     private debugText!: Phaser.GameObjects.Text;
@@ -187,8 +189,9 @@ export default class IsometricScene extends Phaser.Scene {
             // Set up camera to follow the boat
             this.cameras.main.startFollow(this.boat, true);
 
+            this.isMobileDevice = this.sys.game.device.os.android || this.sys.game.device.os.iOS
             // Create a virtual joystick for non-desktop users to move the boat.
-            if (!this.sys.game.device.os.desktop) {
+            if (this.isMobileDevice) {
                 const joyStickOrigin = this.cameras.main.getWorldPoint(
                     this.cameras.main.width / 2,
                     this.cameras.main.height * 0.8
@@ -201,7 +204,7 @@ export default class IsometricScene extends Phaser.Scene {
                 // Add debug info
                 this.add.text(10, 10, `Map dimensions: ${worldWidth}x${worldHeight}`, { color: fontColor, font: fontSize });
                 this.add.text(10, 80, `Tile dimensions: ${this.map.tileWidth}x${this.map.tileHeight}`, { color: fontColor, font: fontSize  });
-                this.add.text(10, 150, `Desktop?: ${this.sys.game.device.os.desktop}`, { color: fontColor, font: fontSize  })
+                this.add.text(10, 150, `Mobile?: ${this.isMobileDevice}`, { color: fontColor, font: fontSize  })
 
                 // Log map information
                 console.log('Map dimensions:', worldWidth, 'x', worldHeight);
