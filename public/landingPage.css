@@ -1,0 +1,49 @@
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: Arial, sans-serif;
+}
+
+#landing-page {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    background-color: rgba(255, 253, 240, 0.95);
+}
+
+h1 {
+    font-size: 2.5em;
+    color: #333;
+}
+
+p {
+    font-size: 1.2em;
+    color: #666;
+    margin-bottom: 2em;
+}
+
+#start-game {
+    font-size: 1.2em;
+    padding: 10px 20px;
+    background-color: blue;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+#start-game:hover {
+    background-color: blue;
+}
+
+#game-container {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
