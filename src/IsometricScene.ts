@@ -227,22 +227,22 @@ export default class IsometricScene extends Phaser.Scene {
             this,
             -900, 6600,
             2500, 2000,
-            "Resume",
+            "Experience",
             "resumeOverlay",
             0x52f778,
             0xa1f7ce,
             {
-                text: "Click to see Resume",
+                text: "Click to see my experience",
                 font: fontFamilies["header"],
                 fontColor: "#ffffff",
                 color: 0x418045,
                 hoverColor: 0x46914b
             },
             {
-                text: "Resume",
+                text: "Experience",
                 color: "#175235",
                 font: fontFamilies["header"],
-                fontSize: "300px",
+                fontSize: "220px",
                 offset: {
                     x: -100, y: -1200
                 }
