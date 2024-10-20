@@ -2,7 +2,34 @@ body, html {
     margin: 0;
     padding: 0;
     height: 100%;
-    font-family: 'Arial', sans-serif;
+    font-family: 'Prompt', sans-serif;
+}
+
+/* Hide mobile + desktop content by default */
+.mobile-content, .desktop-content {
+    display: none;
+}
+
+/* Mobile content show or hide */
+@media only screen and (max-width: 768px), (hover: none) and (pointer: coarse) {
+    .mobile-content {
+        display: block;
+    }
+    
+    .desktop-content {
+        display: none;
+    }
+}
+
+/* Desktop content show or hide */
+@media only screen and (min-width: 769px), (hover: hover) and (pointer: fine) {
+    .mobile-content {
+        display: none;
+    }
+    
+    .desktop-content {
+        display: block;
+    }
 }
 
 #landing-page {
@@ -22,12 +49,13 @@ h1 {
     text-align: center;
     text-transform: uppercase;
     letter-spacing: 2px;
+    margin-bottom: 10px;
 }
 
 h2 {
     color: #A79B8E;
     font-size: 24px;
-    margin-bottom: 10px;
+    margin-bottom: 20px;
 }
 
 p {
@@ -38,8 +66,8 @@ p {
 }
 
 #start-game {
-    font-size: 16px;
-    padding: 10px 20px;
+    font-size: 28px;
+    padding: 20px 40px;
     background-color: #D0B49F;
     color: white;
     border: none;
@@ -47,7 +75,7 @@ p {
     cursor: pointer;
     transition: background-color 0.3s ease;
     display: block;
-    margin: 20px auto 0;
+    margin: 20px auto;
 }
 
 #start-game:hover {
@@ -74,4 +102,49 @@ p {
 #landing-page::-webkit-scrollbar-thumb {
     background-color: #D0B49F;
     border-radius: 4px;
+}
+
+#instructions {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    margin-top: 20px;
+    text-align: center;
+}
+
+#instructions p {
+    color: #7E6D5A;
+    font-size: 16px;
+    margin-bottom: 10px;
+}
+
+#arrow-keys {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.arrow-row {
+    display: flex;
+}
+
+.arrow {
+    font-size: 24px;
+    width: 40px;
+    height: 40px;
+    line-height: 40px;
+    text-align: center;
+    background-color: #D0B49F;
+    color: white;
+    margin: 5px;
+    border-radius: 5px;
+}
+
+.arrow.up {
+    margin-bottom: 5px;
+}
+
+.arrow.down {
+    margin-top: 5px;
 }
