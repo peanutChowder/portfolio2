@@ -23,6 +23,17 @@ body, html {
     #instructions {
         flex-direction: column;
     }
+
+    #ia-demo-container {
+        width: 100%;
+        border-radius: 12px;
+        box-shadow: 3px 5px 7px #D0B49F;
+        background-color: #D0B49F; 
+    }
+    
+    #ia-demo {
+        width: 100%;
+    }
 }
 
 /* Desktop content rules*/
@@ -38,6 +49,19 @@ body, html {
     #instructions {
         flex-direction: row;
     }
+
+    #ia-demo-container {
+        height: 499px;
+        border-radius: 12px;
+        box-shadow: 3px 6px 7px #D0B49F;
+        background-color: #D0B49F; 
+        border: 1px solid #D0B49F;
+    }
+    
+    #ia-demo {
+        width: 500px;
+    }
+    
 }
 
 #landing-page {
@@ -49,6 +73,7 @@ body, html {
     background-color: rgba(255, 253, 240, 0.95);
     padding: 30px;
     box-sizing: border-box;
+    overflow-y: scroll;
 }
 
 h1 {
@@ -63,14 +88,22 @@ h1 {
 h2 {
     color: #A79B8E;
     font-size: 24px;
-    margin-bottom: 20px;
+    margin-bottom: 0px;
 }
 
 p {
     color: #A79B8E;
     font-size: 18px;
+    margin-top: 0px;
     margin-bottom: 2em;
     text-align: center;
+}
+
+hr {
+    margin: 30px 40px;
+    opacity: 0.7;
+    background-color: #D0B49F;
+    color: #D0B49F;
 }
 
 #start-game {
@@ -110,6 +143,12 @@ p {
 #landing-page::-webkit-scrollbar-thumb {
     background-color: #D0B49F;
     border-radius: 4px;
+}
+
+#instructions-container {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
 }
 
 #instructions {
@@ -183,4 +222,11 @@ p {
     height: 30%;
     border-radius: 50%;
     background-color: #A79B8E;
+}
+
+#ia-demo-video::-webkit-media-controls {
+    display: none;
+}
+#ia-demo-video::-webkit-media-controls-enclosure {
+    display: none;
 }
