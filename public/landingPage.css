@@ -13,7 +13,10 @@ body, html {
 /* Mobile content rules*/
 @media only screen and (max-width: 768px), (hover: none) and (pointer: coarse) {
     .mobile-content {
-        display: block;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        min-height: 250px;
     }
     
     .desktop-content {
@@ -42,7 +45,9 @@ body, html {
         display: none;
       }
       .desktop-content {
-        display: block;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-evenly;
       }
 
       #instructions {
@@ -91,8 +96,8 @@ h1 {
 
 h2 {
     color: #A79B8E;
-    font-size: 24px;
-    margin-bottom: 0px;
+    font-size: 28px;
+    margin: 0px;
 }
 
 p {
@@ -110,6 +115,14 @@ hr {
     color: #D0B49F;
 }
 
+#titles {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    text-align: center;
+    margin-top: 10%;
+}
+
 #start-game {
     font-family: 'Prompt';
     font-size: 28px;
@@ -121,7 +134,7 @@ hr {
     cursor: pointer;
     transition: background-color 0.3s ease;
     display: block;
-    margin: 20px auto;
+    margin: 30px auto;
 }
 
 #start-game:hover {
@@ -238,5 +251,5 @@ hr {
 }
 
 #about-site {
-    margin: 0px 30px;
+    margin: 40px 30px;
 }
