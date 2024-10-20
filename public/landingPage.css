@@ -13,6 +13,7 @@ body, html {
 /* Mobile content rules*/
 @media only screen and (max-width: 768px), (hover: none) and (pointer: coarse) {
     .mobile-content {
+        margin-top: 50px;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
