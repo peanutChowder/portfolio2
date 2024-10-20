@@ -2,7 +2,7 @@ body, html {
     margin: 0;
     padding: 0;
     height: 100%;
-    font-family: Arial, sans-serif;
+    font-family: 'Arial', sans-serif;
 }
 
 #landing-page {
@@ -12,32 +12,46 @@ body, html {
     align-items: center;
     height: 100%;
     background-color: rgba(255, 253, 240, 0.95);
+    padding: 30px;
+    box-sizing: border-box;
 }
 
 h1 {
-    font-size: 2.5em;
-    color: #333;
+    color: #7E6D5A;
+    font-size: 36px;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+h2 {
+    color: #A79B8E;
+    font-size: 24px;
+    margin-bottom: 10px;
 }
 
 p {
-    font-size: 1.2em;
-    color: #666;
+    color: #A79B8E;
+    font-size: 18px;
     margin-bottom: 2em;
+    text-align: center;
 }
 
 #start-game {
-    font-size: 1.2em;
+    font-size: 16px;
     padding: 10px 20px;
-    background-color: blue;
+    background-color: #D0B49F;
     color: white;
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    transition: background-color 0.3s;
+    transition: background-color 0.3s ease;
+    display: block;
+    margin: 20px auto 0;
 }
 
 #start-game:hover {
-    background-color: blue;
+    background-color: #C0A48F;
 }
 
 #game-container {
@@ -46,4 +60,18 @@ p {
     position: absolute;
     top: 0;
     left: 0;
+}
+
+#landing-page::-webkit-scrollbar {
+    width: 8px;
+}
+
+#landing-page::-webkit-scrollbar-track {
+    background: #F0E6D2;
+    border-radius: 4px;
+}
+
+#landing-page::-webkit-scrollbar-thumb {
+    background-color: #D0B49F;
+    border-radius: 4px;
 }
