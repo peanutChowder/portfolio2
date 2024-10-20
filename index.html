@@ -1,26 +1,101 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Jacob Feng: Portfolio 2</title>
+    <title>Jacob Feng: Software Engineer</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Prompt:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Prompt:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="public/landingPage.css">
+    <!-- Embedded cs rules here are targeted at the actual game content, not landing page-->
     <style>
-        html, body {
+        html,
+        body {
             margin: 0;
             padding: 0;
             height: 100%;
             overflow: hidden;
         }
+
         body {
-            background-color: #000000; 
+            background-color: #000000;
         }
     </style>
 </head>
+
 <body>
+    <div id="landing-page">
+        <div id="titles">
+            <h1>Jacob Feng: Portfolio 2</h1>
+            <h2>Software Engineering</h2>
+        </div>
+        <button id="start-game">Enter Portfolio</button>
+        <br>
+        <div id="instructions-container">
+            <h2>How to play</h2>
+            <div id="instructions">
+                <div id="instructions-1">
+                    <p>Interact with areas marked by a circle</p>
+                    <div id="ia-demo-container">
+                        <video id="ia-demo" autoplay loop muted playsinline>
+                            <source src="assets/landing/iaDemo.mp4" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>
+                    </div>
+                </div>
+                <div class="desktop-content">
+                    <div>
+                        <p>Use arrow keys to move the boat</p>
+                        <div id="arrow-keys">
+                            <div class="arrow up">&#9650;</div>
+                            <div class="arrow-row">
+                                <div class="arrow left">&#9664;</div>
+                                <div class="arrow down">&#9660;</div>
+                                <div class="arrow right">&#9654;</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <p>Find out about: My experience, projects,<br>Olympic Lifting, and maybe even some<br>hidden treasures...</p>
+                    </div>
+                </div>
+                <div class="mobile-content">
+                    <div>
+                        <p>Drag the joystick to move the boat</p>
+                        <div id="joystick-container">
+                            <div id="joystick">
+                                <div class="joystick-outer">
+                                    <div class="joystick-inner"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <p>Find out about: My experience, projects,<br>Olympic Lifting, and maybe even some<br>hidden treasures...</p>
+                    </div>
+                </div>
+            </div>
+            <br>
+            <div id="about-site">
+                <h2>Aboout this site</h2>
+                <p>
+                    Built with <b>Phaser</b> in <b>TypeScript</b>.<br><br>
+                    I got bored of my old portfolio, and I've always wanted an interactive game portfolio.
+                    My experience lies in AI + networks + internal tooling, but I've always had a strong creative
+                    side, so creating a front end web game was such an exciting idea. I laid down most of the ground
+                    work in a week, because I literally could not stop thinking about this site.
+                    <br>
+                    As I am still learning, please feel free to leave me any feedback at <b>jacobfeng[at]infinitethink.org</b>.
+                </p>
+            </div>
+        </div>
+    </div>
     <div id="game-container"></div>
     <script type="module" src="/src/main.ts"></script>
 </body>
+
 </html>
