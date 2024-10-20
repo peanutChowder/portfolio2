@@ -107,8 +107,9 @@ hr {
 }
 
 #start-game {
+    font-family: 'Prompt';
     font-size: 28px;
-    padding: 20px 40px;
+    padding: 10px 40px;
     background-color: #D0B49F;
     color: white;
     border: none;
