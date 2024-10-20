@@ -236,3 +236,7 @@ hr {
 #ia-demo-video::-webkit-media-controls-enclosure {
     display: none;
 }
+
+#about-site {
+    margin: 0px 30px;
+}
