@@ -30,7 +30,7 @@ const fontFamilies = {
     "body": ""
 }
 
-const debugMode = true;
+const debugMode = false;
 
 export default class IsometricScene extends Phaser.Scene {
     private map!: Phaser.Tilemaps.Tilemap;
