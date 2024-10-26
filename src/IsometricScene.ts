@@ -154,7 +154,7 @@ export default class IsometricScene extends Phaser.Scene {
             }
 
             // Create and draw boat
-            this.boat = new Boat(this, -187, 5338, this.interactionAreas);
+            this.boat = new Boat(this, 6380, 8551, this.interactionAreas);
             this.add.existing(this.boat)
             console.log("Added boat")
 
@@ -225,7 +225,7 @@ export default class IsometricScene extends Phaser.Scene {
     private setupInteractiveAreas(): void {
         this.interactionAreas["resume"] = new InteractionArea(
             this,
-            -900, 6600,
+            -1300, 12800,
             2500, 2000,
             "Experience",
             "resumeOverlay",
@@ -244,14 +244,14 @@ export default class IsometricScene extends Phaser.Scene {
                 font: fontFamilies["header"],
                 fontSize: "220px",
                 offset: {
-                    x: -100, y: -1200
+                    x: -0, y: -1200
                 }
             }
         )
 
         this.interactionAreas["olympicWeightlifting"] = new InteractionArea(
             this,
-            600, 3600,
+            6580, 8151,
             2000, 1500,
             "Olympic\nWeightlifting",
             "owOverlay",
@@ -266,19 +266,19 @@ export default class IsometricScene extends Phaser.Scene {
             },
             {
                 text: "Olympic Weightlifting",
-                color: "#268784",
+                color: "#3bdbff",
                 font: fontFamilies["header"],
                 fontSize: "130px",
                 offset: {
-                    x: 0, y: -800
+                    x: 0, y: -900
                 }
             }
         )
 
         this.interactionAreas["formFitness"] = new InteractionArea(
             this,
-            2445, 8750,
-            2000, 1500,
+            2300, 17756,
+            2500, 1500,
             "iOS App",
             "ffOverlay",
             0xffa405,
