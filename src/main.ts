@@ -1,6 +1,8 @@
 import Phaser from 'phaser';
 import IsometricScene from './IsometricScene';
 
+const devMode = false; // skip intro page
+
 // manually remove margin so that game takes full horizontal width
 const style = document.createElement('style');
 style.textContent = `
@@ -15,7 +17,7 @@ style.textContent = `
  position: absolute;
  top: 0;
  left: 0;
- display: none;
+ display: ${devMode ? 'block' : 'none'};
  }
 `;
 document.head.appendChild(style);
@@ -49,6 +51,11 @@ const startGame = () => {
 };
 
 window.addEventListener('load', () => {
+  if (devMode) {
+    new Phaser.Game(config);
+    return
+  }
+
   const startButton = document.getElementById('start-game');
   if (startButton) {
     startButton.addEventListener('click', startGame);
@@ -60,9 +67,6 @@ window.addEventListener('load', () => {
 // Enable hot reloading for development
 if (import.meta.hot) {
   import.meta.hot.accept(() => {
-    if (game) {
-      game.destroy(true);
-    }
-    startGame();
+      location.reload();
   });
 }
