@@ -30,7 +30,7 @@ const fontFamilies = {
     "body": ""
 }
 
-const debugMode = true;
+const debugMode = false;
 
 export default class IsometricScene extends Phaser.Scene {
     private map!: Phaser.Tilemaps.Tilemap;
@@ -51,7 +51,6 @@ export default class IsometricScene extends Phaser.Scene {
 
     // joystick for mobile users
     private joystick!: VirtualJoystick;
-
     public isMobileDevice!: boolean;
 
     // Debug text attributes
@@ -229,10 +228,7 @@ export default class IsometricScene extends Phaser.Scene {
             this.isMobileDevice = this.sys.game.device.os.android || this.sys.game.device.os.iOS
             // Create a virtual joystick for non-desktop users to move the boat.
             if (this.isMobileDevice) {
-                const joyStickOrigin = this.cameras.main.getWorldPoint(
-                    this.cameras.main.width / 2,
-                    this.cameras.main.height * 0.8
-                )
+                const joyStickOrigin = {x: this.cameras.main.centerX, y: this.cameras.main.centerY * 4};
                 this.joystick = new VirtualJoystick(this, joyStickOrigin.x, joyStickOrigin.y, 300, 100);
                 this.boat.setJoystickDirectionGetter(() => this.joystick.getDirection())
             }
