@@ -162,16 +162,21 @@ export default class IsometricScene extends Phaser.Scene {
                     layer.forEachTile(tile => {
                         if (tile.index !== -1) {  // If not an empty tile
                             const tileWidth = this.map.tileWidth;
-                            const tileHeight = this.map.tileHeight;
+                            const tileHeight = this.map.tileHeight * 2;
                             const worldX = tile.pixelX + (tileWidth / 2);
                             const worldY = tile.pixelY + (tileHeight / 2);
-            
-                            // Create a physics body for this tile
-                            const collisionBody = this.add.rectangle(worldX, worldY, tileWidth * 0.8, tileHeight * 0.8);
-                            this.physics.add.existing(collisionBody, true);  // true makes it static
-                            this.collisionBodies.push(collisionBody);  // Store the body
-            
-                            // Debug visualization if needed
+                    
+                            // Create approx. rectangular hitbox for each tile
+                            const collisionBody = this.add.rectangle(
+                                worldX, 
+                                worldY, 
+                                tileWidth,  
+                                tileHeight
+                            );
+                    
+                            this.physics.add.existing(collisionBody, true);
+                            this.collisionBodies.push(collisionBody);
+                    
                             if (debugMode) {
                                 collisionBody.setStrokeStyle(2, 0xff0000);
                             }
@@ -207,6 +212,7 @@ export default class IsometricScene extends Phaser.Scene {
             // End of map and element drawing
             // ------------------------------------------------------------------------
 
+            // Add colliders between collision layers and the boat
             this.collisionBodies.forEach(body => {
                 this.physics.add.collider(this.boat, body);
             });
