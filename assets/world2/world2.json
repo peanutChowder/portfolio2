@@ -418,6 +418,12 @@
          "id":2,
          "name":"Land 1",
          "opacity":1,
+         "properties":[
+                {
+                 "name":"collides",
+                 "type":"bool",
+                 "value":true
+                }],
          "type":"tilelayer",
          "visible":true,
          "width":200,

@@ -38,6 +38,10 @@ export default class IsometricScene extends Phaser.Scene {
     private collisionLayers: Phaser.Tilemaps.TilemapLayer[];
     private collisionLayerNames: string[];
 
+    private collisionBodies: Phaser.GameObjects.Rectangle[] = [];  // Add this
+
+
+
     // Interaction Area and Overlay attributes 
     private overlay!: Phaser.GameObjects.DOMElement | null;
     private interactionAreas: { [key: string]: InteractionArea } = {};
@@ -47,21 +51,25 @@ export default class IsometricScene extends Phaser.Scene {
 
     // joystick for mobile users
     private joystick!: VirtualJoystick;
-
     public isMobileDevice!: boolean;
 
     // Debug text attributes
-    private debugMode: boolean;
     private debugText!: Phaser.GameObjects.Text;
     private clickCoords: { worldX: number, worldY: number, tileX: number, tileY: number } | null = null;
 
     constructor() {
-        super({ key: 'IsometricScene' });
+        super({
+            key: 'IsometricScene',
+            physics: {
+                arcade: {
+                    debug: debugMode
+                }
+            }
+        });
         this.collisionLayers = [];
         this.collisionLayerNames = [
             "Land 1"
         ];
-        this.debugMode = false;
     }
 
     preload(): void {
@@ -146,12 +154,34 @@ export default class IsometricScene extends Phaser.Scene {
                 layers[layerNum] = layer;
                 if (this.collisionLayerNames.includes(layer.layer.name)) {
                     this.collisionLayers.push(layer);
-                    layer.setCollisionByProperty({ collides: true });
+                    
+                    // Set up isometric collisions
+                    layer.forEachTile(tile => {
+                        if (tile.index !== -1) {  // If not an empty tile
+                            const tileWidth = this.map.tileWidth;
+                            const tileHeight = this.map.tileHeight * 2;
+                            const worldX = tile.pixelX + (tileWidth / 2);
+                            const worldY = tile.pixelY + (tileHeight / 2);
+                    
+                            // Create approx. rectangular hitbox for each tile
+                            const collisionBody = this.add.rectangle(
+                                worldX, 
+                                worldY, 
+                                tileWidth,  
+                                tileHeight
+                            );
+                    
+                            this.physics.add.existing(collisionBody, true);
+                            this.collisionBodies.push(collisionBody);
+                    
+                            if (debugMode) {
+                                collisionBody.setStrokeStyle(2, 0xff0000);
+                            }
+                        }
+                    });
                 }
-                console.log(`Added layer '${layer.layer.name}'`);
-            } else {
-                console.error(`Error getting layer number '${layerNum}'`);
             }
+            
 
             // Create and draw boat
             this.boat = new Boat(this, 6380, 8551, this.interactionAreas);
@@ -179,6 +209,12 @@ export default class IsometricScene extends Phaser.Scene {
             // End of map and element drawing
             // ------------------------------------------------------------------------
 
+            // Add colliders between collision layers and the boat
+            this.collisionBodies.forEach(body => {
+                this.physics.add.collider(this.boat, body);
+            });
+
+
             const worldWidth = this.map.widthInPixels;
             const worldHeight = this.map.heightInPixels;
             
@@ -192,10 +228,7 @@ export default class IsometricScene extends Phaser.Scene {
             this.isMobileDevice = this.sys.game.device.os.android || this.sys.game.device.os.iOS
             // Create a virtual joystick for non-desktop users to move the boat.
             if (this.isMobileDevice) {
-                const joyStickOrigin = this.cameras.main.getWorldPoint(
-                    this.cameras.main.width / 2,
-                    this.cameras.main.height * 0.8
-                )
+                const joyStickOrigin = {x: this.cameras.main.centerX, y: this.cameras.main.centerY * 4};
                 this.joystick = new VirtualJoystick(this, joyStickOrigin.x, joyStickOrigin.y, 300, 100);
                 this.boat.setJoystickDirectionGetter(() => this.joystick.getDirection())
             }
@@ -356,7 +389,7 @@ export default class IsometricScene extends Phaser.Scene {
 
 
         // Update debug text with boat coordinates
-        if (this.debugMode) {
+        if (debugMode) {
             const { x: worldX, y: worldY } = this.boat.getPosition();
             const tileCoords = this.map.worldToTileXY(worldX, worldY);
             if (tileCoords) {
@@ -377,27 +410,17 @@ export default class IsometricScene extends Phaser.Scene {
         this.debugText.setScrollFactor(0); // Make the text stay in the same position relative to the camera
 
         // Add a keyboard event to toggle debug mode
-        if (this.input.keyboard) {
-            this.input.keyboard.on('keydown-D', () => {
-                this.debugMode = !this.debugMode;
-                this.debugText.setText(this.debugMode ? 'Debug Mode: ON' : 'Debug Mode: OFF');
-                this.boat.setHitboxVisibility(this.debugMode);
-                if (this.debugMode) {
-                    const { x: worldX, y: worldY } = this.boat.getPosition();
-                    const tileCoords = this.map.worldToTileXY(worldX, worldY);
-                    if (tileCoords) {
-                        this.updateDebugText(worldX, worldY, tileCoords.x, tileCoords.y);
-                    }
-                }
-            });
-        } else {
-            console.warn("'this.input.keyboard' is undefined")
+        if (debugMode) {
+            const { x: worldX, y: worldY } = this.boat.getPosition();
+            const tileCoords = this.map.worldToTileXY(worldX, worldY);
+            if (tileCoords) {
+                this.updateDebugText(worldX, worldY, tileCoords.x, tileCoords.y);
+            }
         }
-        
 
         // Add click event listener
         this.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
-            if (this.debugMode) {
+            if (debugMode) {
                 const worldX = pointer.worldX;
                 const worldY = pointer.worldY;
                 const tileCoords = this.map.worldToTileXY(worldX, worldY);

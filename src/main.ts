@@ -34,6 +34,11 @@ const config: Phaser.Types.Core.GameConfig = {
   dom: {
     createContainer: true
   },
+  physics: {
+    default: 'arcade',
+    arcade: {
+    }
+  }
 };
 
 let game: Phaser.Game;
