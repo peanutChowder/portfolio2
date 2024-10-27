@@ -3,12 +3,12 @@ import IsometricScene from './IsometricScene';
 import InteractionArea from './InteractionArea';
 
 export class Boat extends Phaser.GameObjects.Container {
+    public body: Phaser.Physics.Arcade.Body;
     private boatSprite: Phaser.GameObjects.Image;
-    private hitboxGraphics: Phaser.GameObjects.Graphics;
+    private hitbox: Phaser.GameObjects.Polygon;  
     private speed: number;
     private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
-    private isometricScene: IsometricScene;
-    private hitboxRadius: number;
+
     private isBouncing: boolean = false;
     private bounceDirection: { x: number, y: number } = { x: 0, y: 0 };
     private bounceDuration: number = 400; // milliseconds
@@ -20,36 +20,42 @@ export class Boat extends Phaser.GameObjects.Container {
 
     constructor(scene: IsometricScene, x: number, y: number, interactionAreas: { [key: string]: InteractionArea }) {
         super(scene, x, y);
-
-        this.isometricScene = scene;
-        this.speed = 20;
+        
+        this.speed = 700;
         this.interactionAreas = interactionAreas;
-
+    
         // Create boat sprite
         this.boatSprite = scene.add.image(0, 0, 'boat_nw');
         this.boatSprite.setOrigin(0.5, 0.8);
         this.boatSprite.setScale(1);
         this.add(this.boatSprite);
-
+    
         // Set current orientation
         this.currOrientation = 'boat_nw';
-
+    
         // Create hitbox
-        this.hitboxRadius = 270;
-        this.hitboxGraphics = scene.add.graphics();
-        this.hitboxGraphics.lineStyle(10, 0xffffff);
-        this.hitboxGraphics.strokeCircle(0, 0, this.hitboxRadius);
-        this.add(this.hitboxGraphics);
-
-        // Add container to scene
+        const hitboxPoints = [
+            -20, -20,
+            20, -20,
+            20, 20,
+            -20, 20
+        ];
+        this.hitbox = scene.add.polygon(0, 0, hitboxPoints);
+        this.hitbox.setAlpha(0);
+        this.add(this.hitbox);
+    
+        // Add boat container to scene and enable physics
         scene.add.existing(this);
-
+        scene.physics.add.existing(this);
+    
+        // Now we can safely work with the physics body
+        this.body = (this as unknown as { body: Phaser.Physics.Arcade.Body }).body;
+        this.body.setSize(80, 80);
+        this.body.setOffset(-40, -40);
+    
         if (scene.input.keyboard) {
             this.cursors = scene.input.keyboard.createCursorKeys();
         }
-
-        // hide hitbox graphics
-        this.hitboxGraphics.visible = false
     }
 
     setJoystickDirectionGetter(joystickDirectionGetter: () => string) {
@@ -60,77 +66,70 @@ export class Boat extends Phaser.GameObjects.Container {
         if (this.isBouncing) {
             return; // Don't allow movement while bouncing
         }
-
+     
         const diagonalSpeed = this.speed;
         const cardinalSpeed = this.speed * 0.7071; // approx sqrt(2)/2
         const eastWestCompensation = 1.6; // Compensates for the slow feeling east/west travel
-
+     
         let joystickDirection = "C";
         if (this.getJoyStickDirection != undefined) {
             joystickDirection = this.getJoyStickDirection()
         }
         
-        
         let dx = 0;
         let dy = 0;
         let newTexture = '';
-
+     
         // Check for diagonal movements first
         if (this.cursors.left.isDown && this.cursors.up.isDown || (joystickDirection == "NW")) {
-            dx -= diagonalSpeed;
-            dy -= diagonalSpeed / 2;
+            dx = -diagonalSpeed;
+            dy = -diagonalSpeed / 2;
             newTexture = 'boat_nw';
         } else if (this.cursors.left.isDown && this.cursors.down.isDown || (joystickDirection == "SW")) {
-            dx -= diagonalSpeed;
-            dy += diagonalSpeed / 2;
+            dx = -diagonalSpeed;
+            dy = diagonalSpeed / 2;
             newTexture = 'boat_sw';
         } else if (this.cursors.right.isDown && this.cursors.up.isDown || (joystickDirection == "NE")) {
-            dx += diagonalSpeed;
-            dy -= diagonalSpeed / 2;
+            dx = diagonalSpeed;
+            dy = -diagonalSpeed / 2;
             newTexture = 'boat_ne';
         } else if (this.cursors.right.isDown && this.cursors.down.isDown || (joystickDirection == "SE")) {
-            dx += diagonalSpeed;
-            dy += diagonalSpeed / 2;
+            dx = diagonalSpeed;
+            dy = diagonalSpeed / 2;
             newTexture = 'boat_se';
         }
-        // then check for cardinal directions.
+        // then check for cardinal directions
         else if (this.cursors.left.isDown || (joystickDirection == "W")) {
-            dx -= cardinalSpeed * eastWestCompensation;
+            dx = -cardinalSpeed * eastWestCompensation;
             newTexture = 'boat_w';
         } else if (this.cursors.right.isDown || (joystickDirection == "E")) {
-            dx += cardinalSpeed * eastWestCompensation;
+            dx = cardinalSpeed * eastWestCompensation;
             newTexture = 'boat_e';
         } else if (this.cursors.up.isDown || (joystickDirection == "N")) {
-            dy -= cardinalSpeed;
+            dy = -cardinalSpeed;
             newTexture = 'boat_n';
         } else if (this.cursors.down.isDown || (joystickDirection == "S")) {
-            dy += cardinalSpeed;
+            dy = cardinalSpeed;
             newTexture = 'boat_s';
         }
-
-        // Update boat texture if user is facing a new direction
+     
+        // Update boat texture if direction changed
         if (newTexture && newTexture !== this.currOrientation) {
             this.boatSprite.setTexture(newTexture);
             this.currOrientation = newTexture;
         }
-
-        const newX = this.x + dx;
-        const newY = this.y + dy;
-
+     
+        // Apply velocity
+        this.body.setVelocity(dx, dy);
+     
+        // Check interaction areas using current position
         Object.entries(this.interactionAreas).forEach(([_, interactionArea]) => {
-            interactionArea.checkPlayerInArea(newX, newY)
+            interactionArea.checkPlayerInArea(this.x, this.y)
         });
+     }
 
-        if (dx !== 0 || dy !== 0) {
-            if (!this.isometricScene.checkCollision(newX, newY, this.hitboxRadius)) {
-                this.x = newX;
-                this.y = newY;
-            } else {
-                this.startBounce(dx, dy);
-            }
-        }
-    }
 
+    // deprecated
     private startBounce(dx: number, dy: number): void {
         this.isBouncing = true;
         this.bounceDirection = { x: -dx, y: -dy };
@@ -158,7 +157,8 @@ export class Boat extends Phaser.GameObjects.Container {
         return { x: this.x, y: this.y };
     }
 
+    // deprecated
     setHitboxVisibility(isVisible: boolean): void {
-        this.hitboxGraphics.visible = isVisible;
+        // this.hitboxGraphics.visible = isVisible;
     }
 }

@@ -30,13 +30,17 @@ const fontFamilies = {
     "body": ""
 }
 
-const debugMode = false;
+const debugMode = true;
 
 export default class IsometricScene extends Phaser.Scene {
     private map!: Phaser.Tilemaps.Tilemap;
     private boat!: Boat;
     private collisionLayers: Phaser.Tilemaps.TilemapLayer[];
     private collisionLayerNames: string[];
+
+    private collisionBodies: Phaser.GameObjects.Rectangle[] = [];  // Add this
+
+
 
     // Interaction Area and Overlay attributes 
     private overlay!: Phaser.GameObjects.DOMElement | null;
@@ -56,7 +60,14 @@ export default class IsometricScene extends Phaser.Scene {
     private clickCoords: { worldX: number, worldY: number, tileX: number, tileY: number } | null = null;
 
     constructor() {
-        super({ key: 'IsometricScene' });
+        super({
+            key: 'IsometricScene',
+            physics: {
+                arcade: {
+                    debug: debugMode
+                }
+            }
+        });
         this.collisionLayers = [];
         this.collisionLayerNames = [
             "Land 1"
@@ -146,12 +157,29 @@ export default class IsometricScene extends Phaser.Scene {
                 layers[layerNum] = layer;
                 if (this.collisionLayerNames.includes(layer.layer.name)) {
                     this.collisionLayers.push(layer);
-                    layer.setCollisionByProperty({ collides: true });
+                    
+                    // Set up isometric collisions
+                    layer.forEachTile(tile => {
+                        if (tile.index !== -1) {  // If not an empty tile
+                            const tileWidth = this.map.tileWidth;
+                            const tileHeight = this.map.tileHeight;
+                            const worldX = tile.pixelX + (tileWidth / 2);
+                            const worldY = tile.pixelY + (tileHeight / 2);
+            
+                            // Create a physics body for this tile
+                            const collisionBody = this.add.rectangle(worldX, worldY, tileWidth * 0.8, tileHeight * 0.8);
+                            this.physics.add.existing(collisionBody, true);  // true makes it static
+                            this.collisionBodies.push(collisionBody);  // Store the body
+            
+                            // Debug visualization if needed
+                            if (debugMode) {
+                                collisionBody.setStrokeStyle(2, 0xff0000);
+                            }
+                        }
+                    });
                 }
-                console.log(`Added layer '${layer.layer.name}'`);
-            } else {
-                console.error(`Error getting layer number '${layerNum}'`);
             }
+            
 
             // Create and draw boat
             this.boat = new Boat(this, 6380, 8551, this.interactionAreas);
@@ -178,6 +206,11 @@ export default class IsometricScene extends Phaser.Scene {
             console.groupEnd();
             // End of map and element drawing
             // ------------------------------------------------------------------------
+
+            this.collisionBodies.forEach(body => {
+                this.physics.add.collider(this.boat, body);
+            });
+
 
             const worldWidth = this.map.widthInPixels;
             const worldHeight = this.map.heightInPixels;
