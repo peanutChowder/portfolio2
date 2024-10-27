@@ -5,7 +5,18 @@ import InteractionArea from './InteractionArea';
 export class Boat extends Phaser.GameObjects.Container {
     public body: Phaser.Physics.Arcade.Body;
     private boatSprite: Phaser.GameObjects.Image;
-    private hitbox: Phaser.GameObjects.Polygon;  
+    private readonly hitboxDimensions: { [key: string]: {width: number, height: number, offsetX: number, offsetY: number} } = 
+    {
+        'boat_n':  { width: 100, height: 150, offsetX: -55, offsetY: -120 },
+        'boat_s':  { width: 100, height: 150, offsetX: -55, offsetY: -120 },
+        'boat_e':  { width: 230, height: 130, offsetX: -100, offsetY: -120 },
+        'boat_w':  { width: 230, height: 130, offsetX: -100, offsetY: -120 },
+        'boat_ne': { width: 200, height: 150, offsetX: -100, offsetY: -120 },
+        'boat_nw': { width: 200, height: 150, offsetX: -100, offsetY: -120 },
+        'boat_se': { width: 200, height: 150, offsetX: -100, offsetY: -120 },
+        'boat_sw': { width: 200, height: 150, offsetX: -100, offsetY: -120 }
+    };
+
     private speed: number;
     private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
 
@@ -21,7 +32,7 @@ export class Boat extends Phaser.GameObjects.Container {
     constructor(scene: IsometricScene, x: number, y: number, interactionAreas: { [key: string]: InteractionArea }) {
         super(scene, x, y);
         
-        this.speed = 700;
+        this.speed = 1200;
         this.interactionAreas = interactionAreas;
     
         // Create boat sprite
@@ -33,25 +44,14 @@ export class Boat extends Phaser.GameObjects.Container {
         // Set current orientation
         this.currOrientation = 'boat_nw';
     
-        // Create hitbox
-        const hitboxPoints = [
-            -20, -20,
-            20, -20,
-            20, 20,
-            -20, 20
-        ];
-        this.hitbox = scene.add.polygon(0, 0, hitboxPoints);
-        this.hitbox.setAlpha(0);
-        this.add(this.hitbox);
-    
         // Add boat container to scene and enable physics
         scene.add.existing(this);
         scene.physics.add.existing(this);
     
         // Now we can safely work with the physics body
         this.body = (this as unknown as { body: Phaser.Physics.Arcade.Body }).body;
-        this.body.setSize(80, 80);
-        this.body.setOffset(-40, -40);
+        this.body.setSize(this.hitboxDimensions["boat_nw"].width, this.hitboxDimensions["boat_nw"].height);
+        this.body.setOffset(this.hitboxDimensions["boat_nw"].offsetX, this.hitboxDimensions["boat_nw"].offsetY);
     
         if (scene.input.keyboard) {
             this.cursors = scene.input.keyboard.createCursorKeys();
@@ -78,7 +78,7 @@ export class Boat extends Phaser.GameObjects.Container {
         
         let dx = 0;
         let dy = 0;
-        let newTexture = '';
+        let newTexture: string = '';
      
         // Check for diagonal movements first
         if (this.cursors.left.isDown && this.cursors.up.isDown || (joystickDirection == "NW")) {
@@ -117,6 +117,11 @@ export class Boat extends Phaser.GameObjects.Container {
         if (newTexture && newTexture !== this.currOrientation) {
             this.boatSprite.setTexture(newTexture);
             this.currOrientation = newTexture;
+            
+            // Update hitbox dimensions
+            const dimensions = this.hitboxDimensions[newTexture];
+            this.body.setSize(dimensions.width, dimensions.height);
+            this.body.setOffset(dimensions.offsetX, dimensions.offsetY);
         }
      
         // Apply velocity
