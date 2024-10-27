@@ -36,6 +36,8 @@ export default class IsometricScene extends Phaser.Scene {
     private map!: Phaser.Tilemaps.Tilemap;
     private boat!: Boat;
 
+    private static readonly SPAWN_COORDS = {x: 1209, y: 15715}
+
     // Collide-able layers + Boat
     private collisionLayers: Phaser.Tilemaps.TilemapLayer[];
     private collisionLayerNames: string[];
@@ -53,10 +55,16 @@ export default class IsometricScene extends Phaser.Scene {
     public isMobileDevice!: boolean;
 
     // Boundary fog
-    private static readonly FOG_DEPTH = 20; // How many tiles from edge the fog extends
-    private static readonly FOG_MIN_ALPHA = 0; // Alpha at the very edge
-    private static readonly FOG_MAX_ALPHA = 1; // Alpha for inner tiles
+    private static readonly FOG_COLOR = "#bdbdbd";
+    private static readonly FOG_DEPTH = 20; // num tiles fog extends to
+    private static readonly FOG_MIN_ALPHA = 0; // alpha for fog edge
+    private static readonly FOG_MAX_ALPHA = 1; // alpha for fog start
     private oceanLayer: Phaser.Tilemaps.TilemapLayer | null = null;
+
+    private static readonly LOST_THRESHOLD = 25; // How many tiles off map before "lost" effect
+    private lostText!: Phaser.GameObjects.Text;
+    private lostOverlay!: Phaser.GameObjects.Rectangle;
+    private isHandlingLostBoat: boolean = false;
 
     // Debug text attributes
     private debugText!: Phaser.GameObjects.Text;
@@ -189,7 +197,11 @@ export default class IsometricScene extends Phaser.Scene {
             
 
             // Create and draw boat
-            this.boat = new Boat(this, -15914, 8397, this.interactionAreas);
+            this.boat = new Boat(
+                this, 
+                IsometricScene.SPAWN_COORDS.x, IsometricScene.SPAWN_COORDS.y,
+                this.interactionAreas
+            );
             this.add.existing(this.boat)
             console.log("Added boat")
 
@@ -214,7 +226,8 @@ export default class IsometricScene extends Phaser.Scene {
             // End of map and element drawing
             // ------------------------------------------------------------------------
 
-            this.cameras.main.setBackgroundColor("#bdbdbd")
+            // Create fog at map boundaries
+            this.cameras.main.setBackgroundColor(IsometricScene.FOG_COLOR)
             this.initFog();
 
             // Add colliders between collision layers and the boat
@@ -396,6 +409,22 @@ export default class IsometricScene extends Phaser.Scene {
            }
        });
 
+       const tileCoords = this.map.worldToTileXY(boatX, boatY);
+       
+       if (tileCoords) {
+           const distanceFromLeft = tileCoords.x;
+           const distanceFromRight = this.map.width - tileCoords.x - 1;
+           const distanceFromTop = tileCoords.y;
+           const distanceFromBottom = this.map.height - tileCoords.y - 1;
+   
+           if (distanceFromLeft < -IsometricScene.LOST_THRESHOLD ||
+               distanceFromRight < -IsometricScene.LOST_THRESHOLD ||
+               distanceFromTop < -IsometricScene.LOST_THRESHOLD ||
+               distanceFromBottom < -IsometricScene.LOST_THRESHOLD) {
+               this.showLostBoatOverlay();
+           }
+       }
+
 
         // Update debug text with boat coordinates
         if (debugMode) {
@@ -486,6 +515,69 @@ export default class IsometricScene extends Phaser.Scene {
                 (minDistance / IsometricScene.FOG_DEPTH) * 
                 (IsometricScene.FOG_MAX_ALPHA - IsometricScene.FOG_MIN_ALPHA);
         }
+    }
+
+    private async showLostBoatOverlay(): Promise<void> {
+        if (this.isHandlingLostBoat) return;
+        this.isHandlingLostBoat = true;
+
+        const displayWidth = this.cameras.main.width / this.cameras.main.zoom;
+        const displayHeight = this.cameras.main.height / this.cameras.main.zoom;
+    
+        // Create full-screen grey overlay matching fog color
+        this.lostOverlay = this.add.rectangle(
+            -displayWidth / 2, 
+            -displayHeight / 2,
+            displayWidth * 2,
+            displayHeight * 2,
+            parseInt(IsometricScene.FOG_COLOR.replace('#', '0x')), 
+            1
+        );
+        this.lostOverlay.setScrollFactor(0);
+        this.lostOverlay.setDepth(1000);
+        this.lostOverlay.setAlpha(0);
+        this.lostOverlay.setOrigin(0)
+    
+        // Add centered text
+        this.lostText = this.add.text(
+            this.cameras.main.centerX,
+            this.cameras.main.centerY,
+            "Looks like you got lost...",
+            {
+                font: fontSize,
+                color: fontColor,
+                align: 'center'
+            }
+        );
+        this.lostText.setOrigin(0.5);
+        this.lostText.setScrollFactor(0);
+        this.lostText.setDepth(1001);
+        this.lostText.setAlpha(0);
+    
+        // Fade in overlay and text
+        this.tweens.add({
+            targets: [this.lostOverlay, this.lostText],
+            alpha: 1,
+            duration: 1000,
+            onComplete: () => {
+                // Teleport boat after fade in
+                this.boat.setPosition(IsometricScene.SPAWN_COORDS.x, IsometricScene.SPAWN_COORDS.y); // Example coordinates
+    
+                // Wait a moment, then fade out
+                this.time.delayedCall(2000, () => {
+                    this.tweens.add({
+                        targets: [this.lostOverlay, this.lostText],
+                        alpha: 0,
+                        duration: 1000,
+                        onComplete: () => {
+                            this.lostOverlay.destroy();
+                            this.lostText.destroy();
+                            this.isHandlingLostBoat = false;
+                        }
+                    });
+                });
+            }
+        });
     }
 
     private setupDebuggingTool(): void {
