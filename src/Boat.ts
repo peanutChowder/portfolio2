@@ -19,11 +19,6 @@ export class Boat extends Phaser.GameObjects.Container {
 
     private speed: number;
     private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
-
-    private isBouncing: boolean = false;
-    private bounceDirection: { x: number, y: number } = { x: 0, y: 0 };
-    private bounceDuration: number = 400; // milliseconds
-    private bounceDistance: number = 150; // pixels
     private currOrientation!: string;
     private interactionAreas: {[key:string]: InteractionArea} = {}
 
@@ -63,10 +58,6 @@ export class Boat extends Phaser.GameObjects.Container {
     }
 
     update(): void {
-        if (this.isBouncing) {
-            return; // Don't allow movement while bouncing
-        }
-     
         const diagonalSpeed = this.speed;
         const cardinalSpeed = this.speed * 0.7071; // approx sqrt(2)/2
         const eastWestCompensation = 1.6; // Compensates for the slow feeling east/west travel
@@ -133,37 +124,7 @@ export class Boat extends Phaser.GameObjects.Container {
         });
      }
 
-
-    // deprecated
-    private startBounce(dx: number, dy: number): void {
-        this.isBouncing = true;
-        this.bounceDirection = { x: -dx, y: -dy };
-
-        // Normalize the bounce direction
-        const magnitude = Math.sqrt(dx * dx + dy * dy);
-        this.bounceDirection.x = (this.bounceDirection.x / magnitude) * this.bounceDistance;
-        this.bounceDirection.y = (this.bounceDirection.y / magnitude) * this.bounceDistance;
-
-        // Start the bounce animation
-        this.scene.tweens.add({
-            targets: this,
-            x: this.x + this.bounceDirection.x,
-            y: this.y + this.bounceDirection.y,
-            duration: this.bounceDuration / 2,
-            ease: 'Quad.easeOut',
-            yoyo: true,
-            onComplete: () => {
-                this.isBouncing = false;
-            }
-        });
-    }
-
     getPosition(): { x: number, y: number } {
         return { x: this.x, y: this.y };
-    }
-
-    // deprecated
-    setHitboxVisibility(isVisible: boolean): void {
-        // this.hitboxGraphics.visible = isVisible;
     }
 }

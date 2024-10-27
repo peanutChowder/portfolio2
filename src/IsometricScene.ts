@@ -55,7 +55,6 @@ export default class IsometricScene extends Phaser.Scene {
     public isMobileDevice!: boolean;
 
     // Debug text attributes
-    private debugMode: boolean;
     private debugText!: Phaser.GameObjects.Text;
     private clickCoords: { worldX: number, worldY: number, tileX: number, tileY: number } | null = null;
 
@@ -72,7 +71,6 @@ export default class IsometricScene extends Phaser.Scene {
         this.collisionLayerNames = [
             "Land 1"
         ];
-        this.debugMode = false;
     }
 
     preload(): void {
@@ -395,7 +393,7 @@ export default class IsometricScene extends Phaser.Scene {
 
 
         // Update debug text with boat coordinates
-        if (this.debugMode) {
+        if (debugMode) {
             const { x: worldX, y: worldY } = this.boat.getPosition();
             const tileCoords = this.map.worldToTileXY(worldX, worldY);
             if (tileCoords) {
@@ -416,27 +414,17 @@ export default class IsometricScene extends Phaser.Scene {
         this.debugText.setScrollFactor(0); // Make the text stay in the same position relative to the camera
 
         // Add a keyboard event to toggle debug mode
-        if (this.input.keyboard) {
-            this.input.keyboard.on('keydown-D', () => {
-                this.debugMode = !this.debugMode;
-                this.debugText.setText(this.debugMode ? 'Debug Mode: ON' : 'Debug Mode: OFF');
-                this.boat.setHitboxVisibility(this.debugMode);
-                if (this.debugMode) {
-                    const { x: worldX, y: worldY } = this.boat.getPosition();
-                    const tileCoords = this.map.worldToTileXY(worldX, worldY);
-                    if (tileCoords) {
-                        this.updateDebugText(worldX, worldY, tileCoords.x, tileCoords.y);
-                    }
-                }
-            });
-        } else {
-            console.warn("'this.input.keyboard' is undefined")
+        if (debugMode) {
+            const { x: worldX, y: worldY } = this.boat.getPosition();
+            const tileCoords = this.map.worldToTileXY(worldX, worldY);
+            if (tileCoords) {
+                this.updateDebugText(worldX, worldY, tileCoords.x, tileCoords.y);
+            }
         }
-        
 
         // Add click event listener
         this.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
-            if (this.debugMode) {
+            if (debugMode) {
                 const worldX = pointer.worldX;
                 const worldY = pointer.worldY;
                 const tileCoords = this.map.worldToTileXY(worldX, worldY);
