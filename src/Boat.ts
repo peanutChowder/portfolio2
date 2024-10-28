@@ -122,6 +122,11 @@ export class Boat extends Phaser.GameObjects.Container {
         Object.entries(this.interactionAreas).forEach(([_, interactionArea]) => {
             interactionArea.checkPlayerInArea(this.x, this.y)
         });
+
+        // Apply fog to boat when close to map boundaries
+        const scene = this.scene as IsometricScene;
+        const alpha = scene.calcBoatFog(this.x, this.y);
+        this.boatSprite.setAlpha(alpha);
      }
 
     getPosition(): { x: number, y: number } {

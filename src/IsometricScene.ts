@@ -35,12 +35,13 @@ const debugMode = false;
 export default class IsometricScene extends Phaser.Scene {
     private map!: Phaser.Tilemaps.Tilemap;
     private boat!: Boat;
+
+    private static readonly SPAWN_COORDS = {x: 1209, y: 15715}
+
+    // Collide-able layers + Boat
     private collisionLayers: Phaser.Tilemaps.TilemapLayer[];
     private collisionLayerNames: string[];
-
     private collisionBodies: Phaser.GameObjects.Rectangle[] = [];  // Add this
-
-
 
     // Interaction Area and Overlay attributes 
     private overlay!: Phaser.GameObjects.DOMElement | null;
@@ -52,6 +53,18 @@ export default class IsometricScene extends Phaser.Scene {
     // joystick for mobile users
     private joystick!: VirtualJoystick;
     public isMobileDevice!: boolean;
+
+    // Boundary fog
+    private static readonly FOG_COLOR = "#bdbdbd";
+    private static readonly FOG_DEPTH = 20; // num tiles fog extends to
+    private static readonly FOG_MIN_ALPHA = 0; // alpha for fog edge
+    private static readonly FOG_MAX_ALPHA = 1; // alpha for fog start
+    private oceanLayer: Phaser.Tilemaps.TilemapLayer | null = null;
+
+    private static readonly LOST_THRESHOLD = 25; // How many tiles off map before "lost" effect
+    private lostText!: Phaser.GameObjects.Text;
+    private lostOverlay!: Phaser.GameObjects.Rectangle;
+    private isHandlingLostBoat: boolean = false;
 
     // Debug text attributes
     private debugText!: Phaser.GameObjects.Text;
@@ -134,11 +147,11 @@ export default class IsometricScene extends Phaser.Scene {
             let layer = this.map.createLayer(layerNum, tilesets, 0, 0);
             if (layer) {
                 layers[layerNum] = layer;
-                if (this.collisionLayerNames.includes(layer.layer.name)) {
-                    this.collisionLayers.push(layer);
-                    layer.setCollisionByProperty({ collides: true });
-                }
                 console.log(`Added layer '${layer.layer.name}'`);
+
+                if (layer.layer.name == "Ocean") {
+                    this.oceanLayer = layer;
+                }
             } else {
                 console.error(`Error getting layer number '${layerNum}'`);
             }
@@ -184,7 +197,11 @@ export default class IsometricScene extends Phaser.Scene {
             
 
             // Create and draw boat
-            this.boat = new Boat(this, 6380, 8551, this.interactionAreas);
+            this.boat = new Boat(
+                this, 
+                IsometricScene.SPAWN_COORDS.x, IsometricScene.SPAWN_COORDS.y,
+                this.interactionAreas
+            );
             this.add.existing(this.boat)
             console.log("Added boat")
 
@@ -208,6 +225,10 @@ export default class IsometricScene extends Phaser.Scene {
             console.groupEnd();
             // End of map and element drawing
             // ------------------------------------------------------------------------
+
+            // Create fog at map boundaries
+            this.cameras.main.setBackgroundColor(IsometricScene.FOG_COLOR)
+            this.initFog();
 
             // Add colliders between collision layers and the boat
             this.collisionBodies.forEach(body => {
@@ -240,10 +261,11 @@ export default class IsometricScene extends Phaser.Scene {
                 this.add.text(10, 150, `Mobile?: ${this.isMobileDevice}`, { color: fontColor, font: fontSize  })
 
                 // Log map information
+                console.group("Map info")
                 console.log('Map dimensions:', worldWidth, 'x', worldHeight);
                 console.log('Tile dimensions:', this.map.tileWidth, 'x', this.map.tileHeight);
                 console.log('Number of layers:', this.map.layers.length);
-                console.log('Tileset name:', tilesets.map((tileset) => {tileset}));
+                console.groupEnd()
 
                 // Set up debugging tool
                 this.setupDebuggingTool();
@@ -387,6 +409,22 @@ export default class IsometricScene extends Phaser.Scene {
            }
        });
 
+       const tileCoords = this.map.worldToTileXY(boatX, boatY);
+       
+       if (tileCoords) {
+           const distanceFromLeft = tileCoords.x;
+           const distanceFromRight = this.map.width - tileCoords.x - 1;
+           const distanceFromTop = tileCoords.y;
+           const distanceFromBottom = this.map.height - tileCoords.y - 1;
+   
+           if (distanceFromLeft < -IsometricScene.LOST_THRESHOLD ||
+               distanceFromRight < -IsometricScene.LOST_THRESHOLD ||
+               distanceFromTop < -IsometricScene.LOST_THRESHOLD ||
+               distanceFromBottom < -IsometricScene.LOST_THRESHOLD) {
+               this.showLostBoatOverlay();
+           }
+       }
+
 
         // Update debug text with boat coordinates
         if (debugMode) {
@@ -402,6 +440,144 @@ export default class IsometricScene extends Phaser.Scene {
             const textY = worldY - cameraView.y - 60; // Adjust this value to position the text above the boat
             this.debugText.setPosition(textX, textY);
         }
+    }
+
+    private initFog(): void {
+        if (!this.oceanLayer) return;
+    
+        const mapWidth = this.map.width;
+        const mapHeight = this.map.height;
+    
+        // Loop through all tiles in the ocean layer
+        for (let y = 0; y < mapHeight; y++) {
+            for (let x = 0; x < mapWidth; x++) {
+                const tile = this.oceanLayer.getTileAt(x, y);
+                if (!tile) continue;
+    
+                // Calculate distance from edge
+                const distanceFromLeft = x;
+                const distanceFromRight = mapWidth - x - 1;
+                const distanceFromTop = y;
+                const distanceFromBottom = mapHeight - y - 1;
+    
+                // Get minimum distance from any edge
+                const minDistance = Math.min(
+                    distanceFromLeft,
+                    distanceFromRight,
+                    distanceFromTop,
+                    distanceFromBottom
+                );
+    
+                // Calculate alpha based on distance
+                let alpha;
+                if (minDistance >= IsometricScene.FOG_DEPTH) {
+                    alpha = IsometricScene.FOG_MAX_ALPHA;
+                } else {
+                    // Linear interpolation from MIN_ALPHA to MAX_ALPHA
+                    alpha = IsometricScene.FOG_MIN_ALPHA + 
+                        (minDistance / IsometricScene.FOG_DEPTH) * 
+                        (IsometricScene.FOG_MAX_ALPHA - IsometricScene.FOG_MIN_ALPHA);
+                }
+    
+                // Apply alpha to the tile
+                tile.setAlpha(alpha);
+            }
+        }
+    }
+
+    public calcBoatFog(worldX: number, worldY: number): number {
+        // Convert world coordinates to tile coordinates
+        const tileCoords = this.map.worldToTileXY(worldX, worldY);
+        if (!tileCoords) return 1;
+    
+        const mapWidth = this.map.width;
+        const mapHeight = this.map.height;
+    
+        // Calculate distance from edges in tile units
+        const distanceFromLeft = tileCoords.x;
+        const distanceFromRight = mapWidth - tileCoords.x - 1;
+        const distanceFromTop = tileCoords.y;
+        const distanceFromBottom = mapHeight - tileCoords.y - 1;
+    
+        // Get minimum distance from any edge
+        const minDistance = Math.min(
+            distanceFromLeft,
+            distanceFromRight,
+            distanceFromTop,
+            distanceFromBottom
+        );
+    
+        // Calculate alpha based on distance
+        if (minDistance >= IsometricScene.FOG_DEPTH) {
+            return IsometricScene.FOG_MAX_ALPHA;
+        } else {
+            return IsometricScene.FOG_MIN_ALPHA + 
+                (minDistance / IsometricScene.FOG_DEPTH) * 
+                (IsometricScene.FOG_MAX_ALPHA - IsometricScene.FOG_MIN_ALPHA);
+        }
+    }
+
+    private async showLostBoatOverlay(): Promise<void> {
+        if (this.isHandlingLostBoat) return;
+        this.isHandlingLostBoat = true;
+
+        const displayWidth = this.cameras.main.width / this.cameras.main.zoom;
+        const displayHeight = this.cameras.main.height / this.cameras.main.zoom;
+    
+        // Create full-screen grey overlay matching fog color
+        this.lostOverlay = this.add.rectangle(
+            -displayWidth / 2, 
+            -displayHeight / 2,
+            displayWidth * 2,
+            displayHeight * 2,
+            parseInt(IsometricScene.FOG_COLOR.replace('#', '0x')), 
+            1
+        );
+        this.lostOverlay.setScrollFactor(0);
+        this.lostOverlay.setDepth(1000);
+        this.lostOverlay.setAlpha(0);
+        this.lostOverlay.setOrigin(0)
+    
+        // Add centered text
+        this.lostText = this.add.text(
+            this.cameras.main.centerX,
+            this.cameras.main.centerY,
+            "Looks like you got lost...",
+            {
+                font: fontSize,
+                color: fontColor,
+                align: 'center'
+            }
+        );
+        this.lostText.setOrigin(0.5);
+        this.lostText.setScrollFactor(0);
+        this.lostText.setDepth(1001);
+        this.lostText.setAlpha(0);
+    
+        // Fade in overlay and text
+        this.tweens.add({
+            targets: [this.lostOverlay, this.lostText],
+            alpha: 1,
+            duration: 1000,
+            onComplete: () => {
+                // Teleport boat after fade in
+                this.boat.setPosition(IsometricScene.SPAWN_COORDS.x, IsometricScene.SPAWN_COORDS.y); // Example coordinates
+    
+                // Wait a moment, then fade out
+                this.time.delayedCall(2000, () => {
+                    this.tweens.add({
+                        targets: [this.lostOverlay, this.lostText],
+                        alpha: 0,
+                        duration: 1000,
+                        onComplete: () => {
+                            this.lostOverlay.destroy();
+                            this.lostText.destroy();
+                            this.isHandlingLostBoat = false;
+                        }
+                    });
+                });
+            }
+        });
     }
 
     private setupDebuggingTool(): void {
