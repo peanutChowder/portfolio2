@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume Overlay</title>
+    <link rel="stylesheet" href="expAppleOverlay.css">
+</head>
+<body>
+    <div id="overlay-wrapper">
+        <div id="simple-overlay">
+            <h2>Apple</h2>
+            <h3>Software Engineer Intern</h3>
+            <div id="experience-list">
+                <img src="../assets/overlayImgs/apple.jpeg" alt="Apple Park">
+                <div class="experience">
+                    <i>May - September 2024</i>
+                    <ul>
+                    <b>AI Log Analysis Workflow</b>
+                        <li>Built and optimized an AI workflow for triaging Apple Watch logs that uses foundation models to generate analysis for logs.</li>
+                        <li>Improved workflow reliability by 500% using defensive programming techniques.</li>
+                        <li>Improved runtime by 400% parallelizing API calls containing resized logs to fit the context window while maintaining global context.</li>
+                    
+                    <b>C++ Network Log Visualizer<br></b>
+                        <li>Implemented log visualization using Qt (C++) on an internal Mac App used by 15+ teams.</li>
+                        <li>Generated call flow graphs for 2GB logs in ~1 second by using file chunking.</li>
+                        <li>Features custom configurations, parallel operations such as searching + generating charts, and highlighting.</li>
+
+                    <b>Slack bot</b>
+                        <li>Developed for issue tracking updates on milestones and progress using Python, hosted
+                            on internal cloud.</li>
+                    </ul>
+                </div>
+            <button id="closeButton">Close</button>
+        </div>
+    </div>
+</body>
+</html>
