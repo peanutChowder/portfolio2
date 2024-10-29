@@ -48,9 +48,7 @@
 
 #simple-overlay img {
     max-width: 70%;
-    margin-left: auto;
-    margin-right: auto;
-    height: auto;
+    object-fit: contain;
 
     border: 12px solid white;
     border-radius: 3px;
@@ -59,8 +57,13 @@
         2px 2px 8px rgba(0,0,0,0.1);
     padding: 8px;
     background: white;
-    margin: 16px;
     box-sizing: border-box;
+}
+
+.img-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
 }
 
 #experience-list {
