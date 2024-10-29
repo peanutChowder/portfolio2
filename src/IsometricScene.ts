@@ -30,13 +30,13 @@ const fontFamilies = {
     "body": ""
 }
 
-const debugMode = false;
+const debugMode = true;
 
 export default class IsometricScene extends Phaser.Scene {
     private map!: Phaser.Tilemaps.Tilemap;
     private boat!: Boat;
 
-    private static readonly SPAWN_COORDS = {x: 1209, y: 15715}
+    private static readonly SPAWN_COORDS = {x: 6171, y: 6261}
 
     // Collide-able layers + Boat
     private collisionLayers: Phaser.Tilemaps.TilemapLayer[];
@@ -75,7 +75,7 @@ export default class IsometricScene extends Phaser.Scene {
             key: 'IsometricScene',
             physics: {
                 arcade: {
-                    debug: debugMode
+                    debug: false
                 }
             }
         });
@@ -111,6 +111,8 @@ export default class IsometricScene extends Phaser.Scene {
         this.load.html('resumeOverlay', 'resumeOverlay.html');
         this.load.html('owOverlay', 'owOverlay.html');
         this.load.html('ffOverlay', 'ffOverlay.html');
+
+        this.load.html('experienceOverlay-Apple', 'expAppleOverlay.html');
     }
 
     create(): void {
@@ -188,7 +190,7 @@ export default class IsometricScene extends Phaser.Scene {
                             this.collisionBodies.push(collisionBody);
                     
                             if (debugMode) {
-                                collisionBody.setStrokeStyle(2, 0xff0000);
+                                // collisionBody.setStrokeStyle(2, 0xff0000);
                             }
                         }
                     });
@@ -296,6 +298,32 @@ export default class IsometricScene extends Phaser.Scene {
             {
                 text: "Experience",
                 color: "#175235",
+                font: fontFamilies["header"],
+                fontSize: "220px",
+                offset: {
+                    x: -0, y: -1200
+                }
+            }
+        )
+
+        this.interactionAreas["experience-Apple"] = new InteractionArea(
+            this,
+            7886, 5790,
+            3900, 2000,
+            "Apple",
+            "experienceOverlay-Apple",
+            0xaa9cff,
+            0xc4baff,
+            {
+                text: "Click for my time at Apple",
+                font: fontFamilies["header"],
+                fontColor: "#ffffff",
+                color: 0xaa9cff,
+                hoverColor: 0x9887fa
+            },
+            {
+                text: "SWE Intern @ Apple",
+                color: "#7340f5",
                 font: fontFamilies["header"],
                 fontSize: "220px",
                 offset: {
