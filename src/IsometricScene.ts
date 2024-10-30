@@ -32,6 +32,8 @@ const fontFamilies = {
 
 const debugMode = true;
 
+const arrowIndicatorsEnabled = false;
+
 export default class IsometricScene extends Phaser.Scene {
     private map!: Phaser.Tilemaps.Tilemap;
     private boat!: Boat;
@@ -502,7 +504,9 @@ export default class IsometricScene extends Phaser.Scene {
 
     update(): void {
         this.boat.update();
+        const { x: boatX, y: boatY } = this.boat.getPosition();
 
+        if (arrowIndicatorsEnabled) {
        // Update arrow indicators
        Object.entries(this.interactionAreas).forEach(([key, area]) => {
            const { x: areaX, y: areaY } = area.getCenter();
