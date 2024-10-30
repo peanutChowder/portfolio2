@@ -38,7 +38,7 @@ export default class IsometricScene extends Phaser.Scene {
     private map!: Phaser.Tilemaps.Tilemap;
     private boat!: Boat;
 
-    private static readonly SPAWN_COORDS = {x: 15500, y: 12271}
+    private static readonly SPAWN_COORDS = { x: 15500, y: 12271 }
 
     // Collide-able layers + Boat
     private collisionLayers: Phaser.Tilemaps.TilemapLayer[];
@@ -102,8 +102,8 @@ export default class IsometricScene extends Phaser.Scene {
         this.load.image('boat_ne', boatNorthEastPNG);
         this.load.image('boat_nw', boatNorthWestPNG);
         this.load.image('boat_se', boatSouthEastPNG);
-        this.load.image('boat_sw', boatSouthWestPNG);        
-        
+        this.load.image('boat_sw', boatSouthWestPNG);
+
         this.load.on('loaderror', (file: Phaser.Loader.File) => {
             console.error('Error loading file:', file.key);
             console.error('File type:', file.type);
@@ -118,6 +118,7 @@ export default class IsometricScene extends Phaser.Scene {
         this.load.html('experienceOverlay-Apple', 'expAppleOverlay.html');
         this.load.html('experienceOverlay-Teck', 'expTeckOverlay.html');
         this.load.html('experienceOverlay-UAlberta', 'expUAlbertaOverlay.html');
+        this.load.html('welcomeOverlay', 'welcomeOverlay.html');
 
     }
 
@@ -175,7 +176,7 @@ export default class IsometricScene extends Phaser.Scene {
                 layers[layerNum] = layer;
                 if (this.collisionLayerNames.includes(layer.layer.name)) {
                     this.collisionLayers.push(layer);
-                    
+
                     // Set up isometric collisions
                     layer.forEachTile(tile => {
                         if (tile.index !== -1) {  // If not an empty tile
@@ -183,30 +184,26 @@ export default class IsometricScene extends Phaser.Scene {
                             const tileHeight = this.map.tileHeight * 2;
                             const worldX = tile.pixelX + (tileWidth / 2);
                             const worldY = tile.pixelY + (tileHeight / 2);
-                    
+
                             // Create approx. rectangular hitbox for each tile
                             const collisionBody = this.add.rectangle(
-                                worldX, 
-                                worldY, 
-                                tileWidth,  
+                                worldX,
+                                worldY,
+                                tileWidth,
                                 tileHeight
                             );
-                    
+
                             this.physics.add.existing(collisionBody, true);
                             this.collisionBodies.push(collisionBody);
-                    
-                            if (debugMode) {
-                                // collisionBody.setStrokeStyle(2, 0xff0000);
-                            }
                         }
                     });
                 }
             }
-            
+
 
             // Create and draw boat
             this.boat = new Boat(
-                this, 
+                this,
                 IsometricScene.SPAWN_COORDS.x, IsometricScene.SPAWN_COORDS.y,
                 this.interactionAreas
             );
@@ -246,7 +243,7 @@ export default class IsometricScene extends Phaser.Scene {
 
             const worldWidth = this.map.widthInPixels;
             const worldHeight = this.map.heightInPixels;
-            
+
 
             this.cameras.main.setZoom(0.2);
             this.cameras.main.centerOn(0, 500);
@@ -468,30 +465,48 @@ export default class IsometricScene extends Phaser.Scene {
             }
         )
 
+        this.interactionAreas["welcome"] = new InteractionArea(
+            this,
+            15510, 12315,
+            4100, 2300,
+            "Welcome",
+            "welcomeOverlay",
+            0x21570a,
+            0x688c58,
+            {
+                text: "Click me!",
+                font: fontFamilies["header"],
+                fontColor: "#ffffff",
+                color: 0x21570a,
+                hoverColor: 0x2d6e10
+            }
+        )
 
-        // Create arrow indicators for each interaction area
-        let arrowRadius;
-        if (this.game.device.os.desktop) {
-            arrowRadius = 2000;
-        } else {
-            arrowRadius = 900;
-        }
-        Object.entries(this.interactionAreas).forEach(([key, area]) => {
-            const { x, y } = area.getCenter();
-            this.arrowIndicators[key] = new ArrowIndicator(
-                this, 
-                x, 
-                y, 
-                area.getName(), 
-                fontFamilies,
-                {
-                    arrowSize: 80,
-                    textSize: 120,
-                    arrowColor: 0xffffff, 
-                    textColor: '#ffffff', 
-                    radius: arrowRadius // Distance from boat to arrow
+
+        if (arrowIndicatorsEnabled) {
+            // Create arrow indicators for each interaction area
+            let arrowRadius;
+            if (this.game.device.os.desktop) {
+                arrowRadius = 2000;
+            } else {
+                arrowRadius = 900;
+            }
+            Object.entries(this.interactionAreas).forEach(([key, area]) => {
+                const { x, y } = area.getCenter();
+                this.arrowIndicators[key] = new ArrowIndicator(
+                    this,
+                    x,
+                    y,
+                    area.getName(),
+                    fontFamilies,
+                    {
+                        arrowSize: 80,
+                        textSize: 120,
+                        arrowColor: 0xffffff,
+                        textColor: '#ffffff',
+                        radius: arrowRadius // Distance from boat to arrow
+                    });
             });
-        });
         }
 
 
@@ -507,40 +522,40 @@ export default class IsometricScene extends Phaser.Scene {
         const { x: boatX, y: boatY } = this.boat.getPosition();
 
         if (arrowIndicatorsEnabled) {
-       // Update arrow indicators
-       Object.entries(this.interactionAreas).forEach(([key, area]) => {
-           const { x: areaX, y: areaY } = area.getCenter();
-           const distance = Phaser.Math.Distance.Between(boatX, boatY, areaX, areaY);
-           const distanceInTiles = distance / this.map.tileWidth;
+            // Update arrow indicators
+            Object.entries(this.interactionAreas).forEach(([key, area]) => {
+                const { x: areaX, y: areaY } = area.getCenter();
+                const distance = Phaser.Math.Distance.Between(boatX, boatY, areaX, areaY);
+                const distanceInTiles = distance / this.map.tileWidth;
 
-           if (area.containsPoint(boatX, boatY, 3)) {
-               this.arrowIndicators[key].setVisible(false);
-           } else {
-               this.arrowIndicators[key].setVisible(true);
-               this.arrowIndicators[key].update(
-                   boatX, boatY,
-                   distanceInTiles
-               );
-           }
-       });
+                if (area.containsPoint(boatX, boatY, 3)) {
+                    this.arrowIndicators[key].setVisible(false);
+                } else {
+                    this.arrowIndicators[key].setVisible(true);
+                    this.arrowIndicators[key].update(
+                        boatX, boatY,
+                        distanceInTiles
+                    );
+                }
+            });
         }
 
 
-       const tileCoords = this.map.worldToTileXY(boatX, boatY);
-       
-       if (tileCoords) {
-           const distanceFromLeft = tileCoords.x;
-           const distanceFromRight = this.map.width - tileCoords.x - 1;
-           const distanceFromTop = tileCoords.y;
-           const distanceFromBottom = this.map.height - tileCoords.y - 1;
-   
-           if (distanceFromLeft < -IsometricScene.LOST_THRESHOLD ||
-               distanceFromRight < -IsometricScene.LOST_THRESHOLD ||
-               distanceFromTop < -IsometricScene.LOST_THRESHOLD ||
-               distanceFromBottom < -IsometricScene.LOST_THRESHOLD) {
-               this.showLostBoatOverlay();
-           }
-       }
+        const tileCoords = this.map.worldToTileXY(boatX, boatY);
+
+        if (tileCoords) {
+            const distanceFromLeft = tileCoords.x;
+            const distanceFromRight = this.map.width - tileCoords.x - 1;
+            const distanceFromTop = tileCoords.y;
+            const distanceFromBottom = this.map.height - tileCoords.y - 1;
+
+            if (distanceFromLeft < -IsometricScene.LOST_THRESHOLD ||
+                distanceFromRight < -IsometricScene.LOST_THRESHOLD ||
+                distanceFromTop < -IsometricScene.LOST_THRESHOLD ||
+                distanceFromBottom < -IsometricScene.LOST_THRESHOLD) {
+                this.showLostBoatOverlay();
+            }
+        }
 
 
         // Update debug text with boat coordinates
@@ -561,22 +576,22 @@ export default class IsometricScene extends Phaser.Scene {
 
     private initFog(): void {
         if (!this.oceanLayer) return;
-    
+
         const mapWidth = this.map.width;
         const mapHeight = this.map.height;
-    
+
         // Loop through all tiles in the ocean layer
         for (let y = 0; y < mapHeight; y++) {
             for (let x = 0; x < mapWidth; x++) {
                 const tile = this.oceanLayer.getTileAt(x, y);
                 if (!tile) continue;
-    
+
                 // Calculate distance from edge
                 const distanceFromLeft = x;
                 const distanceFromRight = mapWidth - x - 1;
                 const distanceFromTop = y;
                 const distanceFromBottom = mapHeight - y - 1;
-    
+
                 // Get minimum distance from any edge
                 const minDistance = Math.min(
                     distanceFromLeft,
@@ -584,18 +599,18 @@ export default class IsometricScene extends Phaser.Scene {
                     distanceFromTop,
                     distanceFromBottom
                 );
-    
+
                 // Calculate alpha based on distance
                 let alpha;
                 if (minDistance >= IsometricScene.FOG_DEPTH) {
                     alpha = IsometricScene.FOG_MAX_ALPHA;
                 } else {
                     // Linear interpolation from MIN_ALPHA to MAX_ALPHA
-                    alpha = IsometricScene.FOG_MIN_ALPHA + 
-                        (minDistance / IsometricScene.FOG_DEPTH) * 
+                    alpha = IsometricScene.FOG_MIN_ALPHA +
+                        (minDistance / IsometricScene.FOG_DEPTH) *
                         (IsometricScene.FOG_MAX_ALPHA - IsometricScene.FOG_MIN_ALPHA);
                 }
-    
+
                 // Apply alpha to the tile
                 tile.setAlpha(alpha);
             }
@@ -606,16 +621,16 @@ export default class IsometricScene extends Phaser.Scene {
         // Convert world coordinates to tile coordinates
         const tileCoords = this.map.worldToTileXY(worldX, worldY);
         if (!tileCoords) return 1;
-    
+
         const mapWidth = this.map.width;
         const mapHeight = this.map.height;
-    
+
         // Calculate distance from edges in tile units
         const distanceFromLeft = tileCoords.x;
         const distanceFromRight = mapWidth - tileCoords.x - 1;
         const distanceFromTop = tileCoords.y;
         const distanceFromBottom = mapHeight - tileCoords.y - 1;
-    
+
         // Get minimum distance from any edge
         const minDistance = Math.min(
             distanceFromLeft,
@@ -623,13 +638,13 @@ export default class IsometricScene extends Phaser.Scene {
             distanceFromTop,
             distanceFromBottom
         );
-    
+
         // Calculate alpha based on distance
         if (minDistance >= IsometricScene.FOG_DEPTH) {
             return IsometricScene.FOG_MAX_ALPHA;
         } else {
-            return IsometricScene.FOG_MIN_ALPHA + 
-                (minDistance / IsometricScene.FOG_DEPTH) * 
+            return IsometricScene.FOG_MIN_ALPHA +
+                (minDistance / IsometricScene.FOG_DEPTH) *
                 (IsometricScene.FOG_MAX_ALPHA - IsometricScene.FOG_MIN_ALPHA);
         }
     }
@@ -640,21 +655,21 @@ export default class IsometricScene extends Phaser.Scene {
 
         const displayWidth = this.cameras.main.width / this.cameras.main.zoom;
         const displayHeight = this.cameras.main.height / this.cameras.main.zoom;
-    
+
         // Create full-screen grey overlay matching fog color
         this.lostOverlay = this.add.rectangle(
-            -displayWidth / 2, 
+            -displayWidth / 2,
             -displayHeight / 2,
             displayWidth * 2,
             displayHeight * 2,
-            parseInt(IsometricScene.FOG_COLOR.replace('#', '0x')), 
+            parseInt(IsometricScene.FOG_COLOR.replace('#', '0x')),
             1
         );
         this.lostOverlay.setScrollFactor(0);
         this.lostOverlay.setDepth(1000);
         this.lostOverlay.setAlpha(0);
         this.lostOverlay.setOrigin(0)
-    
+
         // Add centered text
         this.lostText = this.add.text(
             this.cameras.main.centerX,
@@ -670,7 +685,7 @@ export default class IsometricScene extends Phaser.Scene {
         this.lostText.setScrollFactor(0);
         this.lostText.setDepth(1001);
         this.lostText.setAlpha(0);
-    
+
         // Fade in overlay and text
         this.tweens.add({
             targets: [this.lostOverlay, this.lostText],
@@ -679,7 +694,7 @@ export default class IsometricScene extends Phaser.Scene {
             onComplete: () => {
                 // Teleport boat after fade in
                 this.boat.setPosition(IsometricScene.SPAWN_COORDS.x, IsometricScene.SPAWN_COORDS.y); // Example coordinates
-    
+
                 // Wait a moment, then fade out
                 this.time.delayedCall(2000, () => {
                     this.tweens.add({
@@ -729,16 +744,16 @@ export default class IsometricScene extends Phaser.Scene {
             }
         });
     }
-    
+
     private updateDebugText(worldX: number, worldY: number, tileX: number, tileY: number): void {
         let debugText = `Boat World Coords: (${worldX.toFixed(2)}, ${worldY.toFixed(2)})\n`;
         debugText += `Boat Tile Coords: (${tileX.toFixed(2)}, ${tileY.toFixed(2)})`;
-    
+
         if (this.clickCoords) {
             debugText += `\nClick World Coords: (${this.clickCoords.worldX.toFixed(2)}, ${this.clickCoords.worldY.toFixed(2)})`;
             debugText += `\nClick Tile Coords: (${this.clickCoords.tileX.toFixed(2)}, ${this.clickCoords.tileY.toFixed(2)})`;
         }
-    
+
         this.debugText.setText(debugText);
     }
 
@@ -787,7 +802,7 @@ export default class IsometricScene extends Phaser.Scene {
         if (this.overlay) {
             this.destroyOverlayWithAnimation(overlayHtmlKey);
             return;
-        } 
+        }
 
         console.group("Creating overlay")
 
@@ -799,7 +814,7 @@ export default class IsometricScene extends Phaser.Scene {
             console.groupEnd()
             return;
         }
-    
+
         // Create wrapper
         const htmlWrapper = document.createElement('div');
         htmlWrapper.style.position = 'absolute';
@@ -814,15 +829,15 @@ export default class IsometricScene extends Phaser.Scene {
         htmlWrapper.style.justifyContent = 'center';
         htmlWrapper.style.alignItems = 'center';
         htmlWrapper.innerHTML = htmlContent;
-    
+
         // Add the wrapper to the game
         this.overlay = this.add.dom(0, 0, htmlWrapper);
         this.overlay.setOrigin(0.38, 0.4)
-        
+
         this.overlay.setScrollFactor(0);
         this.overlay.setDepth(1000);
         this.overlay.setScale(1 / this.cameras.main.zoom);
-    
+
         // Close button for overlay
         const closeButton = htmlWrapper.querySelector('#closeButton');
         if (closeButton) {
@@ -849,7 +864,7 @@ export default class IsometricScene extends Phaser.Scene {
                     }, 100);
                 }
             }
-        })  
+        })
     }
 
     private destroyOverlayWithAnimation(overlayHtmlKey: string) {
