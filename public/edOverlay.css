@@ -66,22 +66,22 @@
     margin-bottom: 20px;
 }
 
-#experience-list {
+#scroll-container {
     flex-grow: 1;
     overflow-y: auto;
     padding-right: 15px;
 }
 
-#experience-list::-webkit-scrollbar {
+#scroll-container::-webkit-scrollbar {
     width: 8px;
 }
 
-#experience-list::-webkit-scrollbar-track {
+#scroll-container::-webkit-scrollbar-track {
     background: #F0E6D2;
     border-radius: 4px;
 }
 
-#experience-list::-webkit-scrollbar-thumb {
+#scroll-container::-webkit-scrollbar-thumb {
     background-color: #D0B49F;
     border-radius: 4px;
 }
