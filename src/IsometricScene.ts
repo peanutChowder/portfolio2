@@ -36,7 +36,7 @@ export default class IsometricScene extends Phaser.Scene {
     private map!: Phaser.Tilemaps.Tilemap;
     private boat!: Boat;
 
-    private static readonly SPAWN_COORDS = {x: 6171, y: 6261}
+    private static readonly SPAWN_COORDS = {x: -6157, y: 5600}
 
     // Collide-able layers + Boat
     private collisionLayers: Phaser.Tilemaps.TilemapLayer[];
@@ -113,6 +113,9 @@ export default class IsometricScene extends Phaser.Scene {
         this.load.html('ffOverlay', 'ffOverlay.html');
 
         this.load.html('experienceOverlay-Apple', 'expAppleOverlay.html');
+        this.load.html('experienceOverlay-Teck', 'expTeckOverlay.html');
+        this.load.html('experienceOverlay-UAlberta', 'expUAlbertaOverlay.html');
+
     }
 
     create(): void {
@@ -322,12 +325,64 @@ export default class IsometricScene extends Phaser.Scene {
                 hoverColor: 0x9887fa
             },
             {
-                text: "SWE Intern @ Apple",
+                text: "Software Engineer Intern\n        @ Apple",
                 color: "#7340f5",
                 font: fontFamilies["header"],
                 fontSize: "220px",
                 offset: {
                     x: -0, y: -1200
+                }
+            }
+        )
+
+        this.interactionAreas["experience-Teck"] = new InteractionArea(
+            this,
+            712, 3470,
+            4100, 2300,
+            "Teck",
+            "experienceOverlay-Teck",
+            0x266dc9,
+            0x70a3e6,
+            {
+                text: "Click for my time at Teck",
+                font: fontFamilies["header"],
+                fontColor: "#ffffff",
+                color: 0x266dc9,
+                hoverColor: 0x1960bd
+            },
+            {
+                text: "Wireless Engineer Co-op\n        @ Teck",
+                color: "#1960bd",
+                font: fontFamilies["header"],
+                fontSize: "220px",
+                offset: {
+                    x: -0, y: -1000
+                }
+            }
+        )
+
+        this.interactionAreas["experience-UAlberta"] = new InteractionArea(
+            this,
+            -5223, 4819,
+            4100, 2300,
+            "UAlberta",
+            "experienceOverlay-UAlberta",
+            0x21570a,
+            0x688c58,
+            {
+                text: "Click for my time at UAlberta",
+                font: fontFamilies["header"],
+                fontColor: "#ffffff",
+                color: 0x395e29,
+                hoverColor: 0x21570a
+            },
+            {
+                text: "Data Analyst Co-op\n    @ UAlberta",
+                color: "#21570a",
+                font: fontFamilies["header"],
+                fontSize: "220px",
+                offset: {
+                    x: -0, y: -1000
                 }
             }
         )
