@@ -87,7 +87,7 @@ export default class IsometricScene extends Phaser.Scene {
 
     preload(): void {
         this.load.image('256x256 Cubes', tileset256x256Cubes);
-        this.load.image('256x192 Tiles' ,tileset256x192Tiles);
+        this.load.image('256x192 Tiles', tileset256x192Tiles);
         this.load.image('256x512 Trees', tileset256x512Trees);
         this.load.image('256x128 Tile Overlays', tileset256x128TileOverlays);
         this.load.tilemapTiledJSON('map', mapJSON);
@@ -255,7 +255,7 @@ export default class IsometricScene extends Phaser.Scene {
             this.isMobileDevice = this.sys.game.device.os.android || this.sys.game.device.os.iOS
             // Create a virtual joystick for non-desktop users to move the boat.
             if (this.isMobileDevice) {
-                const joyStickOrigin = {x: this.cameras.main.centerX, y: this.cameras.main.centerY * 4};
+                const joyStickOrigin = { x: this.cameras.main.centerX, y: this.cameras.main.centerY * 4 };
                 this.joystick = new VirtualJoystick(this, joyStickOrigin.x, joyStickOrigin.y, 300, 100);
                 this.boat.setJoystickDirectionGetter(() => this.joystick.getDirection())
             }
@@ -263,8 +263,8 @@ export default class IsometricScene extends Phaser.Scene {
             if (debugMode) {
                 // Add debug info
                 this.add.text(10, 10, `Map dimensions: ${worldWidth}x${worldHeight}`, { color: fontColor, font: fontSize });
-                this.add.text(10, 80, `Tile dimensions: ${this.map.tileWidth}x${this.map.tileHeight}`, { color: fontColor, font: fontSize  });
-                this.add.text(10, 150, `Mobile?: ${this.isMobileDevice}`, { color: fontColor, font: fontSize  })
+                this.add.text(10, 80, `Tile dimensions: ${this.map.tileWidth}x${this.map.tileHeight}`, { color: fontColor, font: fontSize });
+                this.add.text(10, 150, `Mobile?: ${this.isMobileDevice}`, { color: fontColor, font: fontSize })
 
                 // Log map information
                 console.group("Map info")
@@ -490,6 +490,8 @@ export default class IsometricScene extends Phaser.Scene {
                     radius: arrowRadius // Distance from boat to arrow
             });
         });
+        }
+
 
         if (this.input.keyboard) {
             this.input.keyboard.on('keydown-X', this.handleXKeyPress, this);
@@ -502,7 +504,6 @@ export default class IsometricScene extends Phaser.Scene {
         this.boat.update();
 
        // Update arrow indicators
-       const { x: boatX, y: boatY } = this.boat.getPosition();
        Object.entries(this.interactionAreas).forEach(([key, area]) => {
            const { x: areaX, y: areaY } = area.getCenter();
            const distance = Phaser.Math.Distance.Between(boatX, boatY, areaX, areaY);
@@ -518,6 +519,8 @@ export default class IsometricScene extends Phaser.Scene {
                );
            }
        });
+        }
+
 
        const tileCoords = this.map.worldToTileXY(boatX, boatY);
        
