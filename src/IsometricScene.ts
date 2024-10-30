@@ -373,8 +373,8 @@ export default class IsometricScene extends Phaser.Scene {
                 text: "Click for my time at UAlberta",
                 font: fontFamilies["header"],
                 fontColor: "#ffffff",
-                color: 0x395e29,
-                hoverColor: 0x21570a
+                color: 0x21570a,
+                hoverColor: 0x2d6e10
             },
             {
                 text: "Data Analyst Co-op\n    @ UAlberta",
