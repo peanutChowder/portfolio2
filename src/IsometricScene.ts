@@ -36,7 +36,7 @@ export default class IsometricScene extends Phaser.Scene {
     private map!: Phaser.Tilemaps.Tilemap;
     private boat!: Boat;
 
-    private static readonly SPAWN_COORDS = {x: -6157, y: 5600}
+    private static readonly SPAWN_COORDS = {x: -11888, y: 9749}
 
     // Collide-able layers + Boat
     private collisionLayers: Phaser.Tilemaps.TilemapLayer[];
@@ -108,10 +108,11 @@ export default class IsometricScene extends Phaser.Scene {
             console.error('File url:', file.url);
         });
 
+        // Load all overlays
         this.load.html('resumeOverlay', 'resumeOverlay.html');
         this.load.html('owOverlay', 'owOverlay.html');
         this.load.html('ffOverlay', 'ffOverlay.html');
-
+        this.load.html('educationOverlay', 'edOverlay.html');
         this.load.html('experienceOverlay-Apple', 'expAppleOverlay.html');
         this.load.html('experienceOverlay-Teck', 'expTeckOverlay.html');
         this.load.html('experienceOverlay-UAlberta', 'expUAlbertaOverlay.html');
@@ -387,28 +388,54 @@ export default class IsometricScene extends Phaser.Scene {
             }
         )
 
+        this.interactionAreas["education"] = new InteractionArea(
+            this,
+            8689, 13200,
+            3600, 2700,
+            "Education",
+            "educationOverlay",
+            0x21570a,
+            0x688c58,
+            {
+                text: "Click to see my Education",
+                font: fontFamilies["header"],
+                fontColor: "#ffffff",
+                color: 0x21570a,
+                hoverColor: 0x2d6e10
+            },
+            {
+                text: "Education: UAlberta",
+                color: "#21570a",
+                font: fontFamilies["header"],
+                fontSize: "220px",
+                offset: {
+                    x: -0, y: -1420
+                }
+            }
+        )
+
         this.interactionAreas["olympicWeightlifting"] = new InteractionArea(
             this,
-            6580, 8151,
-            2000, 1500,
+            -12743, 9250,
+            2700, 1700,
             "Olympic\nWeightlifting",
             "owOverlay",
-            0x45fff9,
-            0x68e2ed,
+            0x145b66,
+            0x43a6b5,
             {
                 text: "Click to see Olympic\nWeightlifting Content",
                 font: fontFamilies["header"],
                 fontColor: "#ffffff",
-                color: 0x438a88,
-                hoverColor: 0x48a3a1
+                color: 0x145b66,
+                hoverColor: 0x208999
             },
             {
                 text: "Olympic Weightlifting",
-                color: "#3bdbff",
+                color: "#145b66",
                 font: fontFamilies["header"],
                 fontSize: "130px",
                 offset: {
-                    x: 0, y: -900
+                    x: 0, y: -600
                 }
             }
         )
