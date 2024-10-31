@@ -114,7 +114,7 @@ export class FireworkManager {
         }
 
         const rocket = this.scene.add.sprite(startX, startY, fireworkType.rocketTexture)
-            .setScale(15);
+            .setScale(20);
 
         const peakY: number = startY - Phaser.Math.Between(800, 1200);
 
@@ -141,7 +141,7 @@ export class FireworkManager {
                 }
 
                 const explosion = this.scene.add.sprite(rocket.x, rocket.y, fireworkType.explosionTexture)
-                    .setScale(15);
+                    .setScale(20);
                 
                 try {
                     explosion.play(fireworkType.explodeAnim);
