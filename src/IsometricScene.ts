@@ -467,7 +467,7 @@ export default class IsometricScene extends Phaser.Scene {
             }
         )
 
-        this.interactionAreas["welcome"] = new InteractionArea(
+        this.interactionAreas["fireworks"] = new InteractionArea(
             this,
             -7159, 19045,
             3000, 1500,
