@@ -467,6 +467,25 @@ export default class IsometricScene extends Phaser.Scene {
             }
         )
 
+        this.interactionAreas["welcome"] = new InteractionArea(
+            this,
+            -7159, 19045,
+            3000, 1500,
+            "",
+            "",
+            0xa361fa,
+            0xc89eff,
+            {
+                text: "Click me!",
+                font: fontFamilies["header"],
+                fontColor: "#ffffff",
+                color: 0xa361fa,
+                hoverColor: 0xc89eff
+            },
+            undefined,
+            () => {this.fireworkManager.createFireworkDisplay(-7159, 19045)}
+        )
+
 
         if (arrowIndicatorsEnabled) {
             // Create arrow indicators for each interaction area
