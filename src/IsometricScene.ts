@@ -21,13 +21,9 @@ import boatNorthWestPNG from '../assets/boat/boatNW.png';
 import boatSouthEastPNG from '../assets/boat/boatSE.png';
 import boatSouthWestPNG from '../assets/boat/boatSW.png';
 
-import fireworkRocketBlue from '../assets/fireworks/Rocket_Blue.png-sheet.png'
-import fireworkRocketOrange from '../assets/fireworks/Rocket_Orange-sheet.png'
-import fireworkExplosionBlue from '../assets/fireworks/Explosion_Default_Blue-sheet.png'
-import fireworkExplosionGreen from '../assets/fireworks/Explosion_Default_Green-sheet.png'
-
 import { ArrowIndicator } from './ArrowIndicator';
 import { VirtualJoystick } from './VirtualJoystick';
+import { FireworkManager } from './Fireworks';
 
 const fontSize = "80px";
 const fontColor = "#ffffff"
@@ -63,17 +59,20 @@ export default class IsometricScene extends Phaser.Scene {
     private joystick!: VirtualJoystick;
     public isMobileDevice!: boolean;
 
-    // Boundary fog
+    // Boundary fog 
     private static readonly FOG_COLOR = "#bdbdbd";
     private static readonly FOG_DEPTH = 20; // num tiles fog extends to
     private static readonly FOG_MIN_ALPHA = 0; // alpha for fog edge
     private static readonly FOG_MAX_ALPHA = 1; // alpha for fog start
     private oceanLayer: Phaser.Tilemaps.TilemapLayer | null = null;
-
+    
+    // Lost boat handling
     private static readonly LOST_THRESHOLD = 25; // How many tiles off map before "lost" effect
     private lostText!: Phaser.GameObjects.Text;
     private lostOverlay!: Phaser.GameObjects.Rectangle;
     private isHandlingLostBoat: boolean = false;
+
+    private fireworkManager!: FireworkManager
 
     // Debug text attributes
     private debugText!: Phaser.GameObjects.Text;
@@ -95,6 +94,8 @@ export default class IsometricScene extends Phaser.Scene {
     }
 
     preload(): void {
+        this.fireworkManager = new FireworkManager(this);
+
         this.load.image('256x256 Cubes', tileset256x256Cubes);
         this.load.image('256x192 Tiles', tileset256x192Tiles);
         this.load.image('256x512 Trees', tileset256x512Trees);
@@ -111,23 +112,6 @@ export default class IsometricScene extends Phaser.Scene {
         this.load.image('boat_se', boatSouthEastPNG);
         this.load.image('boat_sw', boatSouthWestPNG);
 
-        this.load.spritesheet('fireworkRocketBlue',
-            fireworkRocketBlue,
-            {frameWidth: 7, frameHeight: 52}
-        )
-        this.load.spritesheet('fireworkExplosionGreen',
-            fireworkExplosionGreen,
-            {frameWidth: 99, frameHeight: 99}
-        )
-        this.load.spritesheet('fireworkRocketOrange',
-            fireworkRocketOrange,
-            {frameWidth: 7, frameHeight: 51}
-        )
-        this.load.spritesheet('fireworkExplosionBlue',
-            fireworkExplosionBlue,
-            {frameWidth: 93, frameHeight: 100}
-        )
-
         this.load.on('loaderror', (file: Phaser.Loader.File) => {
             console.error('Error loading file:', file.key);
             console.error('File type:', file.type);
@@ -143,6 +127,7 @@ export default class IsometricScene extends Phaser.Scene {
         this.load.html('experienceOverlay-UAlberta', 'expUAlbertaOverlay.html');
         this.load.html('welcomeOverlay', 'welcomeOverlay.html');
 
+        this.fireworkManager.preload()
     }
 
     create(): void {
@@ -255,34 +240,7 @@ export default class IsometricScene extends Phaser.Scene {
             // ------------------------------------------------------------------------
 
             // Create firework animations
-            this.anims.create({
-                key: 'fireworkLaunchBlue',
-                frames: this.anims.generateFrameNumbers('fireworkRocketBlue'),
-                frameRate: 12,
-                repeat: 0
-            });
-            
-            // Create explosion animation
-            this.anims.create({
-                key: 'fireworkExplodeBlue',
-                frames: this.anims.generateFrameNumbers('fireworkExplosionBlue'),
-                frameRate: 12,
-                repeat: 0
-            });
-            this.anims.create({
-                key: 'fireworkLaunchOrange',
-                frames: this.anims.generateFrameNumbers('fireworkRocketOrange'),
-                frameRate: 12,
-                repeat: 0
-            });
-            
-            // Create explosion animation
-            this.anims.create({
-                key: 'fireworkExplodeGreen',
-                frames: this.anims.generateFrameNumbers('fireworkExplosionGreen'),
-                frameRate: 12,
-                repeat: 0
-            });
+            this.fireworkManager.create()
 
             // Create fog at map boundaries
             this.cameras.main.setBackgroundColor(IsometricScene.FOG_COLOR)
@@ -923,89 +881,4 @@ export default class IsometricScene extends Phaser.Scene {
     private handleXKeyPress(): void {
         Object.values(this.interactionAreas).forEach(area => area.handleInteraction());
     }
-
-    createFireworkDisplay(centerX: number, centerY: number, radius: number = 1000) {
-        const fireworkTypes = [
-            {
-                rocketTexture: 'fireworkRocketBlue',
-                explosionTexture: 'fireworkExplosionBlue',
-                launchAnim: 'fireworkLaunchBlue',
-                explodeAnim: 'fireworkExplodeBlue'
-            },
-            {
-                rocketTexture: 'fireworkRocketOrange',
-                explosionTexture: 'fireworkExplosionGreen', // Green explosion for orange rocket
-                launchAnim: 'fireworkLaunchOrange',
-                explodeAnim: 'fireworkExplodeGreen'
-            }
-        ];
-    
-        for(let i = 0; i < 7; i++) {
-            // Launch fireworks at rando position within radius
-            const angle = Phaser.Math.Between(0, 360);
-            const distance = Phaser.Math.Between(0, radius);
-            const startX = centerX + (distance * Math.cos(angle * Math.PI / 180));
-            const startY = centerY + (distance * Math.sin(angle * Math.PI / 180));
-    
-            // Get random firework type
-            const fireworkType = Phaser.Utils.Array.GetRandom(fireworkTypes);
-    
-            // Add delay between launches
-            this.time.delayedCall(i * 200, () => {
-                this.launchFirework(startX, startY, fireworkType);
-            });
-        }
-    }
-    
-    private launchFirework(startX: number, startY: number, 
-        fireworkType: {rocketTexture: string, explosionTexture: string, launchAnim: string, explodeAnim: string}
-    ) {
-        // Create rocket at bottom of screen
-        const rocket = this.add.sprite(startX, startY, fireworkType.rocketTexture)
-            .setScale(15);
-
-        if (!rocket) {
-            console.error(`Rocket '${fireworkType.rocketTexture}' not found!`);
-            return;
-        }
-    
-        // Calculate random peak height
-        const peakY: number = startY - Phaser.Math.Between(800, 1200);
-    
-
-        console.log(fireworkType.launchAnim)
-        // Launch the rocket
-        rocket.play(fireworkType.launchAnim);
-    
-        // Move rocket upward
-        this.tweens.add({
-            targets: rocket,
-            y: peakY,
-            duration: 1000,
-            ease: 'Linear',
-            onComplete: () => {
-                // When rocket reaches peak, hide rocket
-                rocket.setVisible(false);
-    
-                // Create explosion at rocket peak
-                const explosion = this.add.sprite(rocket.x, rocket.y, fireworkType.explosionTexture);
-
-                if (!explosion) {
-                    console.error(`Explosion '${fireworkType.explosionTexture}' not found!`);
-                    return;
-                }
-
-                explosion.setScale(15)
-                    .play(fireworkType.explodeAnim);
-    
-                // Clean up after explosion done
-                explosion.on('animationcomplete', () => {
-                    explosion.destroy();
-                    rocket.destroy();
-                    console.log("Firework cleaned up");
-                });
-            }
-        });
-    }
-    
 }   
