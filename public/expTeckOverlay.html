@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume Overlay</title>
+    <link rel="stylesheet" href="expOverlay.css">
+</head>
+<body>
+    <div id="overlay-wrapper">
+        <div id="simple-overlay">
+            <h2>Teck</h2>
+            <h3>Wireless Engineer Co-op</h3>
+            <div id="experience-list">
+                <div class="img-container">
+                    <img src="../assets/overlayImgs/teck.jpeg" alt="Teck Mine Truck">
+                </div>
+                <div class="experience">
+                    <h4>January - September 2023</h4>
+                    <ul>
+                        <b>Network KPI Dashboard</b>	     		 
+                            <li>Facilitated reduction of $500k in network downtime by creating and delivering a weekly KPI report to directors.</li>
+                            <li>Ingested unstructured text into PowerBI using Python + SQLite to organize data into groups such as cell tower data and user equipment.</li>
+                        <b>Data pipelines to Azure</b>
+                            <li>Wrote scripts for the Azure team using Python + PowerShell scripts to securely forward sensitive data from mine site to business network.</li>
+                            <li>Ensured security by using SFTP across a series of jump hosts. </li>
+                        <b>LTE Router Test Suite</b>
+                            <li>Removed the need for $75k of test equipment by automating stress tests such as throughput, cell reselection, and more.</li>
+                            <li>Simulated network traffic and different conditions using Python + Raspberry Pi’s to control throughput and attenuation.</li>
+                        <b>LTE Faraday Cage</b>
+                            <li>Assembled RF circuits from UE to base band to LTE Core (fiber optic) in test chamber.</li>
+                            <li>Configured firewalls and other devices from Cisco, AVI, Fortinet, and more.</li>
+                    </ul>
+                </div>
+        </div>
+        <button id="closeButton">Close</button>
+    </div>
+</body>
+</html>

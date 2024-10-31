@@ -12,6 +12,7 @@ export default class InteractionArea {
     private displayName: string;
     private floatingText: Phaser.GameObjects.Text | null = null;
 
+    // Button attributes
     private interactionButton!: Phaser.GameObjects.Container;
     private buttonBg!: Phaser.GameObjects.Graphics;
     private buttonText!: Phaser.GameObjects.Text;
@@ -23,6 +24,8 @@ export default class InteractionArea {
     private buttonWidth: number;
     private ignoreButtonClick: boolean = false;
 
+    private buttonClickHandler: (() => void) | undefined;
+
     constructor(
         scene: Phaser.Scene,
         x: number, y: number,
@@ -32,7 +35,8 @@ export default class InteractionArea {
         lineColor: number,
         fillColor: number,
         buttonInfo: {text: string, font: string, fontColor: string, color: number, hoverColor: number},
-        floatingTextInfo?: {text: string, offset: {x: number, y: number}, font: string, fontSize: string, color: string}
+        floatingTextInfo?: {text: string, offset: {x: number, y: number}, font: string, fontSize: string, color: string},
+        buttonClickHandler?: () => void
     ) {
         this.scene = scene;
         this.ellipse = new Phaser.Geom.Ellipse(x, y, width, height);
@@ -53,6 +57,7 @@ export default class InteractionArea {
         this.hoverColor = buttonInfo.hoverColor;
         this.buttonX = 0;
         this.buttonY = 0;
+        this.buttonClickHandler = buttonClickHandler;
         if (this.scene.sys.game.device.os.desktop) {
             this.buttonWidth = 300;
             this.buttonHeight = 90;
@@ -180,7 +185,14 @@ export default class InteractionArea {
     handleInteraction(): void {
         if (this.isPlayerInside) {
             console.info(`Player inside area '${this.displayName}'`);
-            (this.scene as any).showOverlay(this.overlayName);
+
+            if (this.buttonClickHandler === undefined) {
+                (this.scene as any).showOverlay(this.overlayName);
+            } else {
+                console.log("click handler")
+                this.buttonClickHandler();
+                this.ignoreButtonClick = false;
+            }
         }
     }
 
