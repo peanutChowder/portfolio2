@@ -471,14 +471,14 @@ export default class IsometricScene extends Phaser.Scene {
             4100, 2300,
             "Welcome",
             "welcomeOverlay",
-            0x21570a,
-            0x688c58,
+            0x1689f5,
+            0x34b4eb,
             {
                 text: "Click me!",
                 font: fontFamilies["header"],
                 fontColor: "#ffffff",
-                color: 0x21570a,
-                hoverColor: 0x2d6e10
+                color: 0x1689f5,
+                hoverColor: 0x34b4eb
             }
         )
 
