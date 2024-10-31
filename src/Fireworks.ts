@@ -16,6 +16,7 @@ interface FireworkType {
 export class FireworkManager {
     private scene: Phaser.Scene;
     private fireworkTypes: FireworkType[];
+    private fireworksActive: number = 0;
 
     constructor(scene: Phaser.Scene) {
         this.scene = scene;
@@ -88,8 +89,10 @@ export class FireworkManager {
     }
 
     createFireworkDisplay(centerX: number, centerY: number, radius: number = 200): void {
-        // Launch 5 fireworks with delays
-        for(let i = 0; i < 5; i++) {
+        // Stop user from spamming fireworks
+        if (this.fireworksActive > 0) {return;}
+
+        for(let i = 0; i < 7; i++) {
             const angle = Phaser.Math.Between(0, 360);
             const distance = Phaser.Math.Between(0, radius);
             const startX = centerX + (distance * Math.cos(angle * Math.PI / 180));
@@ -98,6 +101,7 @@ export class FireworkManager {
             const fireworkType = Phaser.Utils.Array.GetRandom(this.fireworkTypes);
 
             this.scene.time.delayedCall(i * 200, () => {
+                this.fireworksActive += 1;
                 this.launchFirework(startX, startY, fireworkType);
             });
         }
@@ -149,6 +153,9 @@ export class FireworkManager {
                 }
 
                 explosion.on('animationcomplete', () => {
+                    // Track when fireworks are done so user can click again.
+                    this.fireworksActive -= 1;
+
                     explosion.destroy();
                     rocket.destroy();
                 });
