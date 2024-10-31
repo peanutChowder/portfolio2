@@ -88,11 +88,11 @@ export class FireworkManager {
         });
     }
 
-    createFireworkDisplay(centerX: number, centerY: number, radius: number = 200): void {
+    createFireworkDisplay(centerX: number, centerY: number, radius: number = 1000): void {
         // Stop user from spamming fireworks
         if (this.fireworksActive > 0) {return;}
 
-        for(let i = 0; i < 7; i++) {
+        for(let i = 0; i < 10; i++) {
             const angle = Phaser.Math.Between(0, 360);
             const distance = Phaser.Math.Between(0, radius);
             const startX = centerX + (distance * Math.cos(angle * Math.PI / 180));
