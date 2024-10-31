@@ -20,6 +20,12 @@ import boatNorthEastPNG from '../assets/boat/boatNE.png';
 import boatNorthWestPNG from '../assets/boat/boatNW.png';
 import boatSouthEastPNG from '../assets/boat/boatSE.png';
 import boatSouthWestPNG from '../assets/boat/boatSW.png';
+
+import fireworkRocketBlue from '../assets/fireworks/Rocket_Blue.png-sheet.png'
+import fireworkRocketOrange from '../assets/fireworks/Rocket_Orange-sheet.png'
+import fireworkExplosionBlue from '../assets/fireworks/Explosion_Default_Blue-sheet.png'
+import fireworkExplosionGreen from '../assets/fireworks/Explosion_Default_Green-sheet.png'
+
 import { ArrowIndicator } from './ArrowIndicator';
 import { VirtualJoystick } from './VirtualJoystick';
 
@@ -31,6 +37,7 @@ const fontFamilies = {
 }
 
 const debugMode = true;
+const debugSpawn = { x: -6619, y: 19411 }
 
 const arrowIndicatorsEnabled = false;
 
@@ -38,7 +45,7 @@ export default class IsometricScene extends Phaser.Scene {
     private map!: Phaser.Tilemaps.Tilemap;
     private boat!: Boat;
 
-    private static readonly SPAWN_COORDS = { x: 15500, y: 12271 }
+    private static readonly SPAWN_COORDS = debugMode ? debugSpawn : { x: 15500, y: 12271 }
 
     // Collide-able layers + Boat
     private collisionLayers: Phaser.Tilemaps.TilemapLayer[];
@@ -94,15 +101,32 @@ export default class IsometricScene extends Phaser.Scene {
         this.load.image('256x128 Tile Overlays', tileset256x128TileOverlays);
         this.load.tilemapTiledJSON('map', mapJSON);
 
+        // Load boat sprite imgs
         this.load.image('boat_n', boatNorthPNG);
         this.load.image('boat_w', boatWestPNG);
         this.load.image('boat_e', boatEastPNG);
         this.load.image('boat_s', boatSouthPNG);
-
         this.load.image('boat_ne', boatNorthEastPNG);
         this.load.image('boat_nw', boatNorthWestPNG);
         this.load.image('boat_se', boatSouthEastPNG);
         this.load.image('boat_sw', boatSouthWestPNG);
+
+        this.load.spritesheet('fireworkRocketBlue',
+            fireworkRocketBlue,
+            {frameWidth: 7, frameHeight: 52}
+        )
+        this.load.spritesheet('fireworkExplosionGreen',
+            fireworkExplosionGreen,
+            {frameWidth: 99, frameHeight: 99}
+        )
+        this.load.spritesheet('fireworkRocketOrange',
+            fireworkRocketOrange,
+            {frameWidth: 7, frameHeight: 51}
+        )
+        this.load.spritesheet('fireworkExplosionBlue',
+            fireworkExplosionBlue,
+            {frameWidth: 93, frameHeight: 100}
+        )
 
         this.load.on('loaderror', (file: Phaser.Loader.File) => {
             console.error('Error loading file:', file.key);
@@ -111,7 +135,6 @@ export default class IsometricScene extends Phaser.Scene {
         });
 
         // Load all overlays
-        this.load.html('resumeOverlay', 'resumeOverlay.html');
         this.load.html('owOverlay', 'owOverlay.html');
         this.load.html('ffOverlay', 'ffOverlay.html');
         this.load.html('educationOverlay', 'edOverlay.html');
@@ -231,6 +254,36 @@ export default class IsometricScene extends Phaser.Scene {
             // End of map and element drawing
             // ------------------------------------------------------------------------
 
+            // Create firework animations
+            this.anims.create({
+                key: 'fireworkLaunchBlue',
+                frames: this.anims.generateFrameNumbers('fireworkRocketBlue'),
+                frameRate: 12,
+                repeat: 0
+            });
+            
+            // Create explosion animation
+            this.anims.create({
+                key: 'fireworkExplodeBlue',
+                frames: this.anims.generateFrameNumbers('fireworkExplosionBlue'),
+                frameRate: 12,
+                repeat: 0
+            });
+            this.anims.create({
+                key: 'fireworkLaunchOrange',
+                frames: this.anims.generateFrameNumbers('fireworkRocketOrange'),
+                frameRate: 12,
+                repeat: 0
+            });
+            
+            // Create explosion animation
+            this.anims.create({
+                key: 'fireworkExplodeGreen',
+                frames: this.anims.generateFrameNumbers('fireworkExplosionGreen'),
+                frameRate: 12,
+                repeat: 0
+            });
+
             // Create fog at map boundaries
             this.cameras.main.setBackgroundColor(IsometricScene.FOG_COLOR)
             this.initFog();
@@ -283,32 +336,6 @@ export default class IsometricScene extends Phaser.Scene {
     }
 
     private setupInteractiveAreas(): void {
-        this.interactionAreas["resume"] = new InteractionArea(
-            this,
-            -1300, 12800,
-            2500, 2000,
-            "Experience",
-            "resumeOverlay",
-            0x52f778,
-            0xa1f7ce,
-            {
-                text: "Click to see my experience",
-                font: fontFamilies["header"],
-                fontColor: "#ffffff",
-                color: 0x418045,
-                hoverColor: 0x46914b
-            },
-            {
-                text: "Experience",
-                color: "#175235",
-                font: fontFamilies["header"],
-                fontSize: "220px",
-                offset: {
-                    x: -0, y: -1200
-                }
-            }
-        )
-
         this.interactionAreas["experience-Apple"] = new InteractionArea(
             this,
             7886, 5790,
@@ -896,4 +923,89 @@ export default class IsometricScene extends Phaser.Scene {
     private handleXKeyPress(): void {
         Object.values(this.interactionAreas).forEach(area => area.handleInteraction());
     }
+
+    createFireworkDisplay(centerX: number, centerY: number, radius: number = 1000) {
+        const fireworkTypes = [
+            {
+                rocketTexture: 'fireworkRocketBlue',
+                explosionTexture: 'fireworkExplosionBlue',
+                launchAnim: 'fireworkLaunchBlue',
+                explodeAnim: 'fireworkExplodeBlue'
+            },
+            {
+                rocketTexture: 'fireworkRocketOrange',
+                explosionTexture: 'fireworkExplosionGreen', // Green explosion for orange rocket
+                launchAnim: 'fireworkLaunchOrange',
+                explodeAnim: 'fireworkExplodeGreen'
+            }
+        ];
+    
+        for(let i = 0; i < 7; i++) {
+            // Launch fireworks at rando position within radius
+            const angle = Phaser.Math.Between(0, 360);
+            const distance = Phaser.Math.Between(0, radius);
+            const startX = centerX + (distance * Math.cos(angle * Math.PI / 180));
+            const startY = centerY + (distance * Math.sin(angle * Math.PI / 180));
+    
+            // Get random firework type
+            const fireworkType = Phaser.Utils.Array.GetRandom(fireworkTypes);
+    
+            // Add delay between launches
+            this.time.delayedCall(i * 200, () => {
+                this.launchFirework(startX, startY, fireworkType);
+            });
+        }
+    }
+    
+    private launchFirework(startX: number, startY: number, 
+        fireworkType: {rocketTexture: string, explosionTexture: string, launchAnim: string, explodeAnim: string}
+    ) {
+        // Create rocket at bottom of screen
+        const rocket = this.add.sprite(startX, startY, fireworkType.rocketTexture)
+            .setScale(15);
+
+        if (!rocket) {
+            console.error(`Rocket '${fireworkType.rocketTexture}' not found!`);
+            return;
+        }
+    
+        // Calculate random peak height
+        const peakY: number = startY - Phaser.Math.Between(800, 1200);
+    
+
+        console.log(fireworkType.launchAnim)
+        // Launch the rocket
+        rocket.play(fireworkType.launchAnim);
+    
+        // Move rocket upward
+        this.tweens.add({
+            targets: rocket,
+            y: peakY,
+            duration: 1000,
+            ease: 'Linear',
+            onComplete: () => {
+                // When rocket reaches peak, hide rocket
+                rocket.setVisible(false);
+    
+                // Create explosion at rocket peak
+                const explosion = this.add.sprite(rocket.x, rocket.y, fireworkType.explosionTexture);
+
+                if (!explosion) {
+                    console.error(`Explosion '${fireworkType.explosionTexture}' not found!`);
+                    return;
+                }
+
+                explosion.setScale(15)
+                    .play(fireworkType.explodeAnim);
+    
+                // Clean up after explosion done
+                explosion.on('animationcomplete', () => {
+                    explosion.destroy();
+                    rocket.destroy();
+                    console.log("Firework cleaned up");
+                });
+            }
+        });
+    }
+    
 }   
