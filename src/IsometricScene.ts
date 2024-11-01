@@ -9,17 +9,6 @@ import tileset256x192Tiles from '../assets/world2/256x192 Tiles.png'
 import tileset256x512Trees from '../assets/world2/256x512 Trees.png'
 import tileset256x128TileOverlays from '../assets/world2/256x128 Tile Overlays.png'
 
-// import boat sprites
-import boatNorthPNG from '../assets/boat/boatN.png'
-import boatWestPNG from '../assets/boat/boatW.png'
-import boatEastPNG from '../assets/boat/boatE.png'
-import boatSouthPNG from '../assets/boat/boatS.png'
-
-// import diagonal boat sprites
-import boatNorthEastPNG from '../assets/boat/boatNE.png';
-import boatNorthWestPNG from '../assets/boat/boatNW.png';
-import boatSouthEastPNG from '../assets/boat/boatSE.png';
-import boatSouthWestPNG from '../assets/boat/boatSW.png';
 
 import { ArrowIndicator } from './ArrowIndicator';
 import { VirtualJoystick } from './VirtualJoystick';
@@ -102,15 +91,8 @@ export default class IsometricScene extends Phaser.Scene {
         this.load.image('256x128 Tile Overlays', tileset256x128TileOverlays);
         this.load.tilemapTiledJSON('map', mapJSON);
 
-        // Load boat sprite imgs
-        this.load.image('boat_n', boatNorthPNG);
-        this.load.image('boat_w', boatWestPNG);
-        this.load.image('boat_e', boatEastPNG);
-        this.load.image('boat_s', boatSouthPNG);
-        this.load.image('boat_ne', boatNorthEastPNG);
-        this.load.image('boat_nw', boatNorthWestPNG);
-        this.load.image('boat_se', boatSouthEastPNG);
-        this.load.image('boat_sw', boatSouthWestPNG);
+        // Load boat sprites
+        Boat.preload(this);
 
         this.load.on('loaderror', (file: Phaser.Loader.File) => {
             console.error('Error loading file:', file.key);
