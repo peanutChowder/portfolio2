@@ -23,7 +23,7 @@ export class MapSystem extends Phaser.GameObjects.Container {
         scene.load.image('mapIcon', mapIcon);
     }
 
-    constructor(scene: IsometricScene, x: number, y: number) {
+    constructor(scene: IsometricScene) {
         super(scene, 0, 0);
         this.scene = scene;
 
@@ -41,9 +41,9 @@ export class MapSystem extends Phaser.GameObjects.Container {
             .setInteractive({ useHandCursor: true });
 
         // Set up map container
-        this.mapWidth = screenWidth * 0.7;
+        this.mapWidth = screenWidth * 0.8;
         this.mapHeight = screenHeight * 0.7;
-        this.mapContainer = this.scene.add.container(0, 0);
+        this.mapContainer = this.scene.add.container(300, 0);
         this.mapContainer.setScrollFactor(0);
         this.mapContainer.setDepth(1000);
         this.mapContainer.setVisible(false);
@@ -81,10 +81,7 @@ export class MapSystem extends Phaser.GameObjects.Container {
         // Clear previous content
         this.mapContent.clear();
 
-        // Calculate scale factors to fit the entire map in our minimap
-        const scaleX = this.mapWidth / map.widthInPixels;
-        const scaleY = this.mapHeight / map.heightInPixels;
-        const scale = Math.min(scaleX, scaleY) * 1.4;
+        const scale = 0.13; // trial and error lol
 
         // Draw water background
         this.mapContent.fillStyle(this.waterColor);
