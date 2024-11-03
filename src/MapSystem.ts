@@ -4,8 +4,8 @@ import mapIcon from '../assets/map.png'
 
 
 export class MapSystem extends Phaser.GameObjects.Container {
-    private mapWidth: number = 200;
-    private mapHeight: number = 200;
+    private mapWidth: number;
+    private mapHeight: number;
     private mapAlpha: number = 0.8;
     private mapColor: number = 0x000000;
     private borderColor: number = 0xFFFFFF;
@@ -41,7 +41,11 @@ export class MapSystem extends Phaser.GameObjects.Container {
             .setInteractive({ useHandCursor: true });
 
         // Create the map container 
-        this.mapContainer = this.scene.add.container(screenX + this.iconSize + 10, screenY);
+        const mapX = 0;
+        const mapY = 0;
+        this.mapWidth = screenWidth * 0.5;
+        this.mapHeight = screenHeight * 0.7;
+        this.mapContainer = this.scene.add.container(mapX, mapY);
         this.mapContainer.setScrollFactor(0);
         this.mapContainer.setDepth(1000);
         this.mapContainer.setVisible(false);
@@ -50,8 +54,8 @@ export class MapSystem extends Phaser.GameObjects.Container {
         this.mapBackground = this.scene.add.graphics();
         this.mapBackground.lineStyle(2, this.borderColor);
         this.mapBackground.fillStyle(this.mapColor, this.mapAlpha);
-        this.mapBackground.strokeRect(0, 0, this.mapWidth, this.mapHeight);
-        this.mapBackground.fillRect(0, 0, this.mapWidth, this.mapHeight);
+        this.mapBackground.strokeRect(-this.mapWidth/2, -this.mapHeight/2, this.mapWidth, this.mapHeight);
+        this.mapBackground.fillRect(-this.mapWidth/2, -this.mapHeight/2, this.mapWidth, this.mapHeight);
         
         this.mapContainer.add(this.mapBackground);
 
