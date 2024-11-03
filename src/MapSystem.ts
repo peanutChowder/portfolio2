@@ -4,9 +4,9 @@ import mapIcon from '../assets/map.png';
 export class MapSystem extends Phaser.GameObjects.Container {
     private mapWidth: number;
     private mapHeight: number;
+    private mapPadding: number = 200;
     private mapAlpha: number = 0.8;
-    private mapColor: number = 0x000000;
-    private borderColor: number = 0xFFFFFF;
+    private mapColor: number = 0xffffff;
     private iconSize: number = 50;
     private landColor: number = 0x3d8547;  // Green for land
     private waterColor: number = 0x2389da;  // Blue for water
@@ -49,11 +49,12 @@ export class MapSystem extends Phaser.GameObjects.Container {
         this.mapContainer.setVisible(false);
 
         // Create map background
+        const backgroundWidth = this.mapWidth + this.mapPadding;
+        const backgroundHeight = this.mapHeight + this.mapPadding;
         this.mapBackground = this.scene.add.graphics();
-        this.mapBackground.lineStyle(2, this.borderColor);
         this.mapBackground.fillStyle(this.mapColor, this.mapAlpha);
-        this.mapBackground.strokeRect(-this.mapWidth/2, -this.mapHeight/2, this.mapWidth, this.mapHeight);
-        this.mapBackground.fillRect(-this.mapWidth/2, -this.mapHeight/2, this.mapWidth, this.mapHeight);
+        this.mapBackground.strokeRect(-backgroundWidth/2, -backgroundHeight/2, backgroundWidth, backgroundHeight);
+        this.mapBackground.fillRect(-backgroundWidth/2, -backgroundHeight/2, backgroundWidth, backgroundHeight);
         this.mapContainer.add(this.mapBackground);
 
         // Create map content graphics
@@ -67,6 +68,8 @@ export class MapSystem extends Phaser.GameObjects.Container {
         this.mapIcon.on('pointerdown', () => this.toggleMap());
         this.mapIcon.on('pointerover', () => this.mapIcon.setTint(0xcccccc));
         this.mapIcon.on('pointerout', () => this.mapIcon.clearTint());
+
+        this.toggleMap();
 
         scene.add.existing(this);
     }
@@ -108,7 +111,7 @@ export class MapSystem extends Phaser.GameObjects.Container {
 
                     // Scale and position in minimap
                     const mapX = (cartX * scale);
-                    const mapY = (cartY * scale) - (this.mapHeight / 4);
+                    const mapY = (cartY * scale) - (this.mapHeight / 2);
 
                     // Draw a small rectangle for each land tile
                     this.mapContent.fillRect(
