@@ -28,7 +28,7 @@ const debugSpawn = { x: -6619, y: 19411 }
 const arrowIndicatorsEnabled = false;
 
 export default class IsometricScene extends Phaser.Scene {
-    private map!: Phaser.Tilemaps.Tilemap;
+    public map!: Phaser.Tilemaps.Tilemap;
     private boat!: Boat;
 
     private static readonly SPAWN_COORDS = debugMode ? debugSpawn : { x: 15500, y: 12271 }
@@ -250,11 +250,7 @@ export default class IsometricScene extends Phaser.Scene {
             // Set up camera to follow the boat
             this.cameras.main.startFollow(this.boat, true);
 
-            this.mapSystem = new MapSystem(
-                this,                  
-                0, 
-                0  
-            );
+            this.mapSystem = new MapSystem(this);
 
 
 
@@ -520,6 +516,10 @@ export default class IsometricScene extends Phaser.Scene {
     update(): void {
         this.boat.update();
         const { x: boatX, y: boatY } = this.boat.getPosition();
+
+        if (this.mapSystem) {
+            this.mapSystem.updateBoatMarker(boatX, boatY);
+        }
 
         if (arrowIndicatorsEnabled) {
             // Update arrow indicators

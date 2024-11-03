@@ -15,9 +15,11 @@ export class MapSystem extends Phaser.GameObjects.Container {
     private mapContainer!: Phaser.GameObjects.Container;
     private mapBackground!: Phaser.GameObjects.Graphics;
     private mapContent!: Phaser.GameObjects.Graphics;
+    private boatMarker!: Phaser.GameObjects.Graphics;
     public scene: IsometricScene;
     
     public isMapVisible: boolean = false;
+    private mapScale: number = 0.13;
 
     static preload(scene: IsometricScene) {
         scene.load.image('mapIcon', mapIcon);
@@ -60,6 +62,10 @@ export class MapSystem extends Phaser.GameObjects.Container {
         // Create map content graphics
         this.mapContent = this.scene.add.graphics();
         this.mapContainer.add(this.mapContent);
+
+        this.boatMarker = this.scene.add.graphics();
+        this.drawBoatMarker();
+        this.mapContainer.add(this.boatMarker);
         
         // Draw the map
         this.drawMap();
@@ -71,7 +77,9 @@ export class MapSystem extends Phaser.GameObjects.Container {
 
         this.toggleMap();
 
+
         scene.add.existing(this);
+        
     }
 
     private drawMap(): void {
@@ -80,8 +88,6 @@ export class MapSystem extends Phaser.GameObjects.Container {
 
         // Clear previous content
         this.mapContent.clear();
-
-        const scale = 0.13; // trial and error lol
 
         // Draw water background
         this.mapContent.fillStyle(this.waterColor);
@@ -107,15 +113,15 @@ export class MapSystem extends Phaser.GameObjects.Container {
                     const cartY = (x + y) * map.tileHeight / 2;
 
                     // Scale and position in minimap
-                    const mapX = (cartX * scale);
-                    const mapY = (cartY * scale) - (this.mapHeight / 2);
+                    const mapX = (cartX * this.mapScale);
+                    const mapY = (cartY * this.mapScale) - (this.mapHeight / 2);
 
                     // Draw a small rectangle for each land tile
                     this.mapContent.fillRect(
                         mapX, 
                         mapY, 
-                        map.tileWidth * scale, 
-                        map.tileHeight * scale
+                        map.tileWidth * this.mapScale, 
+                        map.tileHeight * this.mapScale
                     );
                 }
             });
@@ -125,6 +131,7 @@ export class MapSystem extends Phaser.GameObjects.Container {
     public toggleMap(): void {
         this.isMapVisible = !this.isMapVisible;
         this.mapContainer.setVisible(this.isMapVisible);
+        this.boatMarker.setVisible(this.isMapVisible);
     }
 
     public setMapPosition(x: number, y: number): void {
@@ -133,6 +140,22 @@ export class MapSystem extends Phaser.GameObjects.Container {
 
     public setIconPosition(x: number, y: number): void {
         this.mapIcon.setPosition(x, y);
+    }
+
+    private drawBoatMarker(): void {
+        this.boatMarker.clear();
+        
+        this.boatMarker.fillStyle(0xff0000);
+        this.boatMarker.fillCircle(0, 0, 20);
+    }
+
+    public updateBoatMarker(worldX: number, worldY: number): void {
+        // Convert world coordinates to map coordinates using same scaling as map tiles
+        const cartX = worldX * this.mapScale;
+        const cartY = (worldY * this.mapScale) - (this.mapHeight / 2);
+
+        this.boatMarker.setPosition(cartX, cartY);
+        this.boatMarker.setVisible(this.isMapVisible);
     }
 
     public destroy(fromScene?: boolean): void {
