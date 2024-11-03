@@ -13,6 +13,7 @@ import tileset256x128TileOverlays from '../assets/world2/256x128 Tile Overlays.p
 import { ArrowIndicator } from './ArrowIndicator';
 import { VirtualJoystick } from './VirtualJoystick';
 import { FireworkManager } from './Fireworks';
+import { MapSystem } from './MapSystem';
 
 const fontSize = "80px";
 const fontColor = "#ffffff"
@@ -21,7 +22,7 @@ const fontFamilies = {
     "body": ""
 }
 
-const debugMode = false;
+const debugMode = true;
 const debugSpawn = { x: -6619, y: 19411 }
 
 const arrowIndicatorsEnabled = false;
@@ -62,6 +63,8 @@ export default class IsometricScene extends Phaser.Scene {
     private isHandlingLostBoat: boolean = false;
 
     private fireworkManager!: FireworkManager
+
+    private mapSystem!: MapSystem;
 
     // Debug text attributes
     private debugText!: Phaser.GameObjects.Text;
@@ -109,7 +112,10 @@ export default class IsometricScene extends Phaser.Scene {
         this.load.html('experienceOverlay-UAlberta', 'expUAlbertaOverlay.html');
         this.load.html('welcomeOverlay', 'welcomeOverlay.html');
 
+        // load firework animations
         this.fireworkManager.preload()
+
+        MapSystem.preload(this);
     }
 
     create(): void {
@@ -243,6 +249,14 @@ export default class IsometricScene extends Phaser.Scene {
 
             // Set up camera to follow the boat
             this.cameras.main.startFollow(this.boat, true);
+
+            this.mapSystem = new MapSystem(
+                this,                  
+                0, 
+                0  
+            );
+
+
 
             this.isMobileDevice = this.sys.game.device.os.android || this.sys.game.device.os.iOS
             // Create a virtual joystick for non-desktop users to move the boat.
