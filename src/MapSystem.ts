@@ -8,8 +8,8 @@ export class MapSystem extends Phaser.GameObjects.Container {
     private mapAlpha: number = 0.8;
     private mapColor: number = 0xffffff;
     private iconSize: number = 50;
-    private landColor: number = 0x3d8547;  // Green for land
-    private waterColor: number = 0x2389da;  // Blue for water
+    private landColor: number = 0x5ce086;  
+    private waterColor: number = 0x8df7f6;  
     
     private mapIcon!: Phaser.GameObjects.Image;
     private mapContainer!: Phaser.GameObjects.Container;
