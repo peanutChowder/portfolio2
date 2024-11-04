@@ -288,12 +288,14 @@ export default class IsometricScene extends Phaser.Scene {
     private setupInteractiveAreas(): void {
         const workMarkerInfo = {
             color: 0x9028f7,
-            radius: 30
+            radius: 30,
+            locationType: "Work"
         }
 
         const projectMarkerInfo = {
             color: 0x134aba,
-            radius: 30
+            radius: 30,
+            locationType: "Projects"
         }
 
         this.interactionAreas["experience-Apple"] = new InteractionArea(
@@ -403,7 +405,8 @@ export default class IsometricScene extends Phaser.Scene {
             },
             {
                 color: 0x218215,
-                radius: 30
+                radius: 30,
+                locationType: "Education"
             }
         )
 
@@ -433,7 +436,8 @@ export default class IsometricScene extends Phaser.Scene {
             },
             {
                 color: 0xdbaf1f,
-                radius: 30
+                radius: 30,
+                locationType: "Oly-Lifting"
             }
         )
 

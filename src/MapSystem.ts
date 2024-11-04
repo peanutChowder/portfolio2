@@ -18,14 +18,18 @@ export class MapSystem extends Phaser.GameObjects.Container {
     private mapContainer!: Phaser.GameObjects.Container;
     private mapBackground!: Phaser.GameObjects.Graphics;
     private mapContent!: Phaser.GameObjects.Graphics;
+        
+    public isMapVisible: boolean = false;
+    private mapScale: number = 0.13;
 
     // Map Markers
     private boatMarker!: Phaser.GameObjects.Graphics;
     private interactionMarkers: Phaser.GameObjects.Graphics[] = [];
     private interactionAreas!: { [key: string]: InteractionArea };
-    
-    public isMapVisible: boolean = false;
-    private mapScale: number = 0.13;
+
+    private legend!: Phaser.GameObjects.Container;
+    private legendEntries: {marker: Phaser.GameObjects.Graphics, text: Phaser.GameObjects.Text}[] = [];
+
 
     static preload(scene: IsometricScene) {
         scene.load.image('mapIcon', mapIcon);
@@ -86,8 +90,9 @@ export class MapSystem extends Phaser.GameObjects.Container {
         this.mapIcon.on('pointerover', () => this.mapIcon.setTint(0xcccccc));
         this.mapIcon.on('pointerout', () => this.mapIcon.clearTint());
 
-        this.toggleMap();
+        this.createLegend();
 
+        this.toggleMap();
 
         scene.add.existing(this);
         
@@ -143,6 +148,7 @@ export class MapSystem extends Phaser.GameObjects.Container {
         this.isMapVisible = !this.isMapVisible;
         this.mapContainer.setVisible(this.isMapVisible);
         this.boatMarker.setVisible(this.isMapVisible);
+        this.interactionMarkers.forEach(marker => marker.setVisible(this.isMapVisible));
     }
 
     public setMapPosition(x: number, y: number): void {
@@ -204,6 +210,88 @@ export class MapSystem extends Phaser.GameObjects.Container {
         this.boatMarker.setPosition(cartX, cartY);
         this.boatMarker.setVisible(this.isMapVisible);
     }
+
+    private createLegend(): void {
+        // Create container for legend
+        this.legend = this.scene.add.container(0, 0);
+        this.mapContainer.add(this.legend);
+
+        // Position legend in top left corner of map
+        const legendX = -this.mapWidth/2 + 300; 
+        const legendY = -this.mapHeight/2 + 50; 
+        this.legend.setPosition(legendX, legendY);
+
+        // Create semi-transparent background for legend
+        const padding = 80;
+        const background = this.scene.add.graphics();
+        background.fillStyle(0x000000, 0.3);
+        background.fillRect(0, 0, 800, 900);  // Adjust size as needed
+        this.legend.add(background);
+
+        // Create legend entries
+        let yOffset = padding;
+        const spacing = 150;  // Vertical spacing between entries
+
+        const processedTypes = new Set<string>();
+        Object.entries(this.interactionAreas).forEach(([key, area]) => {
+            const markerInfo = area.markerInfo;
+            if (!markerInfo || processedTypes.has(markerInfo.locationType)) return;
+            processedTypes.add(markerInfo.locationType);
+
+            // Create dot
+            const dot = this.scene.add.graphics();
+            dot.lineStyle(2, 0xffffff);
+            dot.fillStyle(markerInfo.color);
+            dot.beginPath();
+            dot.arc(padding + 10, yOffset + 60, 40, 0, Math.PI * 2);
+            dot.closePath();
+            dot.fillPath();
+            dot.strokePath();
+
+            // Create text
+            const text = this.scene.add.text(
+                padding + 100, 
+                yOffset, 
+                markerInfo.locationType || "Location", // Use label from markerInfo or fallback
+                { 
+                    color: '#ffffff',
+                    fontSize: '100px',
+                    fontFamily: 'Arial'
+                }
+            );
+
+            // Add both to legend container
+            this.legend.add(dot);
+            this.legend.add(text);
+            this.legendEntries.push({marker: dot, text: text});
+
+            yOffset += spacing;
+        });
+
+        // Add boat marker to legend
+        const boatDot = this.scene.add.graphics();
+        boatDot.fillStyle(0xff0000);
+        boatDot.beginPath();
+        boatDot.arc(padding + 10, yOffset + 60, 40, 0, Math.PI * 2);
+        boatDot.closePath();
+        boatDot.fillPath();
+
+        const boatText = this.scene.add.text(
+            padding + 100, 
+            yOffset, 
+            "You are here", 
+            { 
+                color: '#ffffff',
+                fontSize: '100px',
+                fontFamily: 'Arial'
+            }
+        );
+
+        this.legend.add(boatDot);
+        this.legend.add(boatText);
+        this.legendEntries.push({marker: boatDot, text: boatText});
+    }
+
 
     public destroy(fromScene?: boolean): void {
         this.mapIcon.destroy();
