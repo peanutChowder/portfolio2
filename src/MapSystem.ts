@@ -199,7 +199,7 @@ export class MapSystem extends Phaser.GameObjects.Container {
         this.boatMarker.clear();
         
         this.boatMarker.fillStyle(0xff0000);
-        this.boatMarker.fillCircle(0, 0, 20);
+        this.boatMarker.fillCircle(0, 0, 30);
     }
 
     public updateBoatMarker(worldX: number, worldY: number): void {
