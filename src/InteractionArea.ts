@@ -26,6 +26,8 @@ export default class InteractionArea {
 
     private buttonClickHandler: (() => void) | undefined;
 
+    public markerInfo: {color: number, radius: number} | undefined;
+
     constructor(
         scene: Phaser.Scene,
         x: number, y: number,
@@ -36,6 +38,7 @@ export default class InteractionArea {
         fillColor: number,
         buttonInfo: {text: string, font: string, fontColor: string, color: number, hoverColor: number},
         floatingTextInfo?: {text: string, offset: {x: number, y: number}, font: string, fontSize: string, color: string},
+        markerInfo?: {color: number, radius: number},
         buttonClickHandler?: () => void
     ) {
         this.scene = scene;
@@ -46,6 +49,7 @@ export default class InteractionArea {
         this.displayName = displayName;
         this.areaLineColor = lineColor;
         this.areaFillColor = fillColor;
+        this.markerInfo = markerInfo;
         this.draw();
 
         if (floatingTextInfo) {

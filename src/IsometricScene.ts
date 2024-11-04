@@ -250,7 +250,7 @@ export default class IsometricScene extends Phaser.Scene {
             // Set up camera to follow the boat
             this.cameras.main.startFollow(this.boat, true);
 
-            this.mapSystem = new MapSystem(this);
+            this.mapSystem = new MapSystem(this, this.interactionAreas);
 
 
 
@@ -286,6 +286,16 @@ export default class IsometricScene extends Phaser.Scene {
     }
 
     private setupInteractiveAreas(): void {
+        const workMarkerInfo = {
+            color: 0x9028f7,
+            radius: 30
+        }
+
+        const projectMarkerInfo = {
+            color: 0x134aba,
+            radius: 30
+        }
+
         this.interactionAreas["experience-Apple"] = new InteractionArea(
             this,
             7886, 5790,
@@ -309,7 +319,8 @@ export default class IsometricScene extends Phaser.Scene {
                 offset: {
                     x: -0, y: -1200
                 }
-            }
+            },
+            workMarkerInfo
         )
 
         this.interactionAreas["experience-Teck"] = new InteractionArea(
@@ -335,7 +346,8 @@ export default class IsometricScene extends Phaser.Scene {
                 offset: {
                     x: -0, y: -1000
                 }
-            }
+            },
+            workMarkerInfo
         )
 
         this.interactionAreas["experience-UAlberta"] = new InteractionArea(
@@ -361,7 +373,8 @@ export default class IsometricScene extends Phaser.Scene {
                 offset: {
                     x: -0, y: -1000
                 }
-            }
+            },
+            workMarkerInfo
         )
 
         this.interactionAreas["education"] = new InteractionArea(
@@ -387,6 +400,10 @@ export default class IsometricScene extends Phaser.Scene {
                 offset: {
                     x: -0, y: -1420
                 }
+            },
+            {
+                color: 0x218215,
+                radius: 30
             }
         )
 
@@ -413,6 +430,10 @@ export default class IsometricScene extends Phaser.Scene {
                 offset: {
                     x: 0, y: -600
                 }
+            },
+            {
+                color: 0xdbaf1f,
+                radius: 30
             }
         )
 
@@ -439,7 +460,8 @@ export default class IsometricScene extends Phaser.Scene {
                 offset: {
                     x: 1100, y: -600
                 }
-            }
+            },
+            projectMarkerInfo
         )
 
         this.interactionAreas["welcome"] = new InteractionArea(
@@ -474,6 +496,7 @@ export default class IsometricScene extends Phaser.Scene {
                 color: 0xa361fa,
                 hoverColor: 0xc89eff
             },
+            undefined,
             undefined,
             () => {this.fireworkManager.createFireworkDisplay(-7159, 19045)}
         )

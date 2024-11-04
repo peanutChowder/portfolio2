@@ -1,7 +1,10 @@
 import IsometricScene from "./IsometricScene";
 import mapIcon from '../assets/map.png';
+import InteractionArea from "./InteractionArea";
 
 export class MapSystem extends Phaser.GameObjects.Container {
+    public scene: IsometricScene;
+
     private mapWidth: number;
     private mapHeight: number;
     private mapPadding: number = 200;
@@ -15,8 +18,11 @@ export class MapSystem extends Phaser.GameObjects.Container {
     private mapContainer!: Phaser.GameObjects.Container;
     private mapBackground!: Phaser.GameObjects.Graphics;
     private mapContent!: Phaser.GameObjects.Graphics;
+
+    // Map Markers
     private boatMarker!: Phaser.GameObjects.Graphics;
-    public scene: IsometricScene;
+    private interactionMarkers: Phaser.GameObjects.Graphics[] = [];
+    private interactionAreas!: { [key: string]: InteractionArea };
     
     public isMapVisible: boolean = false;
     private mapScale: number = 0.13;
@@ -25,9 +31,10 @@ export class MapSystem extends Phaser.GameObjects.Container {
         scene.load.image('mapIcon', mapIcon);
     }
 
-    constructor(scene: IsometricScene) {
+    constructor(scene: IsometricScene, interactionAreas: { [key: string]: InteractionArea }) {
         super(scene, 0, 0);
         this.scene = scene;
+        this.interactionAreas = interactionAreas;
 
         const cameraZoom = this.scene.cameras.main.zoom;
         const screenWidth = this.scene.cameras.main.width / cameraZoom;
@@ -63,9 +70,13 @@ export class MapSystem extends Phaser.GameObjects.Container {
         this.mapContent = this.scene.add.graphics();
         this.mapContainer.add(this.mapContent);
 
+        // Draw boat marker
         this.boatMarker = this.scene.add.graphics();
         this.drawBoatMarker();
         this.mapContainer.add(this.boatMarker);
+
+        // Draw interaction areas markers
+        this.createInteractionMarkers()
         
         // Draw the map
         this.drawMap();
@@ -142,6 +153,42 @@ export class MapSystem extends Phaser.GameObjects.Container {
         this.mapIcon.setPosition(x, y);
     }
 
+    private createInteractionMarkers(): void {
+        // Clear any existing markers
+        this.interactionMarkers.forEach(marker => marker.destroy());
+        this.interactionMarkers = [];
+
+        // Create a marker for each interaction area
+        Object.entries(this.interactionAreas).forEach(([key, area]) => {
+            const markerInfo = area.markerInfo;
+
+            // Area has undefined marker, don't draw marker
+            if (markerInfo == undefined) {return;}
+
+            const marker = this.scene.add.graphics();
+            const { x, y } = area.getCenter();
+
+            // Draw marker
+            marker.clear();
+            marker.lineStyle(2, 0xffffff); 
+            marker.fillStyle(markerInfo.color);
+            marker.beginPath();
+            marker.arc(0, 0, markerInfo.radius, 0, Math.PI * 2); // Smaller than boat marker
+            marker.closePath();
+            marker.fillPath();
+            marker.strokePath();
+
+            // Position marker
+            const mapX = x * this.mapScale;
+            const mapY = (y * this.mapScale) - (this.mapHeight / 2);
+            marker.setPosition(mapX, mapY);
+
+            this.mapContainer.add(marker);
+            this.interactionMarkers.push(marker);
+        });
+    }
+
+
     private drawBoatMarker(): void {
         this.boatMarker.clear();
         
@@ -161,6 +208,7 @@ export class MapSystem extends Phaser.GameObjects.Container {
     public destroy(fromScene?: boolean): void {
         this.mapIcon.destroy();
         this.mapContainer.destroy();
+        this.interactionMarkers.forEach(marker => marker.destroy());
         super.destroy(fromScene);
     }
 }
