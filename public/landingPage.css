@@ -126,3 +126,14 @@ hr {
 
     }
 }
+
+a {
+    color: #A79B8E; 
+    font-family: 'Prompt', sans-serif; 
+    font-size: 20px;  
+    transition: color 0.3s ease;  
+}
+
+a:hover {
+    color: #D0B49F; 
+}
