@@ -92,8 +92,6 @@ export class MapSystem extends Phaser.GameObjects.Container {
 
         this.createLegend();
 
-        this.toggleMap();
-
         scene.add.existing(this);
         
     }

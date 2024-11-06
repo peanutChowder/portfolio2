@@ -22,7 +22,7 @@ const fontFamilies = {
     "body": ""
 }
 
-const debugMode = true;
+const debugMode = false;
 const debugSpawn = { x: -6619, y: 19411 }
 
 const arrowIndicatorsEnabled = false;
