@@ -86,6 +86,8 @@ export default class IsometricScene extends Phaser.Scene {
     }
 
     preload(): void {
+        this.isMobileDevice = this.sys.game.device.os.android || this.sys.game.device.os.iOS
+
         this.fireworkManager = new FireworkManager(this);
 
         this.load.image('256x256 Cubes', tileset256x256Cubes);
@@ -115,7 +117,10 @@ export default class IsometricScene extends Phaser.Scene {
         // load firework animations
         this.fireworkManager.preload()
 
-        MapSystem.preload(this);
+        // Disable map for mobile users
+        if (!this.isMobileDevice) {
+            MapSystem.preload(this);
+        }
     }
 
     create(): void {
@@ -250,11 +255,12 @@ export default class IsometricScene extends Phaser.Scene {
             // Set up camera to follow the boat
             this.cameras.main.startFollow(this.boat, true);
 
-            this.mapSystem = new MapSystem(this, this.interactionAreas);
+            if (!this.isMobileDevice) {
+                this.mapSystem = new MapSystem(this, this.interactionAreas);
+            }
 
 
 
-            this.isMobileDevice = this.sys.game.device.os.android || this.sys.game.device.os.iOS
             // Create a virtual joystick for non-desktop users to move the boat.
             if (this.isMobileDevice) {
                 const joyStickOrigin = { x: this.cameras.main.centerX, y: this.cameras.main.centerY * 4 };
