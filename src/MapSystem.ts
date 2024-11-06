@@ -163,7 +163,7 @@ export class MapSystem extends Phaser.GameObjects.Container {
         this.interactionMarkers = [];
 
         // Create a marker for each interaction area
-        Object.entries(this.interactionAreas).forEach(([key, area]) => {
+        Object.entries(this.interactionAreas).forEach(([_, area]) => {
             const markerInfo = area.markerInfo;
 
             // Area has undefined marker, don't draw marker
@@ -231,7 +231,7 @@ export class MapSystem extends Phaser.GameObjects.Container {
         const spacing = 150;  // Vertical spacing between entries
 
         const processedTypes = new Set<string>();
-        Object.entries(this.interactionAreas).forEach(([key, area]) => {
+        Object.entries(this.interactionAreas).forEach(([_, area]) => {
             const markerInfo = area.markerInfo;
             if (!markerInfo || processedTypes.has(markerInfo.locationType)) return;
             processedTypes.add(markerInfo.locationType);
