@@ -2,6 +2,18 @@ import Phaser from 'phaser';
 import IsometricScene from './IsometricScene';
 import InteractionArea from './InteractionArea';
 
+// import boat sprites
+import boatNorthPNG from '../assets/boat/boatN.png'
+import boatWestPNG from '../assets/boat/boatW.png'
+import boatEastPNG from '../assets/boat/boatE.png'
+import boatSouthPNG from '../assets/boat/boatS.png'
+
+// import diagonal boat sprites
+import boatNorthEastPNG from '../assets/boat/boatNE.png';
+import boatNorthWestPNG from '../assets/boat/boatNW.png';
+import boatSouthEastPNG from '../assets/boat/boatSE.png';
+import boatSouthWestPNG from '../assets/boat/boatSW.png';
+
 export class Boat extends Phaser.GameObjects.Container {
     public body: Phaser.Physics.Arcade.Body;
     private boatSprite: Phaser.GameObjects.Image;
@@ -55,6 +67,18 @@ export class Boat extends Phaser.GameObjects.Container {
 
     setJoystickDirectionGetter(joystickDirectionGetter: () => string) {
         this.getJoyStickDirection = joystickDirectionGetter;
+    }
+
+    static preload(scene: IsometricScene): void {
+        // Load boat sprite imgs
+        scene.load.image('boat_n', boatNorthPNG);
+        scene.load.image('boat_w', boatWestPNG);
+        scene.load.image('boat_e', boatEastPNG);
+        scene.load.image('boat_s', boatSouthPNG);
+        scene.load.image('boat_ne', boatNorthEastPNG);
+        scene.load.image('boat_nw', boatNorthWestPNG);
+        scene.load.image('boat_se', boatSouthEastPNG);
+        scene.load.image('boat_sw', boatSouthWestPNG);
     }
 
     update(): void {

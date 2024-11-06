@@ -9,21 +9,11 @@ import tileset256x192Tiles from '../assets/world2/256x192 Tiles.png'
 import tileset256x512Trees from '../assets/world2/256x512 Trees.png'
 import tileset256x128TileOverlays from '../assets/world2/256x128 Tile Overlays.png'
 
-// import boat sprites
-import boatNorthPNG from '../assets/boat/boatN.png'
-import boatWestPNG from '../assets/boat/boatW.png'
-import boatEastPNG from '../assets/boat/boatE.png'
-import boatSouthPNG from '../assets/boat/boatS.png'
-
-// import diagonal boat sprites
-import boatNorthEastPNG from '../assets/boat/boatNE.png';
-import boatNorthWestPNG from '../assets/boat/boatNW.png';
-import boatSouthEastPNG from '../assets/boat/boatSE.png';
-import boatSouthWestPNG from '../assets/boat/boatSW.png';
 
 import { ArrowIndicator } from './ArrowIndicator';
 import { VirtualJoystick } from './VirtualJoystick';
 import { FireworkManager } from './Fireworks';
+import { MapSystem } from './MapSystem';
 
 const fontSize = "80px";
 const fontColor = "#ffffff"
@@ -38,7 +28,7 @@ const debugSpawn = { x: -6619, y: 19411 }
 const arrowIndicatorsEnabled = false;
 
 export default class IsometricScene extends Phaser.Scene {
-    private map!: Phaser.Tilemaps.Tilemap;
+    public map!: Phaser.Tilemaps.Tilemap;
     private boat!: Boat;
 
     private static readonly SPAWN_COORDS = debugMode ? debugSpawn : { x: 15500, y: 12271 }
@@ -74,6 +64,8 @@ export default class IsometricScene extends Phaser.Scene {
 
     private fireworkManager!: FireworkManager
 
+    private mapSystem!: MapSystem;
+
     // Debug text attributes
     private debugText!: Phaser.GameObjects.Text;
     private clickCoords: { worldX: number, worldY: number, tileX: number, tileY: number } | null = null;
@@ -94,6 +86,8 @@ export default class IsometricScene extends Phaser.Scene {
     }
 
     preload(): void {
+        this.isMobileDevice = this.sys.game.device.os.android || this.sys.game.device.os.iOS
+
         this.fireworkManager = new FireworkManager(this);
 
         this.load.image('256x256 Cubes', tileset256x256Cubes);
@@ -102,15 +96,8 @@ export default class IsometricScene extends Phaser.Scene {
         this.load.image('256x128 Tile Overlays', tileset256x128TileOverlays);
         this.load.tilemapTiledJSON('map', mapJSON);
 
-        // Load boat sprite imgs
-        this.load.image('boat_n', boatNorthPNG);
-        this.load.image('boat_w', boatWestPNG);
-        this.load.image('boat_e', boatEastPNG);
-        this.load.image('boat_s', boatSouthPNG);
-        this.load.image('boat_ne', boatNorthEastPNG);
-        this.load.image('boat_nw', boatNorthWestPNG);
-        this.load.image('boat_se', boatSouthEastPNG);
-        this.load.image('boat_sw', boatSouthWestPNG);
+        // Load boat sprites
+        Boat.preload(this);
 
         this.load.on('loaderror', (file: Phaser.Loader.File) => {
             console.error('Error loading file:', file.key);
@@ -127,7 +114,13 @@ export default class IsometricScene extends Phaser.Scene {
         this.load.html('experienceOverlay-UAlberta', 'expUAlbertaOverlay.html');
         this.load.html('welcomeOverlay', 'welcomeOverlay.html');
 
+        // load firework animations
         this.fireworkManager.preload()
+
+        // Disable map for mobile users
+        if (!this.isMobileDevice) {
+            MapSystem.preload(this);
+        }
     }
 
     create(): void {
@@ -262,7 +255,12 @@ export default class IsometricScene extends Phaser.Scene {
             // Set up camera to follow the boat
             this.cameras.main.startFollow(this.boat, true);
 
-            this.isMobileDevice = this.sys.game.device.os.android || this.sys.game.device.os.iOS
+            if (!this.isMobileDevice) {
+                this.mapSystem = new MapSystem(this, this.interactionAreas);
+            }
+
+
+
             // Create a virtual joystick for non-desktop users to move the boat.
             if (this.isMobileDevice) {
                 const joyStickOrigin = { x: this.cameras.main.centerX, y: this.cameras.main.centerY * 4 };
@@ -294,6 +292,18 @@ export default class IsometricScene extends Phaser.Scene {
     }
 
     private setupInteractiveAreas(): void {
+        const workMarkerInfo = {
+            color: 0x9028f7,
+            radius: 40,
+            locationType: "Work"
+        }
+
+        const projectMarkerInfo = {
+            color: 0x134aba,
+            radius: 40,
+            locationType: "Projects"
+        }
+
         this.interactionAreas["experience-Apple"] = new InteractionArea(
             this,
             7886, 5790,
@@ -317,7 +327,8 @@ export default class IsometricScene extends Phaser.Scene {
                 offset: {
                     x: -0, y: -1200
                 }
-            }
+            },
+            workMarkerInfo
         )
 
         this.interactionAreas["experience-Teck"] = new InteractionArea(
@@ -343,7 +354,8 @@ export default class IsometricScene extends Phaser.Scene {
                 offset: {
                     x: -0, y: -1000
                 }
-            }
+            },
+            workMarkerInfo
         )
 
         this.interactionAreas["experience-UAlberta"] = new InteractionArea(
@@ -369,7 +381,8 @@ export default class IsometricScene extends Phaser.Scene {
                 offset: {
                     x: -0, y: -1000
                 }
-            }
+            },
+            workMarkerInfo
         )
 
         this.interactionAreas["education"] = new InteractionArea(
@@ -395,6 +408,11 @@ export default class IsometricScene extends Phaser.Scene {
                 offset: {
                     x: -0, y: -1420
                 }
+            },
+            {
+                color: 0x218215,
+                radius: 40,
+                locationType: "Education"
             }
         )
 
@@ -421,6 +439,11 @@ export default class IsometricScene extends Phaser.Scene {
                 offset: {
                     x: 0, y: -600
                 }
+            },
+            {
+                color: 0xdbaf1f,
+                radius: 40,
+                locationType: "Oly-Lifting"
             }
         )
 
@@ -447,7 +470,8 @@ export default class IsometricScene extends Phaser.Scene {
                 offset: {
                     x: 1100, y: -600
                 }
-            }
+            },
+            projectMarkerInfo
         )
 
         this.interactionAreas["welcome"] = new InteractionArea(
@@ -482,6 +506,7 @@ export default class IsometricScene extends Phaser.Scene {
                 color: 0xa361fa,
                 hoverColor: 0xc89eff
             },
+            undefined,
             undefined,
             () => {this.fireworkManager.createFireworkDisplay(-7159, 19045)}
         )
@@ -524,6 +549,10 @@ export default class IsometricScene extends Phaser.Scene {
     update(): void {
         this.boat.update();
         const { x: boatX, y: boatY } = this.boat.getPosition();
+
+        if (this.mapSystem) {
+            this.mapSystem.updateBoatMarker(boatX, boatY);
+        }
 
         if (arrowIndicatorsEnabled) {
             // Update arrow indicators
