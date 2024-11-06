@@ -53,7 +53,7 @@ hr {
     flex-direction: column;
     justify-content: space-around;
     text-align: center;
-    margin-top: 10%;
+    margin-top: 30%;
 }
 
 #landing-page img {
@@ -120,10 +120,15 @@ hr {
     text-align: center;
 }
 
+/*mobile rules */
 @media screen and (max-width: 768px) {
     #landing-page {
         justify-content: flex-start; /* Prevent image from squeezing title out of view */
 
+    }
+
+    #titles {
+        margin-top: 0;
     }
 }
 
@@ -136,4 +141,23 @@ a {
 
 a:hover {
     color: #D0B49F; 
+}
+
+.social-links {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    margin: 0px 0;
+}
+
+.social-links a {
+    color: #A79B8E;
+    font-size: 24px;
+    transition: color 0.3s ease, transform 0.2s ease;
+    padding: 10px;
+}
+
+.social-links a:hover {
+    color: #D0B49F;
+    transform: translateY(-2px);
 }
