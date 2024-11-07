@@ -144,7 +144,6 @@ h1 {
     height: 100%;
     background-color: rgba(0, 0, 0, 0.3);
     z-index: 1000;
-    overflow-y: auto;
     opacity: 0;
     transition: opacity 0.3s ease;
 }
@@ -156,7 +155,8 @@ h1 {
 
 .content-inner {
     max-width: 800px;
-    margin: 60px auto;
+    max-height: 80vh; 
+    margin: 5vh auto; 
     padding: 40px;
     background: white;
     border-radius: 15px;
@@ -166,6 +166,9 @@ h1 {
     opacity: 0;
     transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
 }
 
 .content-section.active .content-inner {
@@ -215,10 +218,24 @@ h1 {
     color: #666;
 }
 
+.content-inner::-webkit-scrollbar {
+    width: 8px;
+}
+
+.content-inner::-webkit-scrollbar-track {
+    background: #F0E6D2;
+    border-radius: 4px;
+}
+
+.content-inner::-webkit-scrollbar-thumb {
+    background: #7E6D5A;
+    border-radius: 4px;
+}
+
 .close-button {
-    position: absolute;
+    position: sticky;
     top: 20px;
-    right: 20px;
+    margin-left: auto;
     background: none;
     border: none;
     color: #7E6D5A;
@@ -226,6 +243,7 @@ h1 {
     cursor: pointer;
     transition: transform 0.3s ease;
     z-index: 2;
+    width: fit-content;
 }
 
 .close-button:hover {
