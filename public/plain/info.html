@@ -158,32 +158,41 @@
                 <div class="content-meta">Teck Resources • January 2023 - August 2023</div>
             </div>
             <img src="/public/images/teck.jpeg" alt="Me in front of a Teck haul truck">
-            <p>Worked on Qt C++ App Development and automated issue triaging using AI.</p>
-            <h3>AI Log Analysis:</h3>
-            <p>Built an AI workflow for triaging and suggesting potential bug causes. It works by parsing the issue's 
-                attached logs concurrently according to a user-definable prompt. Users can tell the model to pay attention
-                to common bug culprits (e.g. strange disconnections) and the model will report the relevant line numbers.
-                Logs can be 20GB+, so concurrency and reliability is critical.
+            <p>Automated LTE/5G testing, built data pipelines, and assisted with building a networks lab.</p>
+            <h3>Network KPI Dashboard:</h3>
+            <p>Automated the delivery of a detailed PowerBI report on networks performance. Users can filter by specific 
+                mine site locations, vehicles, and more. Built by parsing unstructured data into PowerBI using Python and
+                SQLite. This report was instrumental to determining where to invest in network infrastructure. 
             </p>
-            <h3>Log Browsing Tool</h3>
-            <p>Added interactive sequence chart generation to a popular log browsing tool. Using Qt C++, users can quickly generate
-                interactive sequence charts for massive log files that retain links to the original lines. A cached configuration allows
-                users to cherry pick what kind of content is parsed into the sequence chart.
+            <h3>Data Centralization to Azure</h3>
+            <p>Built a series of scripts to centralize data from individual mine site devices to a central database. Used Python
+                and PowerShell to securely transfer data across jumphosts. Worked with the Azure team to define data specifications.
             </p>
-            <h3>Slack Issue Tracking</h3>
-            <p>Created a Slack bot to update responsible individuals on new issues and issue changes.</p>
+            <h3>Automated LTE Device Testing:</h3>
+            <p>
+                Built a Python test kit for stress testing LTE/5G routers. Built in support for 5 devices, but by following OOP best
+                practices new devices can easily be added. The test kit interfaced with a Raspberry Pi to send dummy packets under various
+                condition. Attenuators were used to simulate poor connection, allowing testing for cell reselection, throughput, band reattach,
+                and more.
+            </p>
+            <h3>Network Lab Setup:</h3>
+            <p>
+                Assisted with the configuration of an LTE Core and Cell for isolated testing. This included RF circuit assembly, firewall configuration,
+                and troubleshooting signal issues using CLI tools and Wireshark.
+            </p>
             <div class="skills-list">
-                <span class="skill-tag">Foundation Model AI</span>
+                <span class="skill-tag">LTE Networks</span>
                 <span class="skill-tag">Python</span>
-                <span class="skill-tag">Data Engineering</span>
-                <span class="skill-tag">Qt</span>
-                <span class="skill-tag">C++</span>
+                <span class="skill-tag">Data Pipelines</span>
+                <span class="skill-tag">Raspberry Pi</span>
+                <span class="skill-tag">PowerBI</span>
+                <span class="skill-tag">PowerShell</span>
             </div>
         </div>
     </section>
 
-    <!-- Add similar content sections for other experiences, education, and projects -->
-    <!-- Example for a project section -->
+
+    <!-- Projects Section -->
     <section id="project1" class="content-section">
         <div class="content-inner">
             <button class="close-button">
