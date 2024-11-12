@@ -11,8 +11,8 @@ body, html {
     padding: 20px;
     box-sizing: border-box;
     position: relative;
-    max-width: 1200px;
-    margin: 0 auto;
+    width: 100%;
+    margin: 0 0;
 }
 
 .home-button {
@@ -86,7 +86,7 @@ h1 {
 .card {
     background-color: white;
     border: 2px solid #F0E6D2;
-    border-radius: 10px;
+    border-radius: 15px;
     overflow: hidden;
     cursor: pointer;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
