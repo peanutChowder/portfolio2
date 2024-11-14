@@ -17,7 +17,7 @@
             <h1>Jacob Feng</h1>
         </div>
 
-        <!-- Experience Section -->
+        <!-- Experience Cards -->
         <div class="card-grid">
             <div class="section-header">
                 <h2>Experience</h2>
@@ -51,7 +51,7 @@
             </div>
         </div>
 
-        <!-- Education Section -->
+        <!-- Education Cards -->
         <div class="card-grid">
             <div class="section-header">
                 <h2>Education</h2>
@@ -61,8 +61,7 @@
                     <img src="/public/images/ualberta-logo.png" alt="UAlberta Crest">
                 </div>
                 <div class="card-content">
-                    <h3>University of Alberta</h3>
-                    <p>BSc Computer Science</p>
+                    <h3>Computer Science</h3>
                 </div>
             </div>
             <div class="card" data-section="education2">
@@ -70,8 +69,7 @@
                     <img src="/public/images/ualberta-logo.png" alt="UAlberta Crest">
                 </div>
                 <div class="card-content">
-                    <h3>University of Alberta</h3>
-                    <p>BSc in Computer Engineering</p>
+                    <h3>Computer Engineering</h3>
                 </div>
             </div>
             <div class="card" data-section="education3">
@@ -79,24 +77,23 @@
                     <img src="/public/images/ualberta-logo.png" alt="UAlberta Crest">
                 </div>
                 <div class="card-content">
-                    <h3>University of Alberta</h3>
-                    <p>BSc in Biology</p>
+                    <h3>Biology</h3>
                 </div>
             </div>
         </div>
 
-        <!-- Projects Section -->
+        <!-- Projects Cards -->
         <div class="card-grid">
             <div class="section-header">
                 <h2>Projects</h2>
             </div>
             <div class="card" data-section="project1">
                 <div class="card-image">
-                    <img src="/api/placeholder/400/320" alt="AI Project">
+                    <img src="/public/images/formfitness-preview.jpg" alt="AI Project">
                 </div>
                 <div class="card-content">
-                    <h3>Project</h3>
-                    <p>desc</p>
+                    <h3>FormFitness</h3>
+                    <p>AR form checking app on iOS</p>
                 </div>
             </div>
             <div class="card" data-section="project2">
@@ -260,7 +257,7 @@
                 <i class="fas fa-times"></i>
             </button>
             <div class="content-header">
-                <h2>University of Alberta: BSc in Computer Engineering</h2>
+                <h2>University of Alberta: BSc in Computer Engineering [Transferred]</h2>
                 <div class="content-meta">September 2020 - May 2024</div>
             </div>
             <img src="/public/images/ualberta-campus-dice.png" alt="RGRG Logo">
@@ -286,7 +283,7 @@
                 <i class="fas fa-times"></i>
             </button>
             <div class="content-header">
-                <h2>University of Alberta: BSc in Biology</h2>
+                <h2>University of Alberta: BSc in Biology [Transferred]</h2>
                 <div class="content-meta">September 2018 - May 2020</div>
             </div>
             <img src="/public/images/ualberta-campus-quad.jpg" alt="RGRG Logo">
@@ -312,21 +309,31 @@
                 <h2>AI Chat Assistant</h2>
                 <div class="content-meta">Personal Project • 2024</div>
             </div>
-            <img src="/api/placeholder/800/400" alt="AI Chat Assistant">
-            <p>DescriptionDescriptionDescriptionDescriptionDescriptionDescriptionDescriptionDescriptionDescription Description Description</p>
+            <iframe src="https://www.youtube.com/embed/3DyschBFdBE"
+                        allow="autoplay; encrypted-media" allowfullscreen></iframe>
+            <p>FormFitness is a project I started in September 2024. My first venture with Swift, it is an exciting project 
+                that combines my love for biomechanics and software.
+            </p>
+            <div class="skills-list">
+                <span class="skill-tag">Swift</span>
+                <span class="skill-tag">iOS</span>
+                <span class="skill-tag">xCode</span>
+                <span class="skill-tag">AVFoundation</span>
+                <span class="skill-tag">Augmented Reality</span>
+            </div>
+            <h3>How does it work?</h3>
+            <p>
+                FormFitness uses AVFoundation in Swift to generate two AR skeletons -- One for the user, and another for
+                a reference image. By calculating the offset between the user's pose skeleton and the reference, FormFitness
+                uses pose color gradients to highlight where the user's form needs improvement.
+            </p>
             <h3>Features:</h3>
             <ul>
-                <li>Real-time conversation processing</li>
-                <li>Multi-language support</li>
-                <li>Context-aware responses</li>
-                <li>Integration with popular messaging platforms</li>
+                <li>Real-time body skeleton tracking</li>
+                <li>Display reference image</li>
+                <li>Favorite exercises</li>
             </ul>
-            <div class="skills-list">
-                <span class="skill-tag">Python</span>
-                <span class="skill-tag">TensorFlow</span>
-                <span class="skill-tag">NLP</span>
-                <span class="skill-tag">API Development</span>
-            </div>
+
         </div>
     </section>
     <script src="info.js"></script>
