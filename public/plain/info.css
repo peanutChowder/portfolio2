@@ -44,15 +44,17 @@ h1 {
 }
 
 .section-header {
-    grid-column: 1;
-    background: white;
-    border: 2px solid #F0E6D2;
-    border-radius: 10px;
-    padding: 15px;
     display: flex;
     align-items: center;
     justify-content: center;
-    aspect-ratio: 1;
+}
+
+.section-header h2 {
+    color: #7E6D5A;
+    font-size: 24px;
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
 .section-header h2 {
@@ -88,21 +90,30 @@ h1 {
     border: 2px solid #F0E6D2;
     border-radius: 15px;
     overflow: hidden;
-    cursor: pointer;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     aspect-ratio: 1;
     display: flex;
     flex-direction: column;
+    min-width: 0;
+    min-height: 0;
 }
 
-.card:hover {
+.card:not(.section-header) {
+    cursor: pointer;
+}
+
+.card:not(.section-header):hover {
     transform: translateY(-5px);
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
 
 .card-image {
-    height: 60%;
+    flex: 0 0 60%;
+    max-height: 60%;
+    min-height: 0; 
     overflow: hidden;
+    display: flex; 
+    align-items: center; 
 }
 
 .card-image img {
@@ -126,7 +137,11 @@ h1 {
     text-transform: uppercase;
     letter-spacing: 1px;
     margin: 0 0 5px 0;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
 }
+
 
 .card p {
     color: #A79B8E;
@@ -290,9 +305,31 @@ h1 {
 }
 
 @media screen and (max-width: 768px) {
+    #portfolio-page {
+        padding: 10px 0;
+    }
+
     .card-grid {
-        justify-content: center; 
-        grid-template-columns: repeat(auto-fit, minmax(200px, 200px));
+        grid-template-columns: repeat(2, 1fr); /* Forces 2 columns */
+        gap: 8px; 
+        padding: 8px;
+        margin-bottom: 10px;
+    }
+
+    .card {
+        width: 100%; 
+    }
+
+    .section-header h2 {
+        font-size: 15px;
+        text-align: center;
+    }
+
+    .card h3 {
+        font-size: 15px; 
+        -webkit-hyphens: auto;
+        -ms-hyphens: auto;
+        hyphens: auto;
     }
 
     h1 {
