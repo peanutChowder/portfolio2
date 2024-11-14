@@ -309,6 +309,15 @@ h1 {
         padding: 10px 0;
     }
 
+    .content-inner {
+        margin: 5vh 15px; 
+        padding: 20px;
+        width: auto; 
+        max-width: none; 
+        box-sizing: border-box; 
+    }
+    
+
     .card-grid {
         grid-template-columns: repeat(2, 1fr); /* Forces 2 columns */
         gap: 8px; 
