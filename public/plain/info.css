@@ -204,7 +204,7 @@ h1 {
     margin-right: auto;
 }
 
-.content-inner iframe {
+.content-inner .project-demo {
     width: 100%;
     max-width: 600px;
     aspect-ratio: 16/9;
@@ -215,7 +215,7 @@ h1 {
     margin-right: auto;
     border: none;
 }
-
+   
 .content-inner h2 {
     margin-top: 0;
     color: #7E6D5A;
@@ -304,7 +304,7 @@ h1 {
     margin-bottom: 20px;
 }
 
-.share-button {
+.github-button {
     padding: 5px 15px;
     margin-bottom: 10px;
     background-color: #F0E6D2;
@@ -319,11 +319,11 @@ h1 {
     text-decoration: none;
 }
 
-.share-button:hover {
+.github-button:hover {
     color: #D0B49F;
 }
 
-.share-button i {
+.github-button i {
     font-size: 14px;
 }
 
