@@ -304,6 +304,29 @@ h1 {
     margin-bottom: 20px;
 }
 
+.share-button {
+    padding: 5px 15px;
+    margin-bottom: 10px;
+    background-color: #F0E6D2;
+    border: none;
+    border-radius: 15px;
+    color: #7E6D5A;
+    font-family: 'Prompt', sans-serif;
+    font-size: 14px;
+    cursor: pointer;
+    max-width: 90px;
+    transition: color 0.3s ease;
+    text-decoration: none;
+}
+
+.share-button:hover {
+    color: #D0B49F;
+}
+
+.share-button i {
+    font-size: 14px;
+}
+
 @media screen and (max-width: 768px) {
     #portfolio-page {
         padding: 10px 0;
