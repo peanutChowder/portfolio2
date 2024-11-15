@@ -98,10 +98,10 @@
             </div>
             <div class="card" data-section="project2">
                 <div class="card-image">
-                    <img src="/images/project-kessler-preview.png" alt="Web App">
+                    <img src="/images/project-kessler-preview.png" alt="Asteroid game-container">
                 </div>
                 <div class="card-content">
-                    <h3>Kessler AI Bot</h3>
+                    <h3>AI Asteroids Bot</h3>
                     <p>Genetic Fuzzy System</p>
                 </div>
             </div>
@@ -308,9 +308,9 @@
             <div class="content-header">
                 <h2>FormFitness</h2>
             </div>
-            <iframe src="https://www.youtube.com/embed/3DyschBFdBE"
+            <iframe class="project-demo" src="https://www.youtube.com/embed/jJcIaiyiabY"
                         allow="autoplay; encrypted-media" allowfullscreen></iframe>
-            <a class="share-button" href="https://github.com/peanutChowder/FormFitness">
+            <a class="github-button" href="https://github.com/peanutChowder/FormFitness">
                 <i class="fas fa-link"></i>
                 <span>GitHub</span>
             </a>
@@ -345,34 +345,30 @@
                 <i class="fas fa-times"></i>
             </button>
             <div class="content-header">
-                <h2>AI Chat Assistant</h2>
-                <div class="content-meta">Personal Project • 2024</div>
+                <h2>AI Asteroids Bot</h2>
             </div>
-            <iframe src="https://www.youtube.com/embed/3DyschBFdBE"
-                        allow="autoplay; encrypted-media" allowfullscreen></iframe>
-            <p>FormFitness is a project I started in September 2024. My first venture with Swift, it is an exciting project 
-                that combines my love for biomechanics and software.
+            <img src="/images/project-kessler.gif" class="project-demo" alt="Asteroid game-container">
+            <a class="github-button" href="https://github.com/peanutChowder/XFC-fuzzy-agent">
+                <i class="fas fa-link"></i>
+                <span>GitHub</span>
+            </a>
+            <p>AI Asteroids Bot is a project built on top of the Kessler Game. The game consists of randomly
+                spawning asteroids, and some ships that need to fight for their survival by shooting the asteroids,
+                or flying away, or both. 
             </p>
             <div class="skills-list">
-                <span class="skill-tag">Swift</span>
-                <span class="skill-tag">iOS</span>
-                <span class="skill-tag">xCode</span>
-                <span class="skill-tag">AVFoundation</span>
-                <span class="skill-tag">Augmented Reality</span>
+                <span class="skill-tag">AI</span>
+                <span class="skill-tag">Scikit-Fuzzy</span>
+                <span class="skill-tag">Genetic Algorithms</span>
             </div>
             <h3>How does it work?</h3>
             <p>
-                FormFitness uses AVFoundation in Swift to generate two AR skeletons -- One for the user, and another for
-                a reference image. By calculating the offset between the user's pose skeleton and the reference, FormFitness
-                uses pose color gradients to highlight where the user's form needs improvement.
+                The bot is built on a fuzzy architecture -- some loose rules to decide whether we fight or flight, or both.
+                On its own, the architecture doesn't provide very much value. 
+                <br>
+                Using a genetic algorithm, turning hyperparameters like when an asteroid is too close for comfort and how quickly the ship turns around
+                gives us a much more responsive bots. Fitness is determined by shooting accuracy, survival time, and more.
             </p>
-            <h3>Features:</h3>
-            <ul>
-                <li>Real-time body skeleton tracking</li>
-                <li>Display reference image</li>
-                <li>Favorite exercises</li>
-            </ul>
-
         </div>
     </section>
     <script src="info.js"></script>
