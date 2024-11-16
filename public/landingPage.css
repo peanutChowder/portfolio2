@@ -53,7 +53,7 @@ hr {
     flex-direction: column;
     justify-content: space-around;
     text-align: center;
-    margin-top: 20%;
+    margin-top: 30%;
 }
 
 #landing-page img {
@@ -75,9 +75,9 @@ hr {
     margin: 20px 0px;
 }
 
-#start-game {
+#start-game-button {
     font-family: 'Prompt';
-    font-size: 28px;
+    font-size: 32px;
     padding: 20px 60px;
     background-color: #D0B49F;
     color: white;
@@ -160,4 +160,19 @@ a:hover {
 .social-links a:hover {
     color: #D0B49F;
     transform: translateY(-2px);
+}
+
+#static-portfolio-button {
+    font-family: 'Prompt';
+    text-decoration: none;
+    font-size: 22px;
+    padding: 20px 30px;
+    background-color: #D0B49F;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    display: block;
+    margin: 10px 0;
 }

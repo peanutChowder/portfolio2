@@ -61,7 +61,7 @@ window.addEventListener('load', () => {
     return
   }
 
-  const startButton = document.getElementById('start-game');
+  const startButton = document.getElementById('start-game-button');
   if (startButton) {
     startButton.addEventListener('click', startGame);
   } else {
