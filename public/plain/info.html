@@ -123,11 +123,11 @@
             </div>
             <div class="card" data-section="project3">
                 <div class="card-image">
-                    <img src="/api/placeholder/400/320" alt="Data Science">
+                    <img src="/images/project-image-captioner-preview.png" alt="Image Captioner Preview">
                 </div>
                 <div class="card-content">
-                    <h3>Project</h3>
-                    <p>desc</p>
+                    <h3>AI Image Captioner</h3>
+                    <p>Seq2Seq Vit + GPT2</p>
                 </div>
             </div>
         </div>
@@ -355,6 +355,7 @@
         </div>
     </section>
 
+    <!-- Project: AI Asteroids -->
     <section id="project2" class="content-section">
         <div class="content-inner">
             <button class="close-button">
@@ -384,6 +385,37 @@
                 <br>
                 Using a genetic algorithm, turning hyperparameters like when an asteroid is too close for comfort and how quickly the ship turns around
                 gives us a much more responsive bots. Fitness is determined by shooting accuracy, survival time, and more.
+            </p>
+        </div>
+    </section>
+
+    <!-- Project: Seq2seq Image Captioner -->
+    <section id="project3" class="content-section">
+        <div class="content-inner">
+            <button class="close-button">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="content-header">
+                <h2>AI Image Captioner</h2>
+            </div>
+            <video class="project-demo" id="project-demo-image-captioner" autoplay muted controls src="/images/project-image-captioner.mp4"></video>
+            <a class="github-button" href="https://github.com/peanutChowder/ai-image-captioner">
+                <i class="fas fa-link"></i>
+                <span>GitHub</span>
+            </a>
+            <p>AI Image Captioner is exactly what it sounds like. This model takes in image input and outputs a caption for the image.
+            </p>
+            <div class="skills-list">
+                <span class="skill-tag">AI</span>
+                <span class="skill-tag">NLP</span>
+                <span class="skill-tag">Vision Transformers</span>
+                <span class="skill-tag">Seq2Seq model</span>
+            </div>
+            <h3>How does it work?</h3>
+            <p>
+                Trained on the Flickr8k dataset, the model is a seq2seq model built on ViT and GPT2. The ViT processes images into a sequence of features,
+                which is then mapped as an input into GPT2. GPT2 is then delegated with taking the visual understanding from ViT and generating natural language
+                that describes the image.
             </p>
         </div>
     </section>

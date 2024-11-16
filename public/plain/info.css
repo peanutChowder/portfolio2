@@ -169,9 +169,9 @@ h1 {
 }
 
 .content-inner {
-    max-width: 800px;
-    max-height: 80vh; 
-    margin: 5vh auto; 
+    max-width: 1200px;
+    max-height: 80vh;
+    margin: 5vh auto;
     padding: 40px;
     background: white;
     border-radius: 15px;
@@ -184,6 +184,7 @@ h1 {
     overflow-y: auto;
     display: flex;
     flex-direction: column;
+    height: 90vh; 
 }
 
 .content-section.active .content-inner {
@@ -202,6 +203,10 @@ h1 {
     display: block;  
     margin-left: auto;
     margin-right: auto;
+}
+
+#project-demo-image-captioner {
+    max-width: 1000px;
 }
 
 .content-inner .project-demo {
