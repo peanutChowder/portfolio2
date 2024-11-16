@@ -59,7 +59,7 @@ h1 {
 
 .section-header h2 {
     color: #7E6D5A;
-    font-size: 24px;
+    font-size: 30px;
     margin: 0;
     text-transform: uppercase;
     letter-spacing: 1px;
@@ -357,13 +357,17 @@ h1 {
         width: 100%; 
     }
 
+    .card p {
+        font-size: 10px;
+    }
+
     .section-header h2 {
-        font-size: 15px;
+        font-size: 25px;
         text-align: center;
     }
 
     .card h3 {
-        font-size: 15px; 
+        font-size: 12px; 
         -webkit-hyphens: auto;
         -ms-hyphens: auto;
         hyphens: auto;
