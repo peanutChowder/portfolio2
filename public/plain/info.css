@@ -6,9 +6,6 @@ body, html {
 }
 
 #portfolio-page {
-    min-height: 100vh;
-    background-color: rgba(255, 253, 240, 0.95);
-    padding: 20px;
     box-sizing: border-box;
     position: relative;
     width: 100%;
