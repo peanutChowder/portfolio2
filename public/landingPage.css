@@ -33,14 +33,6 @@ h2 {
     margin: 0px;
 }
 
-p {
-    color: #A79B8E;
-    font-size: 18px;
-    margin-top: 0px;
-    margin-bottom: 2em;
-    text-align: center;
-}
-
 hr {
     margin: 30px 40px;
     opacity: 0.7;
@@ -117,6 +109,14 @@ hr {
 
 #about-site {
     margin: 40px 30px;
+    text-align: center;
+}
+
+#about-site p {
+    color: #A79B8E;
+    font-size: 18px;
+    margin-top: 0px;
+    margin-bottom: 2em;
     text-align: center;
 }
 
