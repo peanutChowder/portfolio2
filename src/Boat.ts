@@ -34,6 +34,12 @@ export class Boat extends Phaser.GameObjects.Container {
     private currOrientation!: string;
     private interactionAreas: {[key:string]: InteractionArea} = {}
 
+    // Bobbing properties
+    private bobbingTimer: number = 0;
+    private readonly BOB_SPEED: number = 0.005; 
+    private readonly BOB_AMPLITUDE: number = 15; 
+       
+
     private getJoyStickDirection: (() => string) | undefined;
 
     constructor(scene: IsometricScene, x: number, y: number, interactionAreas: { [key: string]: InteractionArea }) {
@@ -59,6 +65,8 @@ export class Boat extends Phaser.GameObjects.Container {
         this.body = (this as unknown as { body: Phaser.Physics.Arcade.Body }).body;
         this.body.setSize(this.hitboxDimensions["boat_nw"].width, this.hitboxDimensions["boat_nw"].height);
         this.body.setOffset(this.hitboxDimensions["boat_nw"].offsetX, this.hitboxDimensions["boat_nw"].offsetY);
+
+        this.bobbingTimer = Math.random() * Math.PI * 2; // Random start phase for boat bobbing
     
         if (scene.input.keyboard) {
             this.cursors = scene.input.keyboard.createCursorKeys();
@@ -147,6 +155,9 @@ export class Boat extends Phaser.GameObjects.Container {
             interactionArea.checkPlayerInArea(this.x, this.y)
         });
 
+        // Apply boat bobbing
+        this.updateBobbing();
+
         // Apply fog to boat when close to map boundaries
         const scene = this.scene as IsometricScene;
         const alpha = scene.calcBoatFog(this.x, this.y);
@@ -155,5 +166,14 @@ export class Boat extends Phaser.GameObjects.Container {
 
     getPosition(): { x: number, y: number } {
         return { x: this.x, y: this.y };
+    }
+
+    private updateBobbing(): void {
+        // Update timer
+        this.bobbingTimer += this.scene.game.loop.delta * this.BOB_SPEED;
+        
+        // Calculate offset w/ sine wave
+        const verticalOffset = Math.sin(this.bobbingTimer) * this.BOB_AMPLITUDE;
+        this.boatSprite.setY(verticalOffset);
     }
 }
