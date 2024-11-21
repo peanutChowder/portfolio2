@@ -25,6 +25,9 @@ const isMobile = () => {
 
 const showMobileWarning = () => {
     return new Promise<boolean>((resolve) => {
+        const overlay = document.createElement('div');
+        overlay.className = 'mobile-warning-overlay';
+        
         const dialog = document.createElement('div');
         dialog.className = 'mobile-warning-dialog';
         dialog.innerHTML = `
@@ -35,20 +38,29 @@ const showMobileWarning = () => {
             </div>
         `;
 
-        document.body.appendChild(dialog);
+        overlay.appendChild(dialog);
+        document.body.appendChild(overlay);
 
         const yesButton = dialog.querySelector('.yes-button');
         const noButton = dialog.querySelector('.no-button');
 
+        const cleanup = () => {
+            overlay.remove();
+            const gameContainer = document.getElementById('game-container');
+            if (gameContainer) {
+                gameContainer.style.display = 'block';
+            }
+        };
+
         yesButton?.addEventListener('click', () => {
-            dialog.remove();
+            cleanup();
             resolve(true);
         });
 
         noButton?.addEventListener('click', () => {
-            dialog.remove();
+            cleanup();
             resolve(false);
-            window.location.href = '/'; // Return to main page
+            window.location.href = '/';
         });
     });
 };
@@ -58,6 +70,12 @@ const initGame = async () => {
         const shouldContinue = await showMobileWarning();
         if (!shouldContinue) {
             return;
+        }
+    } else {
+        // If not mobile, show game container immediately
+        const gameContainer = document.getElementById('game-container');
+        if (gameContainer) {
+            gameContainer.style.display = 'block';
         }
     }
     new Phaser.Game(config);
