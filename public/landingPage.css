@@ -56,7 +56,7 @@ hr {
     margin-top: 20px;
 }
 
-#landing-page img {
+.img-container img {
     max-height: 50vh;
     object-fit: contain;
     border: 12px solid white;
