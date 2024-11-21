@@ -9,6 +9,12 @@ export default defineConfig({
     port: 3000
   },
   build: {
+    rollupOptions: {
+      input: {
+        main: './index.html',
+        game: './game.html'
+      }
+    },
     outDir: 'dist',
     assetsDir: 'assets',
     emptyOutDir: true
