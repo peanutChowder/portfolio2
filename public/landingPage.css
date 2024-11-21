@@ -112,6 +112,14 @@ hr {
     text-align: center;
 }
 
+#about-site p {
+    color: #A79B8E;
+    font-size: 18px;
+    margin-top: 0px;
+    margin-bottom: 2em;
+    text-align: center;
+}
+
 /*mobile rules */
 @media screen and (max-width: 768px) {
     #landing-page {
