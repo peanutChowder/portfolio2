@@ -86,4 +86,19 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     });
+
+    const mainGif = document.querySelector('.actual-img');
+    const placeholder = document.querySelector('.placeholder-img');
+
+    // When the GIF finishes loading, fade it in
+    mainGif.addEventListener('load', () => {
+        mainGif.style.opacity = '1';
+        placeholder.style.opacity = '0';
+    });
+
+    // In case the GIF is already cached and loads before we attach the listener
+    if (mainGif.complete) {
+        mainGif.style.opacity = '1';
+        placeholder.style.opacity = '0';
+    }
 });
