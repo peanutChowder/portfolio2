@@ -1,7 +1,8 @@
 body, html {
     margin: 0;
     padding: 0;
-    height: 100%;
+    height: auto;
+    overflow-y: auto;
     font-family: 'Prompt', sans-serif;
 }
 
@@ -80,6 +81,10 @@ h1 {
     max-width: 1200px;
     margin: 0 auto;
     padding: 20px;
+}
+
+#last-card-grid {
+    margin-bottom: 100px;
 }
 
 .card {

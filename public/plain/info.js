@@ -1,3 +1,83 @@
+function handleCardEffects() {
+    const cards = document.querySelectorAll('.card:not(.section-header)');
+    let currentCardIndex = -1;  // Start at -1 so first scroll hits index 0
+
+    function removeAllHighlights() {
+        cards.forEach(card => {
+            card.style.boxShadow = 'none';
+        });
+    }
+
+    function highlightCard(index) {
+        removeAllHighlights();
+        if (index >= 0 && index < cards.length) {
+            cards[index].style.boxShadow = '0 0 10px 5px #e8cfbc';
+        }
+    }
+
+    function getScrollTriggerDistance() {
+        const windowHeight = window.innerHeight;
+        const windowWidth = window.innerWidth;
+        
+        if (windowWidth < 1024) {
+            console.log("aa")
+            return windowHeight * 0.16;
+        }
+        return windowHeight * 0.12;
+    }
+
+    function updateHighlight() {
+        const scrollPosition = window.pageYOffset || document.documentElement.scrollTop;
+        const windowHeight = window.innerHeight;
+        const windowWidth = window.innerWidth;
+
+        let highlightStart = windowHeight * 0.75;
+        if (windowWidth >= 1024) {
+            highlightStart = windowHeight * 0.7;
+        }
+
+        if (scrollPosition < highlightStart) {
+            removeAllHighlights();
+            currentCardIndex = -1;  // Reset to -1 so next scroll starts at 0
+            return;
+        }
+
+        const scrollTriggerDistance = getScrollTriggerDistance();
+        const adjustedScroll = scrollPosition - highlightStart;
+        const newIndex = Math.floor(adjustedScroll / scrollTriggerDistance);
+
+        // Always highlight first card when just passing highlight threshold
+        if (scrollPosition >= highlightStart && currentCardIndex === -1) {
+            currentCardIndex = 0;
+            highlightCard(0);
+            return;
+        }
+
+        if (newIndex !== currentCardIndex) {
+            currentCardIndex = newIndex;
+            if (currentCardIndex < cards.length) {
+                highlightCard(currentCardIndex);
+            } else {
+                removeAllHighlights();
+            }
+        }
+    }
+
+    let ticking = false;
+    function onScroll() {
+        if (!ticking) {
+            window.requestAnimationFrame(() => {
+                updateHighlight();
+                ticking = false;
+            });
+            ticking = true;
+        }
+    }
+
+    window.addEventListener('scroll', onScroll);
+    updateHighlight();
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     const cards = document.querySelectorAll('.card');
     const sections = document.querySelectorAll('.content-section');
@@ -87,16 +167,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    handleCardEffects()
+   
+    // Show gif only when fully loaded. Default image is a placeholder .jpg
     const mainGif = document.querySelector('.actual-img');
     const placeholder = document.querySelector('.placeholder-img');
-
-    // When the GIF finishes loading, fade it in
     mainGif.addEventListener('load', () => {
         mainGif.style.opacity = '1';
         placeholder.style.opacity = '0';
     });
-
-    // In case the GIF is already cached and loads before we attach the listener
     if (mainGif.complete) {
         mainGif.style.opacity = '1';
         placeholder.style.opacity = '0';
