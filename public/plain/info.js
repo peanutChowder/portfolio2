@@ -168,16 +168,4 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     handleCardEffects()
-   
-    // Show gif only when fully loaded. Default image is a placeholder .jpg
-    const mainGif = document.querySelector('.actual-img');
-    const placeholder = document.querySelector('.placeholder-img');
-    mainGif.addEventListener('load', () => {
-        mainGif.style.opacity = '1';
-        placeholder.style.opacity = '0';
-    });
-    if (mainGif.complete) {
-        mainGif.style.opacity = '1';
-        placeholder.style.opacity = '0';
-    }
 });
