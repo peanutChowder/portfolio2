@@ -88,6 +88,10 @@ hr {
     animation: pulse 2s infinite;
 }
 
+#landing-text p {
+    color: #A79B8E;
+}
+
 #start-game-button:hover {
     background-color: #ad8160;
 }
