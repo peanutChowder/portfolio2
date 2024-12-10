@@ -19,6 +19,18 @@ const config: Phaser.Types.Core.GameConfig = {
     }
 };
 
+const hideLoadingScreen = () => {
+    console.log("Hiding loading screen");
+    const loadingScreen = document.getElementById('loading-screen');
+    if (loadingScreen) {
+        loadingScreen.remove();
+    }
+    const gameContainer = document.getElementById('game-container');
+    if (gameContainer) {
+        gameContainer.style.display = 'block';
+    }
+};
+
 const isMobile = () => {
     return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 };
@@ -46,10 +58,6 @@ const showMobileWarning = () => {
 
         const cleanup = () => {
             overlay.remove();
-            const gameContainer = document.getElementById('game-container');
-            if (gameContainer) {
-                gameContainer.style.display = 'block';
-            }
         };
 
         yesButton?.addEventListener('click', () => {
@@ -59,6 +67,7 @@ const showMobileWarning = () => {
 
         noButton?.addEventListener('click', () => {
             cleanup();
+            hideLoadingScreen();
             resolve(false);
             window.location.href = '/';
         });
@@ -71,14 +80,23 @@ const initGame = async () => {
         if (!shouldContinue) {
             return;
         }
-    } else {
-        // If not mobile, show game container immediately
-        const gameContainer = document.getElementById('game-container');
-        if (gameContainer) {
-            gameContainer.style.display = 'block';
-        }
     }
+
+    // Show game container first
+    const gameContainer = document.getElementById('game-container');
+    if (gameContainer) {
+        gameContainer.style.display = 'block';
+    }
+
+    // Create the game
     new Phaser.Game(config);
+
+    // hide loading screen on first render
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+            hideLoadingScreen();
+        });
+    });
 };
 
 // Start the game when the page loads
