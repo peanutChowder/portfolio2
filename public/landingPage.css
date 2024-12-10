@@ -57,7 +57,7 @@ hr {
     max-width: 50vh;
     object-fit: contain;
     border: 12px solid white;
-    border-radius: 3px;
+    border-radius: 25px;
     box-shadow: 
         0 0 0 1px #ccc,
         2px 2px 8px rgba(0,0,0,0.1);
@@ -76,11 +76,12 @@ hr {
 #start-game-button {
     font-family: 'Prompt';
     font-size: 32px;
-    padding: 20px 60px;
+    width: 50vh;
+    padding: 20px 20px;
     background-color: #D0B49F;
     color: white;
     border: none;
-    border-radius: 5px;
+    border-radius: 25px;
     cursor: pointer;
     transition: background-color 0.3s ease;
     display: block;
