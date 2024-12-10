@@ -54,7 +54,7 @@ hr {
 }
 
 .img-container img {
-    max-height: 50vh;
+    max-width: 50vh;
     object-fit: contain;
     border: 12px solid white;
     border-radius: 3px;
