@@ -90,6 +90,7 @@ hr {
 
 #landing-text p {
     color: #A79B8E;
+    font-size: 18px;
 }
 
 #start-game-button:hover {
@@ -133,6 +134,9 @@ hr {
 #about-site {
     margin: 40px 30px;
     text-align: center;
+    max-width: 800px;
+    margin-left: auto;        
+    margin-right: auto;
 }
 
 #about-site p {
