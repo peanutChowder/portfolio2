@@ -16,29 +16,34 @@ export class MapSystem extends Phaser.GameObjects.Container {
     private mapBackground!: Phaser.GameObjects.Graphics;
     private mapContent!: Phaser.GameObjects.Graphics;
     
-    private mapScale: number = 0.08; // Reduced scale for minimap
+    private mapScaleConstant: number = 40000; // Constant to scale down the minimap
+    private mapScale!: number; 
 
     // Map Markers
     private boatMarker!: Phaser.GameObjects.Graphics;
     private interactionMarkers: Phaser.GameObjects.Graphics[] = [];
     private interactionAreas!: { [key: string]: InteractionArea };
 
-    private legend!: Phaser.GameObjects.Container;
-    private legendEntries: {marker: Phaser.GameObjects.Graphics, text: Phaser.GameObjects.Text}[] = [];
-
     constructor(scene: IsometricScene, interactionAreas: { [key: string]: InteractionArea }) {
         super(scene, 0, 0);
         this.scene = scene;
         this.interactionAreas = interactionAreas;
 
+        const cameraWidth = this.scene.cameras.main.width;
+        const cameraHeight = this.scene.cameras.main.height;
         const cameraZoom = this.scene.cameras.main.zoom;
-        const screenWidth = this.scene.cameras.main.width / cameraZoom;
-        const screenHeight = this.scene.cameras.main.height / cameraZoom;
 
-        // Set up map container
-        this.mapWidth = screenWidth * 0.8;
-        this.mapHeight = screenHeight * 0.7;
-        this.mapContainer = this.scene.add.container(300, 0);
+        this.mapScale = cameraWidth / this.mapScaleConstant
+        
+        // Calculate map dimensions using scaled screen size
+        this.mapWidth = (cameraWidth / cameraZoom) * 0.2;
+        this.mapHeight = (cameraHeight / cameraZoom) * 0.2;
+        
+        this.mapContainer = this.scene.add.container(
+            this.scene.cameras.main.centerX + (this.scene.cameras.main.width / (2 * this.scene.cameras.main.zoom)) - (this.mapWidth / 1.7), 
+            this.scene.cameras.main.centerY - (this.scene.cameras.main.height / (2 * this.scene.cameras.main.zoom)) + (this.mapHeight / 1.7)
+        );
+
         this.mapContainer.setScrollFactor(0);
         this.mapContainer.setDepth(1000);
 

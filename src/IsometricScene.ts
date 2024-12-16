@@ -117,10 +117,6 @@ export default class IsometricScene extends Phaser.Scene {
         // load firework animations
         this.fireworkManager.preload()
 
-        // Disable map for mobile users
-        if (!this.isMobileDevice) {
-            MapSystem.preload(this);
-        }
     }
 
     create(): void {
