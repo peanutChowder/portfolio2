@@ -406,7 +406,7 @@ export default class IsometricScene extends Phaser.Scene {
                 }
             },
             {
-                color: 0x218215,
+                color: 0x114a19,
                 radius: 40,
                 locationType: "Education"
             }
