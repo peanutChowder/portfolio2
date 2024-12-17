@@ -37,8 +37,14 @@ export class MapSystem extends Phaser.GameObjects.Container {
         const cameraZoom = this.scene.cameras.main.zoom;
 
         // Pick the smaller dimension so the minimap remains square
+        let mapPercentOfScreen;
+        if (this.scene.isMobileDevice) {
+            mapPercentOfScreen = 0.4;
+        } else {
+            mapPercentOfScreen = 0.2;
+        }
         const minDimension = Math.min(cameraWidth, cameraHeight);
-        this.mapSize = (minDimension / cameraZoom) * 0.2;
+        this.mapSize = (minDimension / cameraZoom) * mapPercentOfScreen;
 
         // Calculate the actual world dimensions to determine proper scale
         const map = this.scene.map;

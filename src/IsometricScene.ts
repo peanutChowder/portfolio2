@@ -251,9 +251,7 @@ export default class IsometricScene extends Phaser.Scene {
             // Set up camera to follow the boat
             this.cameras.main.startFollow(this.boat, true);
 
-            if (!this.isMobileDevice) {
-                this.mapSystem = new MapSystem(this, this.interactionAreas);
-            }
+            this.mapSystem = new MapSystem(this, this.interactionAreas);
 
 
 
