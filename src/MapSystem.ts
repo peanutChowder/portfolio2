@@ -176,14 +176,34 @@ export class MapSystem extends Phaser.GameObjects.Container {
     private drawBoatMarker(): void {
         this.boatMarker.clear();
         this.boatMarker.fillStyle(0xff0000);
-        this.boatMarker.fillCircle(0, 0, 10);
+        
+        // Draw triangle for boat direction
+        const size = 30;
+        this.boatMarker.beginPath();
+        this.boatMarker.moveTo(0, -size);  
+        this.boatMarker.lineTo(-size/2, size/2);  
+        this.boatMarker.lineTo(size/2, size/2);   
+        this.boatMarker.closePath();
+        this.boatMarker.fillPath();
     }
-
-    public updateBoatMarker(worldX: number, worldY: number): void {
+    
+    public updateBoatMarker(worldX: number, worldY: number, orientation: string): void {
         const mapX = worldX * this.mapScale + this.graphicOffsetX;
-        const mapY = worldY * this.mapScale + this.graphicOffsetY;
-
+        const mapY = worldY * this.mapScale + this.graphicOffsetY;        
         this.boatMarker.setPosition(mapX, mapY);
+        
+        let angle = 0;
+        switch(orientation) {
+            case 'boat_n':  angle = 0; break;
+            case 'boat_ne': angle = Math.PI * 0.25; break;
+            case 'boat_e':  angle = Math.PI * 0.5; break;
+            case 'boat_se': angle = Math.PI * 0.75; break;
+            case 'boat_s':  angle = Math.PI; break;
+            case 'boat_sw': angle = Math.PI * 1.25; break;
+            case 'boat_w':  angle = Math.PI * 1.5; break;
+            case 'boat_nw': angle = Math.PI * 1.75; break;
+        }
+        this.boatMarker.setRotation(angle);
     }
 
     public destroy(fromScene?: boolean): void {

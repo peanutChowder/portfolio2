@@ -545,7 +545,7 @@ export default class IsometricScene extends Phaser.Scene {
         const { x: boatX, y: boatY } = this.boat.getPosition();
 
         if (this.mapSystem) {
-            this.mapSystem.updateBoatMarker(boatX, boatY);
+            this.mapSystem.updateBoatMarker(boatX, boatY, this.boat.getOrientation());
         }
 
         if (arrowIndicatorsEnabled) {

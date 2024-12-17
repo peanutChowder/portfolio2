@@ -156,4 +156,8 @@ export class Boat extends Phaser.GameObjects.Container {
     getPosition(): { x: number, y: number } {
         return { x: this.x, y: this.y };
     }
+
+    getOrientation(): string {
+        return this.currOrientation;
+    }
 }
