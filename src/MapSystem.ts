@@ -4,9 +4,8 @@ import InteractionArea from "./InteractionArea";
 export class MapSystem extends Phaser.GameObjects.Container {
     public scene: IsometricScene;
 
-    private mapWidth: number;
-    private mapHeight: number;
-    private mapPadding: number = 90;
+    private mapSize!: number; // Square minimap sizing  
+    private mapPadding: number = 40;
     private mapAlpha: number = 0.8;
     private mapColor: number = 0xffffff;
     private landColor: number = 0x5ce086;  
@@ -15,9 +14,13 @@ export class MapSystem extends Phaser.GameObjects.Container {
     private mapContainer!: Phaser.GameObjects.Container;
     private mapBackground!: Phaser.GameObjects.Graphics;
     private mapContent!: Phaser.GameObjects.Graphics;
+
+    // How much to shift our drawing of the map in order to fit
+    // into the water background
+    private graphicOffsetX!: number; 
+    private graphicOffsetY!: number;
     
-    private mapScaleConstant: number = 40000; // Constant to scale down the minimap
-    private mapScale!: number; 
+    private mapScale!: number;
 
     // Map Markers
     private boatMarker!: Phaser.GameObjects.Graphics;
@@ -33,43 +36,57 @@ export class MapSystem extends Phaser.GameObjects.Container {
         const cameraHeight = this.scene.cameras.main.height;
         const cameraZoom = this.scene.cameras.main.zoom;
 
-        this.mapScale = cameraWidth / this.mapScaleConstant
-        
-        // Calculate map dimensions using scaled screen size
-        this.mapWidth = (cameraWidth / cameraZoom) * 0.2;
-        this.mapHeight = (cameraHeight / cameraZoom) * 0.2;
-        
-        this.mapContainer = this.scene.add.container(
-            this.scene.cameras.main.centerX + (this.scene.cameras.main.width / (2 * this.scene.cameras.main.zoom)) - (this.mapWidth / 1.7), 
-            this.scene.cameras.main.centerY - (this.scene.cameras.main.height / (2 * this.scene.cameras.main.zoom)) + (this.mapHeight / 1.7)
-        );
+        // Pick the smaller dimension so the minimap remains square
+        const minDimension = Math.min(cameraWidth, cameraHeight);
+        this.mapSize = (minDimension / cameraZoom) * 0.2;
 
+        // Calculate the actual world dimensions to determine proper scale
+        const map = this.scene.map;
+        if (map) {
+            const mapWidth = (map.width + map.height) * (map.tileWidth / 2);
+            const effectiveSize = this.mapSize - this.mapPadding;
+            this.mapScale = effectiveSize / mapWidth;
+        }
+
+        // Add minimap to top right corner of screen
+        this.mapContainer = this.scene.add.container(
+            this.scene.cameras.main.centerX + (cameraWidth / (2 * cameraZoom)) - (this.mapSize),
+            this.scene.cameras.main.centerY - (cameraHeight / (2 * cameraZoom)) + (this.mapSize)
+        );
         this.mapContainer.setScrollFactor(0);
         this.mapContainer.setDepth(1000);
 
-        // Create map background with reduced size
-        const backgroundWidth = this.mapWidth + this.mapPadding;
-        const backgroundHeight = this.mapHeight + this.mapPadding;
+        const backgroundSize = this.mapSize;
         this.mapBackground = this.scene.add.graphics();
         this.mapBackground.fillStyle(this.mapColor, this.mapAlpha);
-        this.mapBackground.strokeRect(-backgroundWidth/2, -backgroundHeight/2, backgroundWidth, backgroundHeight);
-        this.mapBackground.fillRect(-backgroundWidth/2, -backgroundHeight/2, backgroundWidth, backgroundHeight);
+        this.mapBackground.strokeRect(
+            -backgroundSize / 2, 
+            -backgroundSize / 2, 
+            backgroundSize, 
+            backgroundSize
+        );
+        this.mapBackground.fillRect(
+            -backgroundSize / 2, 
+            -backgroundSize / 2, 
+            backgroundSize, 
+            backgroundSize
+        );
         this.mapContainer.add(this.mapBackground);
 
-        // Create map content graphics
+        // Create actual map graphics
         this.mapContent = this.scene.add.graphics();
         this.mapContainer.add(this.mapContent);
 
-        // Draw boat marker (smaller size)
+        // Draw the map
+        this.drawMap();
+
+        // Draw boat marker 
         this.boatMarker = this.scene.add.graphics();
         this.drawBoatMarker();
         this.mapContainer.add(this.boatMarker);
 
-        // Draw interaction areas markers
         this.createInteractionMarkers();
         
-        // Draw the map
-        this.drawMap();
 
         scene.add.existing(this);
     }
@@ -80,13 +97,14 @@ export class MapSystem extends Phaser.GameObjects.Container {
 
         this.mapContent.clear();
 
-        // Draw water background
+        // Draw water background (square)
+        const effectiveSize = this.mapSize - this.mapPadding;
         this.mapContent.fillStyle(this.waterColor);
         this.mapContent.fillRect(
-            -this.mapWidth/2, 
-            -this.mapHeight/2, 
-            this.mapWidth, 
-            this.mapHeight
+            -effectiveSize / 2,
+            -effectiveSize / 2,
+            effectiveSize,
+            effectiveSize
         );
 
         // Get land layer 
@@ -95,14 +113,19 @@ export class MapSystem extends Phaser.GameObjects.Container {
 
         // Draw land tiles
         this.mapContent.fillStyle(this.landColor);
+        
+        // Calculate center offset
+        this.graphicOffsetX = 0;
+        this.graphicOffsetY = -((map.height * map.tileHeight/2) * this.mapScale);
+
         landLayer.data.forEach((row, y) => {
             row.forEach((tile, x) => {
                 if (tile.index !== -1) { 
                     const cartX = (x - y) * map.tileWidth / 2;
                     const cartY = (x + y) * map.tileHeight / 2;
 
-                    const mapX = (cartX * this.mapScale);
-                    const mapY = (cartY * this.mapScale) - (this.mapHeight / 2);
+                    const mapX = (cartX * this.mapScale) + this.graphicOffsetX;
+                    const mapY = (cartY * this.mapScale) + this.graphicOffsetY;
 
                     this.mapContent.fillRect(
                         mapX, 
@@ -119,24 +142,24 @@ export class MapSystem extends Phaser.GameObjects.Container {
         this.interactionMarkers.forEach(marker => marker.destroy());
         this.interactionMarkers = [];
 
-        Object.entries(this.interactionAreas).forEach(([_, area]) => {
+        Object.values(this.interactionAreas).forEach(area => {
             const markerInfo = area.markerInfo;
             if (!markerInfo) return;
 
             const marker = this.scene.add.graphics();
-            const { x, y } = area.getCenter();
-
             marker.clear();
-            marker.lineStyle(1, 0xffffff); 
+            marker.lineStyle(1, 0xffffff);
             marker.fillStyle(markerInfo.color);
             marker.beginPath();
-            marker.arc(0, 0, markerInfo.radius * 0.5, 0, Math.PI * 2); // Smaller radius
+            marker.arc(0, 0, markerInfo.radius * 0.5, 0, Math.PI * 2);
             marker.closePath();
             marker.fillPath();
             marker.strokePath();
 
-            const mapX = x * this.mapScale;
-            const mapY = (y * this.mapScale) - (this.mapHeight / 2);
+            const { x, y } = area.getCenter();
+            const mapX = x * this.mapScale + this.graphicOffsetX;
+            const mapY = y * this.mapScale + this.graphicOffsetY;
+
             marker.setPosition(mapX, mapY);
 
             this.mapContainer.add(marker);
@@ -147,14 +170,14 @@ export class MapSystem extends Phaser.GameObjects.Container {
     private drawBoatMarker(): void {
         this.boatMarker.clear();
         this.boatMarker.fillStyle(0xff0000);
-        this.boatMarker.fillCircle(0, 0, 15); // Smaller radius
+        this.boatMarker.fillCircle(0, 0, 10);
     }
 
     public updateBoatMarker(worldX: number, worldY: number): void {
-        const cartX = worldX * this.mapScale;
-        const cartY = (worldY * this.mapScale) - (this.mapHeight / 2);
+        const mapX = worldX * this.mapScale + this.graphicOffsetX;
+        const mapY = worldY * this.mapScale + this.graphicOffsetY;
 
-        this.boatMarker.setPosition(cartX, cartY);
+        this.boatMarker.setPosition(mapX, mapY);
     }
 
     public destroy(fromScene?: boolean): void {
