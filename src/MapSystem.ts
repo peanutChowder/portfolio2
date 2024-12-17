@@ -45,13 +45,13 @@ export class MapSystem extends Phaser.GameObjects.Container {
         if (map) {
             const mapWidth = (map.width + map.height) * (map.tileWidth / 2);
             const effectiveSize = this.mapSize - this.mapPadding;
-            this.mapScale = effectiveSize / mapWidth;
+            this.mapScale = effectiveSize * 1.3 / mapWidth; // 1.3 is arbitrary constant to increase map scale
         }
 
         // Add minimap to top right corner of screen
         this.mapContainer = this.scene.add.container(
-            this.scene.cameras.main.centerX + (cameraWidth / (2 * cameraZoom)) - (this.mapSize),
-            this.scene.cameras.main.centerY - (cameraHeight / (2 * cameraZoom)) + (this.mapSize)
+            this.scene.cameras.main.centerX + (cameraWidth / (2 * cameraZoom)) - (this.mapSize / 1.9), // divide by slightly less than 2 so that there is some margin between map and screen edge
+            this.scene.cameras.main.centerY - (cameraHeight / (2 * cameraZoom)) + (this.mapSize / 1.9)
         );
         this.mapContainer.setScrollFactor(0);
         this.mapContainer.setDepth(1000);
@@ -78,7 +78,7 @@ export class MapSystem extends Phaser.GameObjects.Container {
         this.mapContainer.add(this.mapContent);
 
         // Draw the map
-        this.drawMap();
+        this.drawMap(); // note: must be called prior to markers in order to set "graphicOffsetX" and "graphicOffsetY"
 
         // Draw boat marker 
         this.boatMarker = this.scene.add.graphics();
