@@ -443,8 +443,8 @@ export default class IsometricScene extends Phaser.Scene {
 
         this.interactionAreas["formFitness"] = new InteractionArea(
             this,
-            2300, 17756,
-            2500, 1500,
+            11390, 16569,
+            3400, 2000,
             "iOS App",
             "ffOverlay",
             0xffa405,
@@ -462,7 +462,7 @@ export default class IsometricScene extends Phaser.Scene {
                 font: fontFamilies["header"],
                 fontSize: "130px",
                 offset: {
-                    x: 1100, y: -600
+                    x: 0, y: 100
                 }
             },
             projectMarkerInfo
