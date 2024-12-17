@@ -1,115 +1,116 @@
 import IsometricScene from "./IsometricScene";
-import mapIcon from '../assets/map.png';
 import InteractionArea from "./InteractionArea";
 
 export class MapSystem extends Phaser.GameObjects.Container {
     public scene: IsometricScene;
 
-    private mapWidth: number;
-    private mapHeight: number;
-    private mapPadding: number = 200;
+    private mapSize!: number; // Square minimap sizing  
+    private mapPadding: number = 40;
     private mapAlpha: number = 0.8;
     private mapColor: number = 0xffffff;
-    private iconSize: number = 50;
     private landColor: number = 0x5ce086;  
     private waterColor: number = 0x8df7f6;  
     
-    private mapIcon!: Phaser.GameObjects.Image;
     private mapContainer!: Phaser.GameObjects.Container;
     private mapBackground!: Phaser.GameObjects.Graphics;
     private mapContent!: Phaser.GameObjects.Graphics;
-        
-    public isMapVisible: boolean = false;
-    private mapScale: number = 0.13;
+
+    // How much to shift our drawing of the map in order to fit
+    // into the water background
+    private graphicOffsetX!: number; 
+    private graphicOffsetY!: number;
+    
+    private mapScale!: number;
 
     // Map Markers
     private boatMarker!: Phaser.GameObjects.Graphics;
     private interactionMarkers: Phaser.GameObjects.Graphics[] = [];
     private interactionAreas!: { [key: string]: InteractionArea };
 
-    private legend!: Phaser.GameObjects.Container;
-    private legendEntries: {marker: Phaser.GameObjects.Graphics, text: Phaser.GameObjects.Text}[] = [];
-
-
-    static preload(scene: IsometricScene) {
-        scene.load.image('mapIcon', mapIcon);
-    }
-
     constructor(scene: IsometricScene, interactionAreas: { [key: string]: InteractionArea }) {
         super(scene, 0, 0);
         this.scene = scene;
         this.interactionAreas = interactionAreas;
 
+        const cameraWidth = this.scene.cameras.main.width;
+        const cameraHeight = this.scene.cameras.main.height;
         const cameraZoom = this.scene.cameras.main.zoom;
-        const screenWidth = this.scene.cameras.main.width / cameraZoom;
-        const screenHeight = this.scene.cameras.main.height / cameraZoom;
 
-        // Set up map icon
-        const iconX = -screenWidth * 0.3;
-        const iconY = screenHeight * 0.5;
-        this.mapIcon = this.scene.add.image(iconX, iconY, 'mapIcon')
-            .setScale(this.iconSize / 40)
-            .setScrollFactor(0)
-            .setDepth(1000)
-            .setInteractive({ useHandCursor: true });
+        // Pick the smaller dimension so the minimap remains square
+        let mapPercentOfScreen;
+        if (this.scene.isMobileDevice) {
+            mapPercentOfScreen = 0.4;
+        } else {
+            mapPercentOfScreen = 0.2;
+        }
+        const minDimension = Math.min(cameraWidth, cameraHeight);
+        this.mapSize = (minDimension / cameraZoom) * mapPercentOfScreen;
 
-        // Set up map container
-        this.mapWidth = screenWidth * 0.8;
-        this.mapHeight = screenHeight * 0.7;
-        this.mapContainer = this.scene.add.container(300, 0);
+        // Calculate the actual world dimensions to determine proper scale
+        const map = this.scene.map;
+        if (map) {
+            const mapWidth = (map.width + map.height) * (map.tileWidth / 2);
+            const effectiveSize = this.mapSize - this.mapPadding;
+            this.mapScale = effectiveSize * 1.3 / mapWidth; // 1.3 is arbitrary constant to increase map scale
+        }
+
+        // Add minimap to top right corner of screen
+        this.mapContainer = this.scene.add.container(
+            this.scene.cameras.main.centerX + (cameraWidth / (2 * cameraZoom)) - (this.mapSize / 1.9), // divide by slightly less than 2 so that there is some margin between map and screen edge
+            this.scene.cameras.main.centerY - (cameraHeight / (2 * cameraZoom)) + (this.mapSize / 1.9)
+        );
         this.mapContainer.setScrollFactor(0);
         this.mapContainer.setDepth(1000);
-        this.mapContainer.setVisible(false);
 
-        // Create map background
-        const backgroundWidth = this.mapWidth + this.mapPadding;
-        const backgroundHeight = this.mapHeight + this.mapPadding;
+        const backgroundSize = this.mapSize;
         this.mapBackground = this.scene.add.graphics();
         this.mapBackground.fillStyle(this.mapColor, this.mapAlpha);
-        this.mapBackground.strokeRect(-backgroundWidth/2, -backgroundHeight/2, backgroundWidth, backgroundHeight);
-        this.mapBackground.fillRect(-backgroundWidth/2, -backgroundHeight/2, backgroundWidth, backgroundHeight);
+        this.mapBackground.strokeRect(
+            -backgroundSize / 2, 
+            -backgroundSize / 2, 
+            backgroundSize, 
+            backgroundSize
+        );
+        this.mapBackground.fillRect(
+            -backgroundSize / 2, 
+            -backgroundSize / 2, 
+            backgroundSize, 
+            backgroundSize
+        );
         this.mapContainer.add(this.mapBackground);
 
-        // Create map content graphics
+        // Create actual map graphics
         this.mapContent = this.scene.add.graphics();
         this.mapContainer.add(this.mapContent);
 
-        // Draw boat marker
+        // Draw the map
+        this.drawMap(); // note: must be called prior to markers in order to set "graphicOffsetX" and "graphicOffsetY"
+
+        // Draw boat marker 
         this.boatMarker = this.scene.add.graphics();
         this.drawBoatMarker();
         this.mapContainer.add(this.boatMarker);
 
-        // Draw interaction areas markers
-        this.createInteractionMarkers()
+        this.createInteractionMarkers();
         
-        // Draw the map
-        this.drawMap();
-
-        // Set up event handlers
-        this.mapIcon.on('pointerdown', () => this.toggleMap());
-        this.mapIcon.on('pointerover', () => this.mapIcon.setTint(0xcccccc));
-        this.mapIcon.on('pointerout', () => this.mapIcon.clearTint());
-
-        this.createLegend();
 
         scene.add.existing(this);
-        
     }
 
     private drawMap(): void {
         const map = (this.scene as IsometricScene).map;
         if (!map) return;
 
-        // Clear previous content
         this.mapContent.clear();
 
-        // Draw water background
+        // Draw water background (square)
+        const effectiveSize = this.mapSize - this.mapPadding;
         this.mapContent.fillStyle(this.waterColor);
         this.mapContent.fillRect(
-            -this.mapWidth/2, 
-            -this.mapHeight/2, 
-            this.mapWidth, 
-            this.mapHeight
+            -effectiveSize / 2,
+            -effectiveSize / 2,
+            effectiveSize,
+            effectiveSize
         );
 
         // Get land layer 
@@ -118,19 +119,20 @@ export class MapSystem extends Phaser.GameObjects.Container {
 
         // Draw land tiles
         this.mapContent.fillStyle(this.landColor);
+        
+        // Calculate center offset
+        this.graphicOffsetX = 0;
+        this.graphicOffsetY = -((map.height * map.tileHeight/2) * this.mapScale);
+
         landLayer.data.forEach((row, y) => {
             row.forEach((tile, x) => {
-                // Draw if not empty tile
                 if (tile.index !== -1) { 
-                    // Convert isometric coordinates to cartesian
                     const cartX = (x - y) * map.tileWidth / 2;
                     const cartY = (x + y) * map.tileHeight / 2;
 
-                    // Scale and position in minimap
-                    const mapX = (cartX * this.mapScale);
-                    const mapY = (cartY * this.mapScale) - (this.mapHeight / 2);
+                    const mapX = (cartX * this.mapScale) + this.graphicOffsetX;
+                    const mapY = (cartY * this.mapScale) + this.graphicOffsetY;
 
-                    // Draw a small rectangle for each land tile
                     this.mapContent.fillRect(
                         mapX, 
                         mapY, 
@@ -142,49 +144,28 @@ export class MapSystem extends Phaser.GameObjects.Container {
         });
     }
 
-    public toggleMap(): void {
-        this.isMapVisible = !this.isMapVisible;
-        this.mapContainer.setVisible(this.isMapVisible);
-        this.boatMarker.setVisible(this.isMapVisible);
-        this.interactionMarkers.forEach(marker => marker.setVisible(this.isMapVisible));
-    }
-
-    public setMapPosition(x: number, y: number): void {
-        this.mapContainer.setPosition(x, y);
-    }
-
-    public setIconPosition(x: number, y: number): void {
-        this.mapIcon.setPosition(x, y);
-    }
-
     private createInteractionMarkers(): void {
-        // Clear any existing markers
         this.interactionMarkers.forEach(marker => marker.destroy());
         this.interactionMarkers = [];
 
-        // Create a marker for each interaction area
-        Object.entries(this.interactionAreas).forEach(([_, area]) => {
+        Object.values(this.interactionAreas).forEach(area => {
             const markerInfo = area.markerInfo;
-
-            // Area has undefined marker, don't draw marker
-            if (markerInfo == undefined) {return;}
+            if (!markerInfo) return;
 
             const marker = this.scene.add.graphics();
-            const { x, y } = area.getCenter();
-
-            // Draw marker
             marker.clear();
-            marker.lineStyle(2, 0xffffff); 
+            marker.lineStyle(1, 0xffffff);
             marker.fillStyle(markerInfo.color);
             marker.beginPath();
-            marker.arc(0, 0, markerInfo.radius, 0, Math.PI * 2); // Smaller than boat marker
+            marker.arc(0, 0, markerInfo.radius * 0.5, 0, Math.PI * 2);
             marker.closePath();
             marker.fillPath();
             marker.strokePath();
 
-            // Position marker
-            const mapX = x * this.mapScale;
-            const mapY = (y * this.mapScale) - (this.mapHeight / 2);
+            const { x, y } = area.getCenter();
+            const mapX = x * this.mapScale + this.graphicOffsetX;
+            const mapY = y * this.mapScale + this.graphicOffsetY;
+
             marker.setPosition(mapX, mapY);
 
             this.mapContainer.add(marker);
@@ -192,107 +173,40 @@ export class MapSystem extends Phaser.GameObjects.Container {
         });
     }
 
-
     private drawBoatMarker(): void {
         this.boatMarker.clear();
-        
         this.boatMarker.fillStyle(0xff0000);
-        this.boatMarker.fillCircle(0, 0, 30);
+        
+        // Draw triangle for boat direction
+        const size = 30;
+        this.boatMarker.beginPath();
+        this.boatMarker.moveTo(0, -size);  
+        this.boatMarker.lineTo(-size/2, size/2);  
+        this.boatMarker.lineTo(size/2, size/2);   
+        this.boatMarker.closePath();
+        this.boatMarker.fillPath();
     }
-
-    public updateBoatMarker(worldX: number, worldY: number): void {
-        // Convert world coordinates to map coordinates using same scaling as map tiles
-        const cartX = worldX * this.mapScale;
-        const cartY = (worldY * this.mapScale) - (this.mapHeight / 2);
-
-        this.boatMarker.setPosition(cartX, cartY);
-        this.boatMarker.setVisible(this.isMapVisible);
+    
+    public updateBoatMarker(worldX: number, worldY: number, orientation: string): void {
+        const mapX = worldX * this.mapScale + this.graphicOffsetX;
+        const mapY = worldY * this.mapScale + this.graphicOffsetY;        
+        this.boatMarker.setPosition(mapX, mapY);
+        
+        let angle = 0;
+        switch(orientation) {
+            case 'boat_n':  angle = 0; break;
+            case 'boat_ne': angle = Math.PI * 0.25; break;
+            case 'boat_e':  angle = Math.PI * 0.5; break;
+            case 'boat_se': angle = Math.PI * 0.75; break;
+            case 'boat_s':  angle = Math.PI; break;
+            case 'boat_sw': angle = Math.PI * 1.25; break;
+            case 'boat_w':  angle = Math.PI * 1.5; break;
+            case 'boat_nw': angle = Math.PI * 1.75; break;
+        }
+        this.boatMarker.setRotation(angle);
     }
-
-    private createLegend(): void {
-        // Create container for legend
-        this.legend = this.scene.add.container(0, 0);
-        this.mapContainer.add(this.legend);
-
-        // Position legend in top left corner of map
-        const legendX = -this.mapWidth/2 + 300; 
-        const legendY = -this.mapHeight/2 + 50; 
-        this.legend.setPosition(legendX, legendY);
-
-        // Create semi-transparent background for legend
-        const padding = 80;
-        const background = this.scene.add.graphics();
-        background.fillStyle(0x000000, 0.3);
-        background.fillRect(0, 0, 800, 900);  // Adjust size as needed
-        this.legend.add(background);
-
-        // Create legend entries
-        let yOffset = padding;
-        const spacing = 150;  // Vertical spacing between entries
-
-        const processedTypes = new Set<string>();
-        Object.entries(this.interactionAreas).forEach(([_, area]) => {
-            const markerInfo = area.markerInfo;
-            if (!markerInfo || processedTypes.has(markerInfo.locationType)) return;
-            processedTypes.add(markerInfo.locationType);
-
-            // Create dot
-            const dot = this.scene.add.graphics();
-            dot.lineStyle(2, 0xffffff);
-            dot.fillStyle(markerInfo.color);
-            dot.beginPath();
-            dot.arc(padding + 10, yOffset + 60, 40, 0, Math.PI * 2);
-            dot.closePath();
-            dot.fillPath();
-            dot.strokePath();
-
-            // Create text
-            const text = this.scene.add.text(
-                padding + 100, 
-                yOffset, 
-                markerInfo.locationType || "Location", // Use label from markerInfo or fallback
-                { 
-                    color: '#ffffff',
-                    fontSize: '100px',
-                    fontFamily: 'Arial'
-                }
-            );
-
-            // Add both to legend container
-            this.legend.add(dot);
-            this.legend.add(text);
-            this.legendEntries.push({marker: dot, text: text});
-
-            yOffset += spacing;
-        });
-
-        // Add boat marker to legend
-        const boatDot = this.scene.add.graphics();
-        boatDot.fillStyle(0xff0000);
-        boatDot.beginPath();
-        boatDot.arc(padding + 10, yOffset + 60, 40, 0, Math.PI * 2);
-        boatDot.closePath();
-        boatDot.fillPath();
-
-        const boatText = this.scene.add.text(
-            padding + 100, 
-            yOffset, 
-            "You are here", 
-            { 
-                color: '#ffffff',
-                fontSize: '100px',
-                fontFamily: 'Arial'
-            }
-        );
-
-        this.legend.add(boatDot);
-        this.legend.add(boatText);
-        this.legendEntries.push({marker: boatDot, text: boatText});
-    }
-
 
     public destroy(fromScene?: boolean): void {
-        this.mapIcon.destroy();
         this.mapContainer.destroy();
         this.interactionMarkers.forEach(marker => marker.destroy());
         super.destroy(fromScene);

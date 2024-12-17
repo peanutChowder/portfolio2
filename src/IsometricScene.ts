@@ -117,10 +117,6 @@ export default class IsometricScene extends Phaser.Scene {
         // load firework animations
         this.fireworkManager.preload()
 
-        // Disable map for mobile users
-        if (!this.isMobileDevice) {
-            MapSystem.preload(this);
-        }
     }
 
     create(): void {
@@ -255,9 +251,7 @@ export default class IsometricScene extends Phaser.Scene {
             // Set up camera to follow the boat
             this.cameras.main.startFollow(this.boat, true);
 
-            if (!this.isMobileDevice) {
-                this.mapSystem = new MapSystem(this, this.interactionAreas);
-            }
+            this.mapSystem = new MapSystem(this, this.interactionAreas);
 
 
 
@@ -410,7 +404,7 @@ export default class IsometricScene extends Phaser.Scene {
                 }
             },
             {
-                color: 0x218215,
+                color: 0x114a19,
                 radius: 40,
                 locationType: "Education"
             }
@@ -551,7 +545,7 @@ export default class IsometricScene extends Phaser.Scene {
         const { x: boatX, y: boatY } = this.boat.getPosition();
 
         if (this.mapSystem) {
-            this.mapSystem.updateBoatMarker(boatX, boatY);
+            this.mapSystem.updateBoatMarker(boatX, boatY, this.boat.getOrientation());
         }
 
         if (arrowIndicatorsEnabled) {
