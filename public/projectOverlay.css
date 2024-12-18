@@ -33,7 +33,7 @@
     letter-spacing: 2px;
 }
 
-#formfitness-content {
+#project-content {
     flex-grow: 1;
     overflow-y: auto;
     padding-right: 15px;
@@ -43,22 +43,22 @@
     text-align: center;
 }
 
-#formfitness-content h3 {
+#project-content h3 {
     color: #A79B8E;
     font-size: 18px;
     margin-bottom: 10px;
 }
 
-#formfitness-content::-webkit-scrollbar {
+#project-content::-webkit-scrollbar {
     width: 8px;
 }
 
-#formfitness-content::-webkit-scrollbar-track {
+#project-content::-webkit-scrollbar-track {
     background: #F0E6D2;
     border-radius: 4px;
 }
 
-#formfitness-content::-webkit-scrollbar-thumb {
+#project-content::-webkit-scrollbar-thumb {
     background-color: #D0B49F;
     border-radius: 4px;
 }
