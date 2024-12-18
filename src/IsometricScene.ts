@@ -416,7 +416,7 @@ export default class IsometricScene extends Phaser.Scene {
 
         this.interactionAreas["olympicWeightlifting"] = new InteractionArea(
             this,
-            -12743, 9250,
+            7780, 6061,
             2700, 1700,
             "Olympic\nWeightlifting",
             "owOverlay",
