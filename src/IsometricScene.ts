@@ -331,7 +331,7 @@ export default class IsometricScene extends Phaser.Scene {
 
         this.interactionAreas["experience-Teck"] = new InteractionArea(
             this,
-            712, 3470,
+            15600, 15800,
             4100, 2300,
             "Teck",
             "experienceOverlay-Teck",
@@ -358,7 +358,7 @@ export default class IsometricScene extends Phaser.Scene {
 
         this.interactionAreas["experience-UAlberta"] = new InteractionArea(
             this,
-            -5223, 4819,
+            -2064, 16620,
             4100, 2300,
             "UAlberta",
             "experienceOverlay-UAlberta",
