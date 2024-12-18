@@ -110,6 +110,7 @@ export default class IsometricScene extends Phaser.Scene {
         // projects
         this.load.html('ffOverlay', 'ffOverlay.html');
         this.load.html('icOverlay', 'icOverlay.html');
+        this.load.html('abOverlay', 'abOverlay.html');
 
         this.load.html('educationOverlay', 'edOverlay.html');
         this.load.html('experienceOverlay-Apple', 'expAppleOverlay.html');
@@ -493,6 +494,33 @@ export default class IsometricScene extends Phaser.Scene {
                 fontSize: "130px",
                 offset: {
                     x: 0, y: -800
+                }
+            },
+            projectMarkerInfo
+        )
+
+        this.interactionAreas["aiAsteroids"] = new InteractionArea(
+            this,
+            5378, 14325,
+            3400, 2000,
+            "Asteroids Bot",
+            "abOverlay",
+            0x2019e3,
+            0x7672e8,
+            {
+                text: "Click to see AI Asteroids Bot",
+                font: fontFamilies["header"],
+                fontColor: "#ffffff",
+                color: 0x7672e8,
+                hoverColor: 0x9894f7
+            },
+            {
+                text: "Asteroids Bot",
+                color: "#38375c",
+                font: fontFamilies["header"],
+                fontSize: "130px",
+                offset: {
+                    x: 0, y: -900
                 }
             },
             projectMarkerInfo

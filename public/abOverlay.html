@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Captioner Project</title>
+    <link rel="stylesheet" href="projectOverlay.css">
+
+</head>
+<body>
+    <div id="overlay-wrapper">
+        <div id="simple-overlay">
+            <div class="content-inner">
+                <button class="close-button">
+                    <i class="fas fa-times"></i>
+                </button>
+                <div class="content-header">
+                    <h2>AI Asteroids Bot</h2>
+                </div>
+                <img src="/images/project-kessler.gif" class="project-demo" alt="Asteroid game-container">
+                <a class="github-button" href="https://github.com/peanutChowder/XFC-fuzzy-agent">
+                    <i class="fas fa-link"></i>
+                    <span>GitHub</span>
+                </a>
+                <p>AI Asteroids Bot is a project built on top of the Kessler Game. The game consists of randomly
+                    spawning asteroids, and some ships that need to fight for their survival by shooting the asteroids,
+                    or flying away, or both.
+                </p>
+                <div class="skills-list">
+                    <span class="skill-tag">AI</span>
+                    <span class="skill-tag">Scikit-Fuzzy</span>
+                    <span class="skill-tag">Genetic Algorithms</span>
+                </div>
+                <h3>How does it work?</h3>
+                <p>
+                    The bot is built on a fuzzy architecture -- some loose rules to decide whether we fight or flight,
+                    or both.
+                    On its own, the architecture doesn't provide very much value.
+                    <br>
+                    Using a genetic algorithm, turning hyperparameters like when an asteroid is too close for comfort
+                    and how quickly the ship turns around
+                    gives us a much more responsive bots. Fitness is determined by shooting accuracy, survival time, and
+                    more.
+                </p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
