@@ -24,44 +24,133 @@
     border: 2px solid #F0E6D2;
 }
 
-#simple-overlay h2 {
-    color: #7E6D5A;
-    font-size: 24px;
+.content-inner img {
+    width: 100%;
+    max-width: 400px;
+    aspect-ratio: 1/1;  
+    object-fit: cover;
+    object-position: center; 
+    border-radius: 8px;
     margin-bottom: 20px;
-    text-align: center;
+    display: block;  
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.content-inner .project-demo {
+    width: 100%;
+    max-width: 600px;
+    aspect-ratio: 16/9;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    display: block;  
+    margin-left: auto;
+    margin-right: auto;
+    border: none;
+}
+   
+.content-inner h2 {
+    margin-top: 0;
+    color: #7E6D5A;
+    font-size: 28px;
     text-transform: uppercase;
-    letter-spacing: 2px;
+    letter-spacing: 1px;
 }
 
-#project-content {
-    flex-grow: 1;
-    overflow-y: auto;
-    padding-right: 15px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
+.content-inner h3 {
+    margin-bottom: 0;
+    color: #7E6D5A;
 }
 
-#project-content h3 {
-    color: #A79B8E;
-    font-size: 18px;
+.content-inner p {
+    font-size: 16px;
+    line-height: 1.6;
+    color: #7E6D5A;
+    margin-bottom: 20px;
+    margin-top: 20px;
+}
+
+.content-inner ul {
+    padding-left: 20px;
+    margin-bottom: 20px;
+}
+
+.content-inner li {
     margin-bottom: 10px;
+    color: #666;
 }
 
-#project-content::-webkit-scrollbar {
+.content-inner::-webkit-scrollbar {
     width: 8px;
 }
 
-#project-content::-webkit-scrollbar-track {
+.content-inner::-webkit-scrollbar-track {
     background: #F0E6D2;
     border-radius: 4px;
 }
 
-#project-content::-webkit-scrollbar-thumb {
-    background-color: #D0B49F;
+.content-inner::-webkit-scrollbar-thumb {
+    background: #7E6D5A;
     border-radius: 4px;
 }
+
+.github-button {
+    padding: 5px 15px;
+    margin-bottom: 10px;
+    background-color: #F0E6D2;
+    border: none;
+    border-radius: 15px;
+    color: #7E6D5A;
+    font-family: 'Prompt', sans-serif;
+    font-size: 14px;
+    cursor: pointer;
+    max-width: 90px;
+    transition: color 0.3s ease;
+    text-decoration: none;
+}
+
+.github-button:hover {
+    color: #D0B49F;
+}
+
+.github-button i {
+    font-size: 14px;
+}
+
+.skills-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 5px;
+    margin-bottom: 10px;
+}
+
+.skill-tag {
+    background-color: #F0E6D2;
+    color: #7E6D5A;
+    padding: 5px 15px;
+    border-radius: 15px;
+    font-size: 14px;
+}
+
+#close-button {
+    position: sticky;
+    top: 20px;
+    margin-left: auto;
+    background: none;
+    border: none;
+    color: #7E6D5A;
+    font-size: 24px;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+    z-index: 2;
+    width: fit-content;
+}
+
+#close-button:hover {
+    transform: rotate(90deg);
+}
+
 
 .video-container {
     margin-bottom: 20px;
@@ -73,19 +162,8 @@
     text-align: center;
 }
 
-#closeButton {
-    font-size: 16px;
-    padding: 10px 20px;
-    background-color: #D0B49F;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    display: block;
-    margin: 20px auto 0;
-}
 
-#closeButton:hover {
-    background-color: #C0A48F;
+/* Demo specific rules */
+#project-demo-image-captioner {
+    max-width: 100%;
 }

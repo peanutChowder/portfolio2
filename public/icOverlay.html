@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Captioner Project</title>
+    <link rel="stylesheet" href="projectOverlay.css">
+
+</head>
+<body>
+    <div id="overlay-wrapper">
+        <div id="simple-overlay">
+            <div class="content-inner">
+                <button id="close-button">
+                    <i class="fas fa-times"></i>
+                </button>
+                <div class="content-header">
+                    <h2>AI Image Captioner</h2>
+                </div>
+                <video class="project-demo" id="project-demo-image-captioner" autoplay muted controls
+                    src="/images/project-image-captioner.mp4"></video>
+                <a class="github-button" href="https://github.com/peanutChowder/ai-image-captioner">
+                    <i class="fas fa-link"></i>
+                    <span>GitHub</span>
+                </a>
+                <p>AI Image Captioner is exactly what it sounds like. This model takes in image input and outputs a
+                    caption for the image.
+                </p>
+                <div class="skills-list">
+                    <span class="skill-tag">AI</span>
+                    <span class="skill-tag">NLP</span>
+                    <span class="skill-tag">Vision Transformers</span>
+                    <span class="skill-tag">Seq2Seq model</span>
+                </div>
+                <h3>How does it work?</h3>
+                <p>
+                    Trained on the Flickr8k dataset, the model is a seq2seq model built on ViT and GPT2. The ViT
+                    processes images into a sequence of features,
+                    which is then mapped as an input into GPT2. GPT2 is then delegated with taking the visual
+                    understanding from ViT and generating natural language
+                    that describes the image.
+                </p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
