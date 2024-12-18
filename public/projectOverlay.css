@@ -161,7 +161,7 @@
 
 .close-button:hover {
     transform: rotate(90deg);
-    background-color: #E6D9C2;  /* Slightly darker on hover */
+    background-color: #E6D9C2;  
 }
 
 
