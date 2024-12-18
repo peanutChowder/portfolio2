@@ -107,7 +107,10 @@ export default class IsometricScene extends Phaser.Scene {
 
         // Load all overlays
         this.load.html('owOverlay', 'owOverlay.html');
+        // projects
         this.load.html('ffOverlay', 'ffOverlay.html');
+        this.load.html('icOverlay', 'icOverlay.html');
+
         this.load.html('educationOverlay', 'edOverlay.html');
         this.load.html('experienceOverlay-Apple', 'expAppleOverlay.html');
         this.load.html('experienceOverlay-Teck', 'expTeckOverlay.html');
@@ -463,6 +466,33 @@ export default class IsometricScene extends Phaser.Scene {
                 fontSize: "130px",
                 offset: {
                     x: 0, y: 100
+                }
+            },
+            projectMarkerInfo
+        )
+
+        this.interactionAreas["imageCaptioner"] = new InteractionArea(
+            this,
+            1021, 21472,
+            3400, 2000,
+            "Image Captioner",
+            "icOverlay",
+            0x03b1fc,
+            0x2ad9f7,
+            {
+                text: "Click to see Image Captioner",
+                font: fontFamilies["header"],
+                fontColor: "#ffffff",
+                color: 0x03b1fc,
+                hoverColor: 0x2ad9f7
+            },
+            {
+                text: "Image Captioner",
+                color: "#0a34a8",
+                font: fontFamilies["header"],
+                fontSize: "130px",
+                offset: {
+                    x: 0, y: -800
                 }
             },
             projectMarkerInfo
@@ -866,7 +896,7 @@ export default class IsometricScene extends Phaser.Scene {
         this.overlay.setScale(1 / this.cameras.main.zoom);
 
         // Close button for overlay
-        const closeButton = htmlWrapper.querySelector('#closeButton');
+        const closeButton = htmlWrapper.querySelector('.close-button');
         if (closeButton) {
             closeButton.addEventListener('click', () => this.destroyOverlayWithAnimation(overlayHtmlKey));
         } else {
