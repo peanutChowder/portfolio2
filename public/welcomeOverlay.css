@@ -91,13 +91,14 @@
 #instructions {
     width: 100%;
     display: flex;
+    flex-direction: column;
     justify-content: space-evenly;
     margin-top: 20px;
     text-align: center;
 }
 
 #instructions-1 {
-    max-width: 350px;
+    margin-bottom: 30px;
 }
 
 #ia-demo-container {
@@ -189,10 +190,6 @@
     .desktop-content {
         display: none;
     }
-
-    #instructions {
-        flex-direction: column;
-    }
 }
 
 @media only screen and (min-width: 769px), (hover: hover) and (pointer: fine) {
@@ -204,9 +201,5 @@
         display: flex;
         flex-direction: column;
         justify-content: space-evenly;
-    }
-
-    #instructions {
-        flex-direction: row;
     }
 }

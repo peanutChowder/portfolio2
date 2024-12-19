@@ -535,7 +535,7 @@ export default class IsometricScene extends Phaser.Scene {
             0x1689f5,
             0x34b4eb,
             {
-                text: "Click me!",
+                text: "How to play?",
                 font: fontFamilies["header"],
                 fontColor: "#ffffff",
                 color: 0x1689f5,
