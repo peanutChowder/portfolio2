@@ -111,6 +111,7 @@ export default class IsometricScene extends Phaser.Scene {
         this.load.html('ffOverlay', 'ffOverlay.html');
         this.load.html('icOverlay', 'icOverlay.html');
         this.load.html('abOverlay', 'abOverlay.html');
+        this.load.html('cpOverlay', 'cpOverlay.html');
 
         this.load.html('educationOverlay', 'edOverlay.html');
         this.load.html('experienceOverlay-Apple', 'expAppleOverlay.html');
@@ -521,6 +522,33 @@ export default class IsometricScene extends Phaser.Scene {
                 fontSize: "130px",
                 offset: {
                     x: 0, y: -900
+                }
+            },
+            projectMarkerInfo
+        )
+
+        this.interactionAreas["concurrentCLI"] = new InteractionArea(
+            this,
+            -7178, 15667,
+            3400, 2000,
+            "Concurrent Processes",
+            "cpOverlay",
+            0x063580,
+            0x1e66d9,
+            {
+                text: "Click to see Concurrent\nProcess Manager",
+                font: fontFamilies["header"],
+                fontColor: "#ffffff",
+                color: 0x063580,
+                hoverColor: 0x1e66d9
+            },
+            {
+                text: "Concurrent Process\n      Manager",
+                color: "#38375c",
+                font: fontFamilies["header"],
+                fontSize: "130px",
+                offset: {
+                    x: 0, y: -600
                 }
             },
             projectMarkerInfo

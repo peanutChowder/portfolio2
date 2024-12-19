@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Captioner Project</title>
+    <link rel="stylesheet" href="projectOverlay.css">
+
+</head>
+<body>
+    <div id="overlay-wrapper">
+        <div id="simple-overlay">
+            <div class="content-inner">
+                <button class="close-button">
+                    <i class="fas fa-times"></i>
+                </button>
+                <div class="content-header">
+                    <h2>Concurrent Process Manager</h2>
+                </div>
+                <img id="project-demo-concurrent-processes" src="/images/cpDemo.gif" class="project-demo" alt="Asteroid game-container">
+                <a class="github-button" href="https://github.com/peanutChowder/Shell-Simulator">
+                    <i class="fas fa-link"></i>
+                    <span>GitHub</span>
+                </a>
+                <p>This is a project that targets the fundamentally concurrent nature of Operating Systems, using fork().
+                </p>
+                <div class="skills-list">
+                    <span class="skill-tag">C++</span>
+                    <span class="skill-tag">Concurrency</span>
+                    <span class="skill-tag">Operating Systems</span>
+                </div>
+                <h3>How does it work?</h3>
+                <p>
+                    Built on fork(), this project maintains a Process Control Block (PCB) to manage the lifecycle of various
+                    processes, from creation to kill() using signals. 
+                    The PCB is responsible for ensuring that no process is left hanging forever, wasting OS resoources.
+
+                    <h3>Features:</h3>
+                    <ul>
+                        <li>Job creation, suspension, and killing</li>
+                        <li>Waiting for a process to finish</li>
+                        <li>Running multiple processes in the background</li>
+                        <li>Input/output piping</li>
+                    </ul>
+                </p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
