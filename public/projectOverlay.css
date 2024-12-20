@@ -180,3 +180,12 @@
 #project-demo-image-captioner {
     max-width: 100%;
 }
+
+#project-demo-inventory-manager {
+    width: auto;
+    height: auto;
+    max-width: 500px;
+    max-height: 60vh;
+    object-fit: contain;
+    margin: 10px auto;
+}

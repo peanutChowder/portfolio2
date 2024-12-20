@@ -112,6 +112,7 @@ export default class IsometricScene extends Phaser.Scene {
         this.load.html('icOverlay', 'icOverlay.html');
         this.load.html('abOverlay', 'abOverlay.html');
         this.load.html('cpOverlay', 'cpOverlay.html');
+        this.load.html('imOverlay', 'imOverlay.html');
 
         this.load.html('educationOverlay', 'edOverlay.html');
         this.load.html('experienceOverlay-Apple', 'expAppleOverlay.html');
@@ -549,6 +550,33 @@ export default class IsometricScene extends Phaser.Scene {
                 fontSize: "130px",
                 offset: {
                     x: 0, y: -600
+                }
+            },
+            projectMarkerInfo
+        )
+
+        this.interactionAreas["inventoryManager"] = new InteractionArea(
+            this,
+            3771, 9288,
+            3400, 2000,
+            "Inventory Manager",
+            "imOverlay",
+            0x0fd47b,
+            0x69f5cb,
+            {
+                text: "Click to see Inventory Manager",
+                font: fontFamilies["header"],
+                fontColor: "#ffffff",
+                color: 0x1b8c59,
+                hoverColor: 0x0fd47b
+            },
+            {
+                text: "Inventory Manager\n    [Android]",
+                color: "#2a473a",
+                font: fontFamilies["header"],
+                fontSize: "130px",
+                offset: {
+                    x: 0, y: -1000
                 }
             },
             projectMarkerInfo
