@@ -9,21 +9,24 @@
 <body>
     <div id="overlay-wrapper">
         <div id="simple-overlay">
-            <div id="instructions-container">
+            <div class="content-inner">
+                <button class="close-button">
+                    <i class="fas fa-times"></i>
+                </button>
                 <h2>How to play</h2>
                 <div id="instructions">
                     <div id="instructions-1">
-                        <p>Interact with areas marked by a circle</p>
+                        <p>Navigate the map. Interact with the marked areas to learn about me.</p>
                         <div id="ia-demo-container">
                             <video id="ia-demo" autoplay loop muted playsinline>
-                                <source src="/images/iaDemo.mp4" type="video/mp4">
+                                <source src="/images/tutorial.mp4" type="video/mp4">
                                 Your browser does not support the video tag.
                             </video>
                         </div>
                     </div>
                     <div class="desktop-content">
                         <div>
-                            <p>Use arrow keys to move the boat</p>
+                            <p>Use the arrow keys to move the boat</p>
                             <div id="arrow-keys">
                                 <div class="arrow up">&#9650;</div>
                                 <div class="arrow-row">
@@ -33,8 +36,6 @@
                                 </div>
                             </div>
                         </div>
-                        <div>
-                            <p>Find out about: My experience, projects,<br>Olympic Lifting, and more!</p>                        </div>
                     </div>
                     <div class="mobile-content">
                         <div>
@@ -47,14 +48,9 @@
                                 </div>
                             </div>
                         </div>
-                        <div>
-                            <p>Find out about: My experience, projects,<br>Olympic Lifting, and more!</p>
-                        </div>
                     </div>
                 </div>
-                <br>
             </div>
-            <button id="closeButton">Close</button>
         </div>
     </div>
 </body>

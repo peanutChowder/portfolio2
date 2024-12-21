@@ -107,7 +107,13 @@ export default class IsometricScene extends Phaser.Scene {
 
         // Load all overlays
         this.load.html('owOverlay', 'owOverlay.html');
+        // projects
         this.load.html('ffOverlay', 'ffOverlay.html');
+        this.load.html('icOverlay', 'icOverlay.html');
+        this.load.html('abOverlay', 'abOverlay.html');
+        this.load.html('cpOverlay', 'cpOverlay.html');
+        this.load.html('imOverlay', 'imOverlay.html');
+
         this.load.html('educationOverlay', 'edOverlay.html');
         this.load.html('experienceOverlay-Apple', 'expAppleOverlay.html');
         this.load.html('experienceOverlay-Teck', 'expTeckOverlay.html');
@@ -300,7 +306,7 @@ export default class IsometricScene extends Phaser.Scene {
 
         this.interactionAreas["experience-Apple"] = new InteractionArea(
             this,
-            7886, 5790,
+            10000, 8963,
             3900, 2000,
             "Apple",
             "experienceOverlay-Apple",
@@ -327,7 +333,7 @@ export default class IsometricScene extends Phaser.Scene {
 
         this.interactionAreas["experience-Teck"] = new InteractionArea(
             this,
-            712, 3470,
+            15600, 15800,
             4100, 2300,
             "Teck",
             "experienceOverlay-Teck",
@@ -354,7 +360,7 @@ export default class IsometricScene extends Phaser.Scene {
 
         this.interactionAreas["experience-UAlberta"] = new InteractionArea(
             this,
-            -5223, 4819,
+            -2064, 16620,
             4100, 2300,
             "UAlberta",
             "experienceOverlay-UAlberta",
@@ -412,7 +418,7 @@ export default class IsometricScene extends Phaser.Scene {
 
         this.interactionAreas["olympicWeightlifting"] = new InteractionArea(
             this,
-            -12743, 9250,
+            7780, 6061,
             2700, 1700,
             "Olympic\nWeightlifting",
             "owOverlay",
@@ -443,8 +449,8 @@ export default class IsometricScene extends Phaser.Scene {
 
         this.interactionAreas["formFitness"] = new InteractionArea(
             this,
-            2300, 17756,
-            2500, 1500,
+            11390, 16569,
+            3400, 2000,
             "iOS App",
             "ffOverlay",
             0xffa405,
@@ -462,7 +468,115 @@ export default class IsometricScene extends Phaser.Scene {
                 font: fontFamilies["header"],
                 fontSize: "130px",
                 offset: {
-                    x: 1100, y: -600
+                    x: 0, y: 100
+                }
+            },
+            projectMarkerInfo
+        )
+
+        this.interactionAreas["imageCaptioner"] = new InteractionArea(
+            this,
+            1021, 21472,
+            3400, 2000,
+            "Image Captioner",
+            "icOverlay",
+            0x03b1fc,
+            0x2ad9f7,
+            {
+                text: "Click to see Image Captioner",
+                font: fontFamilies["header"],
+                fontColor: "#ffffff",
+                color: 0x03b1fc,
+                hoverColor: 0x2ad9f7
+            },
+            {
+                text: "Image Captioner",
+                color: "#0a34a8",
+                font: fontFamilies["header"],
+                fontSize: "130px",
+                offset: {
+                    x: 0, y: -800
+                }
+            },
+            projectMarkerInfo
+        )
+
+        this.interactionAreas["aiAsteroids"] = new InteractionArea(
+            this,
+            5378, 14325,
+            3400, 2000,
+            "Asteroids Bot",
+            "abOverlay",
+            0x2019e3,
+            0x7672e8,
+            {
+                text: "Click to see AI Asteroids Bot",
+                font: fontFamilies["header"],
+                fontColor: "#ffffff",
+                color: 0x7672e8,
+                hoverColor: 0x9894f7
+            },
+            {
+                text: "Asteroids Bot",
+                color: "#38375c",
+                font: fontFamilies["header"],
+                fontSize: "130px",
+                offset: {
+                    x: 0, y: -900
+                }
+            },
+            projectMarkerInfo
+        )
+
+        this.interactionAreas["concurrentCLI"] = new InteractionArea(
+            this,
+            -7178, 15667,
+            3400, 2000,
+            "Concurrent Processes",
+            "cpOverlay",
+            0x063580,
+            0x1e66d9,
+            {
+                text: "Click to see Concurrent\nProcess Manager",
+                font: fontFamilies["header"],
+                fontColor: "#ffffff",
+                color: 0x063580,
+                hoverColor: 0x1e66d9
+            },
+            {
+                text: "Concurrent Process\n      Manager",
+                color: "#38375c",
+                font: fontFamilies["header"],
+                fontSize: "130px",
+                offset: {
+                    x: 0, y: -600
+                }
+            },
+            projectMarkerInfo
+        )
+
+        this.interactionAreas["inventoryManager"] = new InteractionArea(
+            this,
+            3771, 9288,
+            3400, 2000,
+            "Inventory Manager",
+            "imOverlay",
+            0x0fd47b,
+            0x69f5cb,
+            {
+                text: "Click to see Inventory Manager",
+                font: fontFamilies["header"],
+                fontColor: "#ffffff",
+                color: 0x1b8c59,
+                hoverColor: 0x0fd47b
+            },
+            {
+                text: "Inventory Manager\n    [Android]",
+                color: "#2a473a",
+                font: fontFamilies["header"],
+                fontSize: "130px",
+                offset: {
+                    x: 0, y: -1000
                 }
             },
             projectMarkerInfo
@@ -477,7 +591,7 @@ export default class IsometricScene extends Phaser.Scene {
             0x1689f5,
             0x34b4eb,
             {
-                text: "Click me!",
+                text: "How to play?",
                 font: fontFamilies["header"],
                 fontColor: "#ffffff",
                 color: 0x1689f5,
@@ -866,7 +980,7 @@ export default class IsometricScene extends Phaser.Scene {
         this.overlay.setScale(1 / this.cameras.main.zoom);
 
         // Close button for overlay
-        const closeButton = htmlWrapper.querySelector('#closeButton');
+        const closeButton = htmlWrapper.querySelector('.close-button');
         if (closeButton) {
             closeButton.addEventListener('click', () => this.destroyOverlayWithAnimation(overlayHtmlKey));
         } else {

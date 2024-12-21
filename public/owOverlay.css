@@ -17,49 +17,48 @@
     background-color: rgba(255, 253, 240, 0.95);
     display: flex;
     flex-direction: column;
-    padding: 30px;
+    padding: 10px;
     border-radius: 15px;
     pointer-events: auto;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
     border: 2px solid #F0E6D2;
 }
 
-#simple-overlay h2 {
-    color: #7E6D5A;
-    font-size: 24px;
-    margin-bottom: 20px;
-    text-align: center;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-}
-
-#weightlifting-content {
-    flex-grow: 1;
+.content-inner {
+    height: 100%;
     overflow-y: auto;
-    padding-right: 15px;
+    padding: 20px;
     display: flex;
     flex-direction: column;
     align-items: center;
     text-align: center;
 }
 
-#weightlifting-content h3 {
+.content-inner h2 {
+    color: #7E6D5A;
+    font-size: 24px;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.content-inner h3 {
     color: #A79B8E;
     font-size: 18px;
     margin-bottom: 10px;
 }
 
-#weightlifting-content::-webkit-scrollbar {
+.content-inner::-webkit-scrollbar {
     width: 8px;
 }
 
-#weightlifting-content::-webkit-scrollbar-track {
+.content-inner::-webkit-scrollbar-track {
     background: #F0E6D2;
     border-radius: 4px;
 }
 
-#weightlifting-content::-webkit-scrollbar-thumb {
-    background-color: #D0B49F;
+.content-inner::-webkit-scrollbar-thumb {
+    background: #7E6D5A;
     border-radius: 4px;
 }
 
@@ -67,25 +66,42 @@
     margin-bottom: 20px;
 }
 
-#my-journey {
+.journey-text {
     color: #757474;
     font-size: 16px;
     text-align: left;
+    width: 100%;
 }
 
-#closeButton {
-    font-size: 16px;
-    padding: 10px 20px;
-    background-color: #D0B49F;
-    color: white;
+.journey-text ul {
+    padding-left: 20px;
+    margin: 10px 0;
+}
+
+.journey-text li {
+    margin-bottom: 8px;
+}
+
+.close-button {
+    position: sticky;
+    top: 20px;
+    margin-left: auto;
+    background-color: #F0E6D2;
     border: none;
-    border-radius: 5px;
+    color: #7E6D5A;
+    font-size: 24px;
     cursor: pointer;
-    transition: background-color 0.3s ease;
-    display: block;
-    margin: 20px auto 0;
+    transition: all 0.3s ease; 
+    z-index: 2;
+    width: 40px;              
+    height: 40px;              
+    border-radius: 50%;      
+    display: flex;           
+    align-items: center;
+    justify-content: center;
 }
 
-#closeButton:hover {
-    background-color: #C0A48F;
+.close-button:hover {
+    transform: rotate(90deg);
+    background-color: #E6D9C2;  
 }
