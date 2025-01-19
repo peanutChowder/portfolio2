@@ -8,7 +8,7 @@ import tileset256x256Cubes from '../assets/world2/256x256 Cubes.png';
 import tileset256x192Tiles from '../assets/world2/256x192 Tiles.png'
 import tileset256x512Trees from '../assets/world2/256x512 Trees.png'
 import tileset256x128TileOverlays from '../assets/world2/256x128 Tile Overlays.png'
-
+import fishingRod from '../assets/fishing/rod.jpg'
 
 import { ArrowIndicator } from './ArrowIndicator';
 import { VirtualJoystick } from './VirtualJoystick';
@@ -944,18 +944,18 @@ export default class IsometricScene extends Phaser.Scene {
             this.destroyOverlayWithAnimation(overlayHtmlKey);
             return;
         }
-
-        console.group("Creating overlay")
-
+    
+        console.group("Creating overlay");
+    
         // Load HTML content
         const htmlContent = this.cache.html.get(overlayHtmlKey);
-
+    
         if (!htmlContent) {
-            console.error(`Failed to load overlay content '${overlayHtmlKey}'`)
-            console.groupEnd()
+            console.error(`Failed to load overlay content '${overlayHtmlKey}'`);
+            console.groupEnd();
             return;
         }
-
+    
         // Create wrapper
         const htmlWrapper = document.createElement('div');
         htmlWrapper.style.position = 'absolute';
@@ -970,32 +970,31 @@ export default class IsometricScene extends Phaser.Scene {
         htmlWrapper.style.justifyContent = 'center';
         htmlWrapper.style.alignItems = 'center';
         htmlWrapper.innerHTML = htmlContent;
-
+    
         // Add the wrapper to the game
         this.overlay = this.add.dom(0, 0, htmlWrapper);
-        this.overlay.setOrigin(0.38, 0.4)
-
+        this.overlay.setOrigin(0.38, 0.4);
+    
         this.overlay.setScrollFactor(0);
         this.overlay.setDepth(1000);
         this.overlay.setScale(1 / this.cameras.main.zoom);
-
+    
         // Close button for overlay
         const closeButton = htmlWrapper.querySelector('.close-button');
         if (closeButton) {
             closeButton.addEventListener('click', () => this.destroyOverlayWithAnimation(overlayHtmlKey));
         } else {
-            console.error("Close button not found")
+            console.error("Close button not found");
         }
-
+    
         const overlayWrapperDiv = this.overlay.getChildByID('overlay-wrapper') as HTMLElement;
         overlayWrapperDiv.style.display = 'none';
-
-        console.groupEnd()
-
+    
+        console.groupEnd();
+    
         this.time.delayedCall(0, () => {
             if (overlayWrapperDiv) {
                 if (overlayWrapperDiv.style.display === 'none') {
-
                     // Fade in animation
                     overlayWrapperDiv.style.opacity = '0';
                     overlayWrapperDiv.style.display = 'flex';
@@ -1005,34 +1004,103 @@ export default class IsometricScene extends Phaser.Scene {
                     }, 100);
                 }
             }
-        })
+        });
+    
+        // Add floating fishing rod button
+        const floatingButton = document.createElement('div');
+        floatingButton.style.position = 'fixed';
+        floatingButton.style.top = '10vh';
+        floatingButton.style.left = '5vh';
+        floatingButton.style.width = '100px'; 
+        floatingButton.style.height = '100px';
+        floatingButton.style.borderRadius = '50%';
+        floatingButton.style.border = '4px solid #8df7f6';
+        floatingButton.style.backgroundColor = '#fff'; 
+        floatingButton.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.2)'; 
+        floatingButton.style.cursor = 'pointer';
+        floatingButton.style.zIndex = '1100'; 
+        floatingButton.style.display = 'flex';
+        floatingButton.style.justifyContent = 'center';
+        floatingButton.style.alignItems = 'center';
+    
+        const fishingRodImg = document.createElement('img');
+        fishingRodImg.src = fishingRod; 
+        fishingRodImg.alt = 'Fishing Rod';
+        fishingRodImg.style.width = '60%';
+        fishingRodImg.style.height = '60%';
+        fishingRodImg.style.objectFit = 'contain';
+        fishingRodImg.style.opacity = '0';
+        fishingRodImg.style.transition = 'opacity 0.5s ease-in-out';
+    
+        floatingButton.appendChild(fishingRodImg);
+        htmlWrapper.appendChild(floatingButton);
+    
+        this.time.delayedCall(0, () => {
+            if (fishingRodImg) {
+                fishingRodImg.style.opacity = '1';
+            }
+        });
+    
+        this.time.delayedCall(500, () => {
+            if (floatingButton) {
+                floatingButton.style.opacity = '1';
+            }
+        });
+    
+        // Add a click event listener (if needed)
+        floatingButton.addEventListener('click', () => {
+            console.log('Fishing rod button clicked!');
+            // TODO: Implement fishing rod functionality
+        });
+    
+        this.time.delayedCall(0, () => {
+            if (floatingButton) {
+                floatingButton.style.transition = 'opacity 0.5s ease-in-out';
+                floatingButton.style.opacity = '1';
+            }
+        });
     }
+    
 
     private destroyOverlayWithAnimation(overlayHtmlKey: string) {
         if (this.overlay) {
             const overlayWrapperDiv = this.overlay.getChildByID('overlay-wrapper') as HTMLElement;
-
-            // Fade out and destroy
+    
+            // Fade out the overlay
             overlayWrapperDiv.style.opacity = '0';
             overlayWrapperDiv.style.transition = 'opacity 0.5s ease-in-out';
+    
+            // Find the fishing rod button
+            const fishingRodButton = this.overlay.node.querySelector('div img[alt="Fishing Rod"]')?.parentElement as HTMLElement;
+    
+            if (fishingRodButton) {
+                // Fade out the fishing rod button
+                fishingRodButton.style.opacity = '0';
+                fishingRodButton.style.transition = 'opacity 0.5s ease-in-out';
+            }
+    
             setTimeout(() => {
                 overlayWrapperDiv.style.display = 'none';
+                if (fishingRodButton) {
+                    fishingRodButton.remove();
+                }
                 if (this.overlay) {
                     this.overlay.destroy();
                     this.overlay = null;
                 }
             }, 500);
         } else {
-            console.warn("No overlay destroyed: currently null")
+            console.warn("No overlay destroyed: currently null");
         }
-
-        const interactionArea = Object.values(this.interactionAreas).find(child => child["overlayName"] === overlayHtmlKey)
+    
+        const interactionArea = Object.values(this.interactionAreas).find(child => child["overlayName"] === overlayHtmlKey);
         if (interactionArea) {
             interactionArea.setIgnoreButtonClick(false);
         } else {
-            console.error(`Could not re-enable button after overlay ${overlayHtmlKey} closed.`)
+            console.error(`Could not re-enable button after overlay ${overlayHtmlKey} closed.`);
         }
     }
+    
 
     private handleXKeyPress(): void {
         Object.values(this.interactionAreas).forEach(area => area.handleInteraction());
