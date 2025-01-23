@@ -473,7 +473,9 @@ export default class IsometricScene extends Phaser.Scene {
                     x: 0, y: 100
                 }
             },
-            projectMarkerInfo
+            projectMarkerInfo,
+            undefined,
+            "fishing"
         )
 
         this.interactionAreas["imageCaptioner"] = new InteractionArea(
@@ -940,7 +942,7 @@ export default class IsometricScene extends Phaser.Scene {
     }
 
     // @ts-ignore
-    private showOverlay(overlayHtmlKey: string): void {
+    private showOverlay(overlayHtmlKey: string, areaType: string): void {
         // Toggle overlay (destroy it) if it is currently shown
         if (this.overlay) {
             this.destroyOverlayWithAnimation(overlayHtmlKey);
@@ -1009,7 +1011,7 @@ export default class IsometricScene extends Phaser.Scene {
         });
     
         // Add floating fishing rod button
-        if (!this.fishingButton) {
+        if (!this.fishingButton && areaType === "fishing") {
             this.fishingButton = document.createElement('div');
             this.fishingButton.style.position = 'fixed';
             this.fishingButton.id = 'fishing-button';

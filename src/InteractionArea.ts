@@ -24,6 +24,9 @@ export default class InteractionArea {
     private buttonWidth: number;
     private ignoreButtonClick: boolean = false;
 
+    // fishing attributes
+    private areaType: string; // empty string if does nothing
+
     private buttonClickHandler: (() => void) | undefined;
 
     public markerInfo: {color: number, radius: number, locationType: string} | undefined;
@@ -39,7 +42,8 @@ export default class InteractionArea {
         buttonInfo: {text: string, font: string, fontColor: string, color: number, hoverColor: number},
         floatingTextInfo?: {text: string, offset: {x: number, y: number}, font: string, fontSize: string, color: string},
         markerInfo?: {color: number, radius: number, locationType: string},
-        buttonClickHandler?: () => void
+        buttonClickHandler?: () => void,
+        areaType: string = ''
     ) {
         this.scene = scene;
         this.ellipse = new Phaser.Geom.Ellipse(x, y, width, height);
@@ -69,6 +73,8 @@ export default class InteractionArea {
             this.buttonWidth = 0.7 * this.scene.cameras.main.width;
             this.buttonHeight = 0.1 * this.scene.cameras.main.height;
         }
+
+        this.areaType = areaType;
 
         this.initInteractionButton(buttonInfo.text, buttonInfo.font);
     }
@@ -191,7 +197,7 @@ export default class InteractionArea {
             console.info(`Player inside area '${this.displayName}'`);
 
             if (this.buttonClickHandler === undefined) {
-                (this.scene as any).showOverlay(this.overlayName);
+                (this.scene as any).showOverlay(this.overlayName, this.areaType);
             } else {
                 console.log("click handler")
                 this.buttonClickHandler();
