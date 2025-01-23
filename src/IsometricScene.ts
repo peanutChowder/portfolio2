@@ -1016,13 +1016,15 @@ export default class IsometricScene extends Phaser.Scene {
             if (this.game.device.os.desktop) {
                 this.fishingButton.style.top = '10vh';
                 this.fishingButton.style.left = '5vh';
+                this.fishingButton.style.width = '20vh'; 
+                this.fishingButton.style.height = '20vh';
             } else{
                 this.fishingButton.style.bottom = '10px';
-                this.fishingButton.style.left = '10px';
+                this.fishingButton.style.right = '10px';
+                this.fishingButton.style.width = '100px'; 
+                this.fishingButton.style.height = '100px';
             }
             
-            this.fishingButton.style.width = '100px'; 
-            this.fishingButton.style.height = '100px';
             this.fishingButton.style.borderRadius = '50%';
             this.fishingButton.style.border = '4px solid #8df7f6';
             this.fishingButton.style.backgroundColor = '#fff'; 
