@@ -1022,6 +1022,18 @@ export default class IsometricScene extends Phaser.Scene {
         floatingButton.style.display = 'flex';
         floatingButton.style.justifyContent = 'center';
         floatingButton.style.alignItems = 'center';
+        const styleTag = document.createElement('style');
+
+        // add on hover effect for fishing button
+        styleTag.innerHTML = `
+            .fishing-button:hover {
+                transform: scale(1.3); /* Grows slightly */
+                box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3); /* Increases shadow intensity */
+                transition: transform 2s ease, box-shadow 2s ease; /* Smooth animation */
+            }
+        `;
+        document.head.appendChild(styleTag);
+        floatingButton.classList.add('fishing-button');
     
         const fishingRodImg = document.createElement('img');
         fishingRodImg.src = fishingRod; 
@@ -1031,6 +1043,7 @@ export default class IsometricScene extends Phaser.Scene {
         fishingRodImg.style.objectFit = 'contain';
         fishingRodImg.style.opacity = '0';
         fishingRodImg.style.transition = 'opacity 0.5s ease-in-out';
+
     
         floatingButton.appendChild(fishingRodImg);
         htmlWrapper.appendChild(floatingButton);
