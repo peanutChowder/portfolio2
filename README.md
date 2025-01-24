@@ -1,3 +1,3 @@
-Released at [jacobfeng.com](jacobfeng.com)!
+Released at jacobfeng.com!
 
 Currently working on gamification.
