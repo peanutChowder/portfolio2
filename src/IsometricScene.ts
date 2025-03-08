@@ -22,8 +22,8 @@ const fontFamilies = {
     "body": ""
 }
 
-const debugMode = false;
-const debugSpawn = { x: -6619, y: 19411 }
+const debugMode = true;
+const debugSpawn = { x: 12441, y: 16104 }
 
 const arrowIndicatorsEnabled = false;
 
@@ -39,8 +39,8 @@ export default class IsometricScene extends Phaser.Scene {
     private collisionBodies: Phaser.GameObjects.Rectangle[] = [];  // Add this
 
     // Interaction Area and Overlay attributes 
-    private overlay!: Phaser.GameObjects.DOMElement | null;
     private overlayElement: HTMLElement | null = null;
+    private gameOverlayElement: HTMLDivElement | null = null;
     private interactionAreas: { [key: string]: InteractionArea } = {};
 
     // Arrows for pointing towards interaction areas
@@ -122,6 +122,8 @@ export default class IsometricScene extends Phaser.Scene {
         this.load.html('experienceOverlay-Teck', 'expTeckOverlay.html');
         this.load.html('experienceOverlay-UAlberta', 'expUAlbertaOverlay.html');
         this.load.html('welcomeOverlay', 'welcomeOverlay.html');
+
+        this.load.html('fish-punch', 'game-overlays/fishPunch.html');
 
         // load firework animations
         this.fireworkManager.preload()
@@ -476,7 +478,8 @@ export default class IsometricScene extends Phaser.Scene {
             },
             projectMarkerInfo,
             undefined,
-            "fishing"
+            "fishing",
+            "fish-punch"
         )
 
         this.interactionAreas["imageCaptioner"] = new InteractionArea(
@@ -958,7 +961,7 @@ export default class IsometricScene extends Phaser.Scene {
     
         // Load HTML content
         const htmlContent = this.cache.html.get(overlayHtmlKey);
-    
+
         if (!htmlContent) {
             console.error(`Failed to load overlay content '${overlayHtmlKey}'`);
             console.groupEnd();
@@ -975,7 +978,7 @@ export default class IsometricScene extends Phaser.Scene {
         htmlWrapper.style.left = '0';
         htmlWrapper.style.width = '100vw';
         htmlWrapper.style.height = '100vh';
-        htmlWrapper.style.zIndex = '9999';
+        htmlWrapper.style.zIndex = '100';
         htmlWrapper.style.display = 'flex';
         htmlWrapper.style.justifyContent = 'center';
         htmlWrapper.style.alignItems = 'center';
@@ -1001,16 +1004,15 @@ export default class IsometricScene extends Phaser.Scene {
         // Fade in effect (optional)
         htmlWrapper.style.opacity = '0';
         htmlWrapper.style.transition = 'opacity 0.5s ease-in-out';
-                    setTimeout(() => {
+        setTimeout(() => {
             htmlWrapper.style.opacity = '1';
         }, 50);
     
-        // If you still need the "fishing button," append that to body too
         if (!this.fishingButton && areaType === "fishing") {
             this.fishingButton = document.createElement('div');
             this.fishingButton.style.position = 'fixed';
             this.fishingButton.id = 'fishing-button';
-    
+        
             // Desktop vs. mobile sizing
             if (this.game.device.os.desktop) {
                 this.fishingButton.style.top = '10vh';
@@ -1023,18 +1025,21 @@ export default class IsometricScene extends Phaser.Scene {
                 this.fishingButton.style.width = '100px'; 
                 this.fishingButton.style.height = '100px';
             }
-            
+        
             // The rest of your fishing button styling
             this.fishingButton.style.borderRadius = '50%';
             this.fishingButton.style.border = '4px solid #8df7f6';
             this.fishingButton.style.backgroundColor = '#fff'; 
-            this.fishingButton.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.2)'; 
+            this.fishingButton.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.2)';
             this.fishingButton.style.cursor = 'pointer';
-            this.fishingButton.style.zIndex = '1100'; 
+            this.fishingButton.style.zIndex = '1100';
             this.fishingButton.style.display = 'flex';
             this.fishingButton.style.justifyContent = 'center';
             this.fishingButton.style.alignItems = 'center';
-    
+        
+            this.fishingButton.style.opacity = '0';
+            this.fishingButton.style.transition = 'opacity 0.5s ease-in-out';
+        
             const styleTag = document.createElement('style');
             styleTag.innerHTML = `
                 #fishing-button:hover {
@@ -1045,9 +1050,9 @@ export default class IsometricScene extends Phaser.Scene {
             `;
             document.head.appendChild(styleTag);
         
-            // Fishing rod image
+            // The rod image inside the button
             const fishingRodImg = document.createElement('img');
-            fishingRodImg.src = fishingRod; 
+            fishingRodImg.src = fishingRod;
             fishingRodImg.alt = 'Fishing Rod';
             fishingRodImg.style.width = '60%';
             fishingRodImg.style.height = '60%';
@@ -1076,17 +1081,10 @@ export default class IsometricScene extends Phaser.Scene {
                 console.log(`Fishing rod button clicked! ${gameOverlayName}`);
                 this.showGameOverlay(gameOverlayName);
             });
-        
-            this.time.delayedCall(0, () => {
-                if (this.fishingButton) {
-                    this.fishingButton.style.transition = 'opacity 0.5s ease-in-out';
-                    this.fishingButton.style.opacity = '1';
-                }
-            });
         }
     }
     
-
+    
 
     private destroyOverlayWithAnimation(overlayHtmlKey: string): void {
         if (this.overlayElement) {
@@ -1130,4 +1128,83 @@ export default class IsometricScene extends Phaser.Scene {
     private handleXKeyPress(): void {
         Object.values(this.interactionAreas).forEach(area => area.handleInteraction());
     }
-}   
+
+    private showGameOverlay(gameOverlayName: string): void {
+        // If there's an existing game overlay, remove it
+        if (this.gameOverlayElement) {
+            this.destroyGameOverlay(gameOverlayName); // or a dedicated destroy function
+            return;
+        }
+    
+        console.group(`Creating game overlay: ${gameOverlayName}`);
+    
+        // 1) Grab the HTML from the Phaser cache
+        const htmlContent = this.cache.html.get(gameOverlayName);
+        if (!htmlContent) {
+            console.error(`Failed to load game overlay content '${gameOverlayName}'`);
+            console.groupEnd();
+            return;
+        }
+    
+        // 2) Create a <div> wrapper for full-browser coverage
+        const wrapper = document.createElement('div');
+        wrapper.innerHTML = htmlContent;
+    
+        // (A) Position it to fill entire screen
+        wrapper.style.position = 'fixed';
+        wrapper.style.top = '0';
+        wrapper.style.left = '0';
+        wrapper.style.width = '100vw';
+        wrapper.style.height = '100vh';
+        wrapper.style.zIndex = '9999';
+        wrapper.style.display = 'flex';
+        wrapper.style.justifyContent = 'center';
+        wrapper.style.alignItems = 'center';
+    
+        // 3) Append to the actual DOM
+        document.body.appendChild(wrapper);
+    
+        // 4) Keep a reference so we can remove it later
+        this.gameOverlayElement = wrapper;
+    
+        // 5) Set up fade in
+        wrapper.style.opacity = '0';
+        wrapper.style.transition = 'opacity 0.5s ease-in-out';
+        setTimeout(() => {
+            wrapper.style.opacity = '1';
+        }, 50);
+    
+        // 6) Handle the close button
+        const closeButton = wrapper.querySelector('.close-button');
+        if (closeButton) {
+            closeButton.addEventListener('click', () =>
+                this.destroyGameOverlay(gameOverlayName)
+            );
+        } else {
+            console.error('Close button not found in game overlay');
+        }
+    
+        console.groupEnd();
+    }
+
+    private destroyGameOverlay(gameOverlayName: string): void {
+        if (this.gameOverlayElement) {
+            // Fade out
+            this.gameOverlayElement.style.opacity = '1'; 
+            this.gameOverlayElement.style.transition = 'opacity 0.5s ease-in-out';
+            this.gameOverlayElement.style.opacity = '0';
+    
+            // Remove from the DOM after fade
+            setTimeout(() => {
+                if (this.gameOverlayElement && this.gameOverlayElement.parentNode) {
+                    this.gameOverlayElement.parentNode.removeChild(this.gameOverlayElement);
+                }
+                this.gameOverlayElement = null;
+            }, 500);
+        } else {
+            console.warn("No game overlay to destroy.");
+        }
+    }
+    
+    
+}

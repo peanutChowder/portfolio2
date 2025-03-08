@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sandbox Overlay</title>
+    <style>
+        #sandbox-wrapper {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw; 
+            height: 100vh; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: rgba(55, 227, 28, 0.8);
+            z-index: 9999;
+            color: white;
+            font-family: Arial, sans-serif;
+            z-index: 9999;
+        }
+
+        #sandbox-content {
+            width: 100%;
+            height: 100%;
+            background: #1e1e1e;
+            border-radius: 0;
+            box-shadow: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 0;
+            text-align: center;
+            overflow: hidden; 
+        }
+
+        .close-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: #ff5e57;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .close-button:hover {
+            background-color: #ff3b3b;
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body>
+    <div id="sandbox-wrapper">
+        <div id="sandbox-content">
+            <h1>Sandbox Environment</h1>
+            <p>test</p>
+        </div>
+        <button class="close-button">Close</button>
+    </div>
+</body>
+</html>

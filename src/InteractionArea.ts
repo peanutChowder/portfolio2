@@ -26,6 +26,7 @@ export default class InteractionArea {
 
     // fishing attributes
     private areaType: string; // empty string if does nothing
+    private gameOverlayName: string;
 
     private buttonClickHandler: (() => void) | undefined;
 
@@ -43,7 +44,8 @@ export default class InteractionArea {
         floatingTextInfo?: {text: string, offset: {x: number, y: number}, font: string, fontSize: string, color: string},
         markerInfo?: {color: number, radius: number, locationType: string},
         buttonClickHandler?: () => void,
-        areaType: string = ''
+        areaType: string = '',
+        gameOverlayName: string = ''
     ) {
         this.scene = scene;
         this.ellipse = new Phaser.Geom.Ellipse(x, y, width, height);
@@ -75,6 +77,7 @@ export default class InteractionArea {
         }
 
         this.areaType = areaType;
+        this.gameOverlayName = gameOverlayName;
 
         this.initInteractionButton(buttonInfo.text, buttonInfo.font);
     }
@@ -197,7 +200,7 @@ export default class InteractionArea {
             console.info(`Player inside area '${this.displayName}'`);
 
             if (this.buttonClickHandler === undefined) {
-                (this.scene as any).showOverlay(this.overlayName, this.areaType);
+                (this.scene as any).showOverlay(this.overlayName, this.areaType, this.gameOverlayName);
             } else {
                 console.log("click handler")
                 this.buttonClickHandler();
