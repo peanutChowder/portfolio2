@@ -22,7 +22,7 @@ const fontFamilies = {
     "body": ""
 }
 
-const debugMode = true;
+const debugMode = false;
 const debugSpawn = { x: 12441, y: 16104 }
 
 const arrowIndicatorsEnabled = false;
@@ -123,7 +123,7 @@ export default class IsometricScene extends Phaser.Scene {
         this.load.html('experienceOverlay-UAlberta', 'expUAlbertaOverlay.html');
         this.load.html('welcomeOverlay', 'welcomeOverlay.html');
 
-        this.load.html('fish-punch', 'game-overlays/fishPunch.html');
+        this.load.html('fishPunch', 'game-overlays/fishPunch.html');
 
         // load firework animations
         this.fireworkManager.preload()
@@ -479,7 +479,7 @@ export default class IsometricScene extends Phaser.Scene {
             projectMarkerInfo,
             undefined,
             "fishing",
-            "fish-punch"
+            "fishPunch"
         )
 
         this.interactionAreas["imageCaptioner"] = new InteractionArea(
@@ -1130,62 +1130,41 @@ export default class IsometricScene extends Phaser.Scene {
     }
 
     private showGameOverlay(gameOverlayName: string): void {
-        // If there's an existing game overlay, remove it
+        // If there's an existing overlay, remove it
         if (this.gameOverlayElement) {
-            this.destroyGameOverlay(gameOverlayName); // or a dedicated destroy function
+            this.destroyGameOverlay(gameOverlayName); 
             return;
         }
     
         console.group(`Creating game overlay: ${gameOverlayName}`);
     
-        // 1) Grab the HTML from the Phaser cache
-        const htmlContent = this.cache.html.get(gameOverlayName);
-        if (!htmlContent) {
-            console.error(`Failed to load game overlay content '${gameOverlayName}'`);
-            console.groupEnd();
-            return;
-        }
+        // 1) Create an iframe
+        const iframe = document.createElement('iframe');
+        console.log(`../game-overlays/${gameOverlayName}.html`)
+        iframe.src = `../game-overlays/${gameOverlayName}.html`;  // or an absolute/full path if needed
+        iframe.style.position = 'fixed';
+        iframe.style.top = '0';
+        iframe.style.left = '0';
+        iframe.style.width = '100vw';
+        iframe.style.height = '100vh';
+        iframe.style.zIndex = '9999';
+        iframe.style.border = 'none';        // remove default iframe border
+        iframe.allow = "accelerometer; ..."; // if your game needs special perms
     
-        // 2) Create a <div> wrapper for full-browser coverage
-        const wrapper = document.createElement('div');
-        wrapper.innerHTML = htmlContent;
+        // 2) Append to DOM
+        document.body.appendChild(iframe);
+        this.gameOverlayElement = iframe;    // so we can remove it later
     
-        // (A) Position it to fill entire screen
-        wrapper.style.position = 'fixed';
-        wrapper.style.top = '0';
-        wrapper.style.left = '0';
-        wrapper.style.width = '100vw';
-        wrapper.style.height = '100vh';
-        wrapper.style.zIndex = '9999';
-        wrapper.style.display = 'flex';
-        wrapper.style.justifyContent = 'center';
-        wrapper.style.alignItems = 'center';
-    
-        // 3) Append to the actual DOM
-        document.body.appendChild(wrapper);
-    
-        // 4) Keep a reference so we can remove it later
-        this.gameOverlayElement = wrapper;
-    
-        // 5) Set up fade in
-        wrapper.style.opacity = '0';
-        wrapper.style.transition = 'opacity 0.5s ease-in-out';
+        // 3) Optional fade-in
+        iframe.style.opacity = '0';
+        iframe.style.transition = 'opacity 0.5s ease-in-out';
         setTimeout(() => {
-            wrapper.style.opacity = '1';
+            iframe.style.opacity = '1';
         }, 50);
-    
-        // 6) Handle the close button
-        const closeButton = wrapper.querySelector('.close-button');
-        if (closeButton) {
-            closeButton.addEventListener('click', () =>
-                this.destroyGameOverlay(gameOverlayName)
-            );
-        } else {
-            console.error('Close button not found in game overlay');
-        }
     
         console.groupEnd();
     }
+    
 
     private destroyGameOverlay(gameOverlayName: string): void {
         if (this.gameOverlayElement) {

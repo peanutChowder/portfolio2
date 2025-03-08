@@ -1,67 +1,159 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sandbox Overlay</title>
-    <style>
-        #sandbox-wrapper {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100vw; 
-            height: 100vh; 
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-color: rgba(55, 227, 28, 0.8);
-            z-index: 9999;
-            color: white;
-            font-family: Arial, sans-serif;
-            z-index: 9999;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Fish Punch Minigame (Single-File)</title>
+  <style>
+    /* Full-screen container */
+    #sandbox-wrapper {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: rgba(55, 227, 28, 0.8);
+      z-index: 9999;
+      color: white;
+      font-family: Arial, sans-serif;
+    }
 
-        #sandbox-content {
-            width: 100%;
-            height: 100%;
-            background: #1e1e1e;
-            border-radius: 0;
-            box-shadow: none;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 0;
-            text-align: center;
-            overflow: hidden; 
-        }
+    #sandbox-content {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      background: #1e1e1e;
+      border-radius: 0;
+      box-shadow: none;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 0;
+      text-align: center;
+      overflow: hidden;
+    }
 
-        .close-button {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background-color: #ff5e57;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-size: 16px;
-            cursor: pointer;
-            transition: background-color 0.3s ease, transform 0.2s ease;
-        }
+    .close-button {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background-color: #ff5e57;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+    .close-button:hover {
+      background-color: #ff3b3b;
+      transform: scale(1.1);
+    }
 
-        .close-button:hover {
-            background-color: #ff3b3b;
-            transform: scale(1.1);
-        }
-    </style>
+    /* Crosshair in the center */
+    #crosshair {
+      position: absolute;
+      width: 80px;
+      height: 80px;
+      border: 3px solid #fff;
+      border-radius: 50%;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none; /* so clicks pass through it */
+    }
+    #crosshair::before,
+    #crosshair::after {
+      content: "";
+      position: absolute;
+      background: #fff;
+    }
+    #crosshair::before {
+      top: 50%;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      transform: translateY(-50%);
+    }
+    #crosshair::after {
+      left: 50%;
+      top: 0;
+      width: 2px;
+      height: 100%;
+      transform: translateX(-50%);
+    }
+
+    /* The fish placeholder styling */
+    .fish {
+      position: absolute;
+      width: 60px;
+      height: 40px;
+      background-color: #f94;
+      border-radius: 50% 50% 40% 60% / 50% 50% 50% 50%;
+      box-shadow: inset 0 0 0 2px #0004;
+    }
+
+    #fishing-rod-anim {
+      position: absolute;
+      width: 150px;
+      height: 30px;
+      background: #ccc;
+      border-radius: 4px;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) rotate(-45deg) scale(0);
+      transition: transform 0.2s ease-in-out;
+      pointer-events: none; /* not clickable */
+    }
+    #fishing-rod-anim.active {
+      transform: translate(-50%, -50%) rotate(-45deg) scale(1);
+    }
+
+    /* HUD: hits and misses in top-left */
+    #hud {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      font-size: 1.5rem;
+      pointer-events: none;
+    }
+    #hud span {
+      margin-right: 20px;
+    }
+
+    /* Win or lose message */
+    #message {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 3rem;
+      text-align: center;
+      display: none; /* shown on game end */
+      white-space: pre-line;
+    }
+  </style>
 </head>
 <body>
-    <div id="sandbox-wrapper">
-        <div id="sandbox-content">
-            <h1>Sandbox Environment</h1>
-            <p>test</p>
-        </div>
-        <button class="close-button">Close</button>
+  <!-- The entire overlay -->
+  <div id="sandbox-wrapper">
+    <div id="sandbox-content">
+      <div id="crosshair"></div>
+      <div id="fishing-rod-anim"></div>
+      <div id="hud">
+        <span id="hits">Hits: 0</span>
+        <span id="misses">Misses: 0</span>
+      </div>
+      <div id="message"></div>
     </div>
+    <button class="close-button">Close</button>
+  </div>
+
+  <script src="fishPunch.js"></script>
+
 </body>
 </html>
