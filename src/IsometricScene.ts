@@ -40,6 +40,7 @@ export default class IsometricScene extends Phaser.Scene {
 
     // Interaction Area and Overlay attributes 
     private overlay!: Phaser.GameObjects.DOMElement | null;
+    private overlayElement: HTMLElement | null = null;
     private interactionAreas: { [key: string]: InteractionArea } = {};
 
     // Arrows for pointing towards interaction areas
@@ -942,9 +943,13 @@ export default class IsometricScene extends Phaser.Scene {
     }
 
     // @ts-ignore
-    private showOverlay(overlayHtmlKey: string, areaType: string): void {
+    private showOverlay(
+        overlayHtmlKey: string,
+        areaType: string,
+        gameOverlayName: string
+    ): void {
         // Toggle overlay (destroy it) if it is currently shown
-        if (this.overlay) {
+        if (this.overlayElement) {
             this.destroyOverlayWithAnimation(overlayHtmlKey);
             return;
         }
@@ -962,71 +967,64 @@ export default class IsometricScene extends Phaser.Scene {
     
         // Create wrapper
         const htmlWrapper = document.createElement('div');
-        htmlWrapper.style.position = 'absolute';
-        if (this.game.device.os.desktop) {
-            htmlWrapper.style.width = '100%';
-            htmlWrapper.style.height = '100%';
-        } else {
-            htmlWrapper.style.width = '85%';
-            htmlWrapper.style.height = '85%';
-        }
+        htmlWrapper.innerHTML = htmlContent;
+    
+        // Position the overlay to the center of the screen
+        htmlWrapper.style.position = 'fixed';
+        htmlWrapper.style.top = '0';
+        htmlWrapper.style.left = '0';
+        htmlWrapper.style.width = '100vw';
+        htmlWrapper.style.height = '100vh';
+        htmlWrapper.style.zIndex = '9999';
         htmlWrapper.style.display = 'flex';
         htmlWrapper.style.justifyContent = 'center';
         htmlWrapper.style.alignItems = 'center';
-        htmlWrapper.innerHTML = htmlContent;
     
-        // Add the wrapper to the game
-        this.overlay = this.add.dom(0, 0, htmlWrapper);
-        this.overlay.setOrigin(0.38, 0.4);
+        // Append to the actual document body
+        document.body.appendChild(htmlWrapper);
     
-        this.overlay.setScrollFactor(0);
-        this.overlay.setDepth(1000);
-        this.overlay.setScale(1 / this.cameras.main.zoom);
+        // Save a reference so we can remove it later
+        this.overlayElement = htmlWrapper;
     
-        // Close button for overlay
+        // Find the close button in the overlay HTML
         const closeButton = htmlWrapper.querySelector('.close-button');
         if (closeButton) {
-            closeButton.addEventListener('click', () => this.destroyOverlayWithAnimation(overlayHtmlKey));
+            closeButton.addEventListener('click', () =>
+                this.destroyOverlayWithAnimation(overlayHtmlKey)
+            );
         } else {
-            console.error("Close button not found");
+            console.error("Close button not found in overlay");
         }
-    
-        const overlayWrapperDiv = this.overlay.getChildByID('overlay-wrapper') as HTMLElement;
-        overlayWrapperDiv.style.display = 'none';
     
         console.groupEnd();
     
-        this.time.delayedCall(0, () => {
-            if (overlayWrapperDiv) {
-                if (overlayWrapperDiv.style.display === 'none') {
-                    // Fade in animation
-                    overlayWrapperDiv.style.opacity = '0';
-                    overlayWrapperDiv.style.display = 'flex';
-                    overlayWrapperDiv.style.transition = 'opacity 0.5s ease-in-out';
+        // Fade in effect (optional)
+        htmlWrapper.style.opacity = '0';
+        htmlWrapper.style.transition = 'opacity 0.5s ease-in-out';
                     setTimeout(() => {
-                        overlayWrapperDiv.style.opacity = '1';
-                    }, 100);
-                }
-            }
-        });
+            htmlWrapper.style.opacity = '1';
+        }, 50);
     
-        // Add floating fishing rod button
+        // If you still need the "fishing button," append that to body too
         if (!this.fishingButton && areaType === "fishing") {
             this.fishingButton = document.createElement('div');
             this.fishingButton.style.position = 'fixed';
             this.fishingButton.id = 'fishing-button';
+    
+            // Desktop vs. mobile sizing
             if (this.game.device.os.desktop) {
                 this.fishingButton.style.top = '10vh';
                 this.fishingButton.style.left = '5vh';
                 this.fishingButton.style.width = '20vh'; 
                 this.fishingButton.style.height = '20vh';
-            } else{
+            } else {
                 this.fishingButton.style.bottom = '10px';
                 this.fishingButton.style.right = '10px';
                 this.fishingButton.style.width = '100px'; 
                 this.fishingButton.style.height = '100px';
             }
             
+            // The rest of your fishing button styling
             this.fishingButton.style.borderRadius = '50%';
             this.fishingButton.style.border = '4px solid #8df7f6';
             this.fishingButton.style.backgroundColor = '#fff'; 
@@ -1036,18 +1034,18 @@ export default class IsometricScene extends Phaser.Scene {
             this.fishingButton.style.display = 'flex';
             this.fishingButton.style.justifyContent = 'center';
             this.fishingButton.style.alignItems = 'center';
-            const styleTag = document.createElement('style');
     
-            // add on hover effect for fishing button
+            const styleTag = document.createElement('style');
             styleTag.innerHTML = `
                 #fishing-button:hover {
-                    transform: scale(1.3); /* Grows slightly */
-                    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3); /* Increases shadow intensity */
-                    transition: transform 2s ease, box-shadow 2s ease; /* Smooth animation */
+                    transform: scale(1.3);
+                    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+                    transition: transform 2s ease, box-shadow 2s ease;
                 }
             `;
             document.head.appendChild(styleTag);
         
+            // Fishing rod image
             const fishingRodImg = document.createElement('img');
             fishingRodImg.src = fishingRod; 
             fishingRodImg.alt = 'Fishing Rod';
@@ -1056,11 +1054,11 @@ export default class IsometricScene extends Phaser.Scene {
             fishingRodImg.style.objectFit = 'contain';
             fishingRodImg.style.opacity = '0';
             fishingRodImg.style.transition = 'opacity 0.5s ease-in-out';
-    
         
             this.fishingButton.appendChild(fishingRodImg);
             document.body.appendChild(this.fishingButton);
         
+            // Fade in the rod
             this.time.delayedCall(0, () => {
                 if (fishingRodImg) {
                     fishingRodImg.style.opacity = '1';
@@ -1073,10 +1071,10 @@ export default class IsometricScene extends Phaser.Scene {
                 }
             });
         
-            // Add a click event listener (if needed)
+            // If the button is clicked, launch the mini-game or overlay
             this.fishingButton.addEventListener('click', () => {
-                console.log('Fishing rod button clicked!');
-                // TODO: Implement fishing rod functionality
+                console.log(`Fishing rod button clicked! ${gameOverlayName}`);
+                this.showGameOverlay(gameOverlayName);
             });
         
             this.time.delayedCall(0, () => {
@@ -1089,42 +1087,44 @@ export default class IsometricScene extends Phaser.Scene {
     }
     
 
-    private destroyOverlayWithAnimation(overlayHtmlKey: string) {
-        if (this.overlay) {
-            const overlayWrapperDiv = this.overlay.getChildByID('overlay-wrapper') as HTMLElement;
+
+    private destroyOverlayWithAnimation(overlayHtmlKey: string): void {
+        if (this.overlayElement) {
+            // Fade out
+            this.overlayElement.style.opacity = '1'; // ensure it's visible
+            this.overlayElement.style.transition = 'opacity 0.5s ease-in-out';
+            this.overlayElement.style.opacity = '0';
     
-            // Fade out the overlay
-            overlayWrapperDiv.style.opacity = '0';
-            overlayWrapperDiv.style.transition = 'opacity 0.5s ease-in-out';
-    
-            // Prep fishing button for removal
-            if (this.fishingButton) {
-                this.fishingButton.style.opacity = '0';
-                this.fishingButton.style.transition = 'opacity 0.5s ease-in-out';
-            }
-    
+            // After fade, remove from body
             setTimeout(() => {
-                overlayWrapperDiv.style.display = 'none';
+                if (this.overlayElement && this.overlayElement.parentNode) {
+                    this.overlayElement.parentNode.removeChild(this.overlayElement);
+                }
+                this.overlayElement = null;
+    
+                // Also remove fishing button if needed
                 if (this.fishingButton) {
                     this.fishingButton.remove();
                     this.fishingButton = null;
-                }
-                if (this.overlay) {
-                    this.overlay.destroy();
-                    this.overlay = null;
                 }
             }, 500);
         } else {
             console.warn("No overlay destroyed: currently null");
         }
     
-        const interactionArea = Object.values(this.interactionAreas).find(child => child["overlayName"] === overlayHtmlKey);
+        // Re-enable the button if needed
+        const interactionArea = Object.values(this.interactionAreas).find(
+            child => child["overlayName"] === overlayHtmlKey
+        );
         if (interactionArea) {
             interactionArea.setIgnoreButtonClick(false);
         } else {
-            console.error(`Could not re-enable button after overlay ${overlayHtmlKey} closed.`);
+            console.error(
+                `Could not re-enable button after overlay ${overlayHtmlKey} closed.`
+            );
         }
     }
+    
     
 
     private handleXKeyPress(): void {
