@@ -1,12 +1,12 @@
 function initFishGame() {
     console.log("Fish punch is starting!");
 
-    const CROSSHAIR_RADIUS = 40; 
+    const CROSSHAIR_RADIUS = 50; 
     const FISH_WIDTH = 60;
     const FISH_HEIGHT = 40;
     const FISH_SPAWN_INTERVAL = 1500; // ms
     const MIN_SPEED = 80;  // px/sec
-    const MAX_SPEED = 180; // px/sec
+    const MAX_SPEED = 220; // px/sec
     const MAX_HITS = 5;
     const MAX_MISSES = 3;
 
@@ -110,7 +110,7 @@ function initFishGame() {
         fishEl.src = "../../assets/fish-sprites/1.png"; 
     
         const direction = Math.random() < 0.5 ? 0 : 1;
-        const randomY = randInt(50, containerHeight - 50);
+        const randomY = randInt((containerHeight / 2 - 200), (containerHeight / 2 + 200));
         let startX = direction === 0 ? -FISH_WIDTH : containerWidth;
         let endX = direction === 0 ? containerWidth : -FISH_WIDTH;
     
