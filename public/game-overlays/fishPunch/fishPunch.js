@@ -13,6 +13,8 @@ function initFishGame() {
     let hits = 0;
     let misses = 0;
     let gameOver = false;
+    let gameStarted = false; // Track if the game has started
+    let spawnIntervalId = null;
 
     const sandboxContent = document.getElementById('sandbox-content');
     const hudHits = document.getElementById('hits');
@@ -35,7 +37,7 @@ function initFishGame() {
     fishingRod.src = "../../assets/fishing/rod_ingame.png"; // Default to resting state
     sandboxContent.appendChild(fishingRod);
 
-    // Create messages to indicate fish hit/miss
+    // Create game message element for instructions & status updates
     const gameMessage = document.createElement("div");
     gameMessage.id = "game-message";
     gameMessage.style.position = "absolute";
@@ -43,12 +45,13 @@ function initFishGame() {
     gameMessage.style.left = "50%";
     gameMessage.style.transform = "translate(-50%, -50%)";
     gameMessage.style.fontSize = "2rem";
-    gameMessage.style.fontFamily = "'Prompt', Arial, sans-serif"; 
+    gameMessage.style.fontFamily = "'Prompt', Arial, sans-serif";
     gameMessage.style.color = "white";
     gameMessage.style.textAlign = "center";
     gameMessage.style.pointerEvents = "none"; // Don't block clicks
-    gameMessage.style.opacity = "0"; // Hidden by default
+    gameMessage.style.opacity = "1"; // Visible initially
     gameMessage.style.transition = "opacity 0.5s ease-in-out";
+    gameMessage.textContent = "Click when the fish enter the target circle to capture fish. Make sure not to spam the fishing rod to not scare away the fish! Click to begin.";
     sandboxContent.appendChild(gameMessage);
 
     function showGameMessage(text) {
@@ -61,14 +64,26 @@ function initFishGame() {
         }, 1500);
     }
 
-    // Start spawning fish
-    console.log("Starting fish spawn interval...");
-    const spawnIntervalId = setInterval(spawnFish, FISH_SPAWN_INTERVAL);
+    // Listen for first click to start the game
+    sandboxContent.addEventListener('pointerdown', startGame, { once: true });
 
-    // Listen for clicks
-    sandboxContent.addEventListener('pointerdown', onPointerDown);
+    function startGame() {
+        gameStarted = true;
+        console.log("Game started!");
+
+        // Hide the instruction message
+        gameMessage.style.opacity = "0";
+
+        // Start spawning fish
+        spawnIntervalId = setInterval(spawnFish, FISH_SPAWN_INTERVAL);
+
+        // Replace event listener for gameplay clicks
+        sandboxContent.addEventListener('pointerdown', onPointerDown);
+    }
 
     function onPointerDown(e) {
+        if (!gameStarted || gameOver) return; // Ignore clicks before game starts or after it ends
+
         // Set to casting state
         fishingRod.classList.add("casting");
     
@@ -76,9 +91,7 @@ function initFishGame() {
         setTimeout(() => {
             fishingRod.classList.remove("casting");
         }, 400);
-    
-        if (gameOver) return;
-    
+
         let hitSomething = false;
         const rect = sandboxContent.getBoundingClientRect();
         const crosshairCenterX = rect.width / 2;
@@ -153,10 +166,10 @@ function initFishGame() {
     
 
     function spawnFish() {
-        if (gameOver) return;
-    
-        console.log(" Spawning Fish...");
-    
+        if (gameOver || !gameStarted) return;
+
+        console.log("Spawning Fish...");
+
         const rect = sandboxContent.getBoundingClientRect();
         const containerWidth = rect.width;
         const containerHeight = rect.height;
