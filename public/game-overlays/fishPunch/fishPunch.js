@@ -105,8 +105,8 @@ function initFishGame() {
         const containerWidth = rect.width;
         const containerHeight = rect.height;
     
-        const fishEl = document.createElement('img');
-        fishEl.classList.add('fish');
+        const fishEl = document.createElement("img");
+        fishEl.classList.add("fish");
         fishEl.src = "../../assets/fish-sprites/1.png"; 
     
         const direction = Math.random() < 0.5 ? 0 : 1;
@@ -114,19 +114,21 @@ function initFishGame() {
         let startX = direction === 0 ? -FISH_WIDTH : containerWidth;
         let endX = direction === 0 ? containerWidth : -FISH_WIDTH;
     
-        fishEl.style.top = randomY + 'px';
-        fishEl.style.left = startX + 'px';
+        fishEl.style.top = randomY + "px";
+        fishEl.style.left = startX + "px";
     
         // Flip the fish when moving right
         if (direction === 1) {
             fishEl.style.transform = "scale(2)";
         } else {
-            fishEl.style.transform = "scale(-2, 2)"; // Flip the image horizontally
+            fishEl.style.transform = "scale(-2, 2)";
         }
     
         sandboxContent.appendChild(fishEl);
     
         const speed = randInt(MIN_SPEED, MAX_SPEED);
+        const oscillationRate = randInt(2, 6); 
+        const oscillationAmplitude = randInt(5, 20); // Vertical movement range (px)
         let startTime = null;
     
         function animateFish(timestamp) {
@@ -150,13 +152,18 @@ function initFishGame() {
                 } else {
                     newX = startX - (startX - endX) * fraction;
                 }
-                fishEl.style.left = newX + 'px';
+    
+                // Unique oscillation per fish
+                const verticalOffset = Math.sin(elapsed * oscillationRate) * oscillationAmplitude;
+                fishEl.style.top = (randomY + verticalOffset) + "px";
+                fishEl.style.left = newX + "px";
                 requestAnimationFrame(animateFish);
             }
         }
     
         requestAnimationFrame(animateFish);
     }
+    
     // Close button removes overlay
     document.querySelector('.close-button')?.addEventListener('click', () => {
         document.getElementById('sandbox-wrapper')?.remove();
