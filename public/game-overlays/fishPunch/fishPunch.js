@@ -88,49 +88,65 @@ function initFishGame() {
 
     function spawnFish() {
         if (gameOver) return;
-
-        console.log("🐟 Spawning Fish...");
-
+    
+        console.log(" Spawning Fish...");
+    
         const rect = sandboxContent.getBoundingClientRect();
         const containerWidth = rect.width;
         const containerHeight = rect.height;
-
-        const fishEl = document.createElement('div');
+    
+        const fishEl = document.createElement('img');
         fishEl.classList.add('fish');
-
+        fishEl.src = "../../assets/fish-sprites/1.png"; 
+    
         const direction = Math.random() < 0.5 ? 0 : 1;
         const randomY = randInt(50, containerHeight - 50);
         let startX = direction === 0 ? -FISH_WIDTH : containerWidth;
         let endX = direction === 0 ? containerWidth : -FISH_WIDTH;
-
+    
         fishEl.style.top = randomY + 'px';
         fishEl.style.left = startX + 'px';
+    
+        // Flip the fish when moving right
+        if (direction === 1) {
+            fishEl.style.transform = "scale(2)";
+        } else {
+            fishEl.style.transform = "scale(-2, 2)"; // Flip the image horizontally
+        }
+    
         sandboxContent.appendChild(fishEl);
-
+    
         const speed = randInt(MIN_SPEED, MAX_SPEED);
         let startTime = null;
-
+    
         function animateFish(timestamp) {
             if (!startTime) startTime = timestamp;
             const elapsed = (timestamp - startTime) / 1000;
             const dist = speed * elapsed;
-            let fraction = direction === 0
-                ? dist / (endX - startX)
-                : dist / (startX - endX);
-
+    
+            let fraction;
+            if (direction === 0) {
+                fraction = dist / (endX - startX);
+            } else {
+                fraction = dist / (startX - endX);
+            }
+    
             if (fraction >= 1) {
                 fishEl.remove();
             } else {
-                fishEl.style.left = direction === 0
-                    ? `${startX + (endX - startX) * fraction}px`
-                    : `${startX - (startX - endX) * fraction}px`;
+                let newX;
+                if (direction === 0) {
+                    newX = startX + (endX - startX) * fraction;
+                } else {
+                    newX = startX - (startX - endX) * fraction;
+                }
+                fishEl.style.left = newX + 'px';
                 requestAnimationFrame(animateFish);
             }
         }
-
+    
         requestAnimationFrame(animateFish);
     }
-
     // Close button removes overlay
     document.querySelector('.close-button')?.addEventListener('click', () => {
         document.getElementById('sandbox-wrapper')?.remove();
@@ -139,9 +155,9 @@ function initFishGame() {
 
 // Run `initFishGame()` immediately if DOM is ready
 if (document.readyState === "loading") {
-    console.log("⏳ Waiting for DOM...");
+    console.log(" Waiting for DOM...");
     document.addEventListener("DOMContentLoaded", initFishGame);
 } else {
-    console.log("✅ DOM already loaded! Running initFishGame immediately.");
+    console.log(" DOM already loaded! Running initFishGame immediately.");
     initFishGame();
 }
