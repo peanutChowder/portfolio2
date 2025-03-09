@@ -273,6 +273,15 @@ export default class IsometricScene extends Phaser.Scene {
                 this.boat.setJoystickDirectionGetter(() => this.joystick.getDirection())
             }
 
+            window.addEventListener("message", (event) => {
+                if (event.data?.type === "destroyGameOverlay") {
+                    let overlayName = event.data?.overlayName;
+                    console.log(`Received destroyGameOverlay event for overlay: ${overlayName}`);
+                    this.destroyGameOverlay(overlayName);  // Call the correct destroy function
+                }
+            });
+            
+
             if (debugMode) {
                 // Add debug info
                 this.add.text(10, 10, `Map dimensions: ${worldWidth}x${worldHeight}`, { color: fontColor, font: fontSize });
