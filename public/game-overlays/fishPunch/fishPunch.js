@@ -1,5 +1,5 @@
 function initFishGame() {
-    console.log(" Fish punch is starting!");
+    console.log("Fish punch is starting!");
 
     const CROSSHAIR_RADIUS = 40; 
     const FISH_WIDTH = 60;
@@ -18,8 +18,6 @@ function initFishGame() {
     const hudHits = document.getElementById('hits');
     const hudMisses = document.getElementById('misses');
     const message = document.getElementById('message');
-    const fishingRodAnim = document.getElementById('fishing-rod-anim');
-
 
     if (!sandboxContent) {
         console.error("sandbox-content not found! JavaScript may be executing before DOM is loaded.");
@@ -30,6 +28,12 @@ function initFishGame() {
     function randInt(min, max) {
         return Math.floor(Math.random() * (max - min + 1)) + min;
     }
+    
+    // Create the fishing rod element
+    const fishingRod = document.createElement('img');
+    fishingRod.id = "fishing-rod";
+    fishingRod.src = "../../assets/fishing/rod_ingame.png"; // Default to resting state
+    sandboxContent.appendChild(fishingRod);
 
     // Start spawning fish
     console.log("Starting fish spawn interval...");
@@ -39,10 +43,15 @@ function initFishGame() {
     sandboxContent.addEventListener('pointerdown', onPointerDown);
 
     function onPointerDown(e) {
-        if (gameOver) return;
+        // Set to casting state
+        fishingRod.classList.add('casting');
 
-        fishingRodAnim.classList.add('active');
-        setTimeout(() => fishingRodAnim.classList.remove('active'), 200);
+        // Restore to resting state after animation
+        setTimeout(() => {
+            fishingRod.classList.remove('casting');
+        }, 400);
+
+        if (gameOver) return;
 
         let hitSomething = false;
         const rect = sandboxContent.getBoundingClientRect();
@@ -72,6 +81,7 @@ function initFishGame() {
             if (misses >= MAX_MISSES) showEndMessage(false);
         }
     }
+
 
     function updateHUD() {
         hudHits.textContent = `Hits: ${hits}`;

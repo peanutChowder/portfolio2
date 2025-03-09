@@ -93,6 +93,25 @@
       border: none;
     }
 
+    /*  Fishing Rod Default Position */
+    #fishing-rod {
+        position: absolute;
+        width: 180px; /* Adjust as needed */
+        bottom: 5vh;
+        right: 5vw;
+        transform: rotate(-10deg); /* Angled like a real fishing rod */
+        transition: transform 0.2s ease-in-out;
+    }
+
+    /* Casting Animation */
+    #fishing-rod.casting {
+      position: absolute;
+      transform: translate(-10vw, -10vw) rotate(-50deg) scale(1.5); /* Extends toward center */
+      bottom: 5vh;
+      right: 5vw;
+    }
+
+
     #fishing-rod-anim {
       position: absolute;
       width: 150px;
