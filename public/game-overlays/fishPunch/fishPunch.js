@@ -35,6 +35,32 @@ function initFishGame() {
     fishingRod.src = "../../assets/fishing/rod_ingame.png"; // Default to resting state
     sandboxContent.appendChild(fishingRod);
 
+    // Create messages to indicate fish hit/miss
+    const gameMessage = document.createElement("div");
+    gameMessage.id = "game-message";
+    gameMessage.style.position = "absolute";
+    gameMessage.style.top = "30%";
+    gameMessage.style.left = "50%";
+    gameMessage.style.transform = "translate(-50%, -50%)";
+    gameMessage.style.fontSize = "2rem";
+    gameMessage.style.fontFamily = "'Prompt', Arial, sans-serif"; 
+    gameMessage.style.color = "white";
+    gameMessage.style.textAlign = "center";
+    gameMessage.style.pointerEvents = "none"; // Don't block clicks
+    gameMessage.style.opacity = "0"; // Hidden by default
+    gameMessage.style.transition = "opacity 0.5s ease-in-out";
+    sandboxContent.appendChild(gameMessage);
+
+    function showGameMessage(text) {
+        gameMessage.textContent = text;
+        gameMessage.style.opacity = "1";
+
+        // Hide the message after 1.5 seconds
+        setTimeout(() => {
+            gameMessage.style.opacity = "0";
+        }, 1500);
+    }
+
     // Start spawning fish
     console.log("Starting fish spawn interval...");
     const spawnIntervalId = setInterval(spawnFish, FISH_SPAWN_INTERVAL);
@@ -44,41 +70,51 @@ function initFishGame() {
 
     function onPointerDown(e) {
         // Set to casting state
-        fishingRod.classList.add('casting');
-
+        fishingRod.classList.add("casting");
+    
         // Restore to resting state after animation
         setTimeout(() => {
-            fishingRod.classList.remove('casting');
+            fishingRod.classList.remove("casting");
         }, 400);
-
+    
         if (gameOver) return;
-
+    
         let hitSomething = false;
         const rect = sandboxContent.getBoundingClientRect();
         const crosshairCenterX = rect.width / 2;
         const crosshairCenterY = rect.height / 2;
-
-        document.querySelectorAll('.fish').forEach(fishEl => {
+    
+        document.querySelectorAll(".fish").forEach(fishEl => {
             const fishRect = fishEl.getBoundingClientRect();
             const fishCenterX = fishRect.left - rect.left + fishRect.width / 2;
             const fishCenterY = fishRect.top - rect.top + fishRect.height / 2;
             const dx = fishCenterX - crosshairCenterX;
             const dy = fishCenterY - crosshairCenterY;
             const dist = Math.sqrt(dx * dx + dy * dy);
-
+    
             if (dist < CROSSHAIR_RADIUS) {
                 hitSomething = true;
                 hits++;
                 updateHUD();
                 fishEl.remove();
-                if (hits >= MAX_HITS) showEndMessage(true);
+    
+                if (hits >= MAX_HITS) {
+                    showEndMessage(true);
+                } else {
+                    showGameMessage(`${MAX_HITS - hits} more fish to go!`);
+                }
             }
         });
-
+    
         if (!hitSomething) {
             misses++;
             updateHUD();
-            if (misses >= MAX_MISSES) showEndMessage(false);
+    
+            if (misses >= MAX_MISSES) {
+                showEndMessage(false);
+            } else {
+                showGameMessage(`The fish have been spooked! ${MAX_MISSES - misses} more tries left`);
+            }
         }
     }
 
@@ -91,10 +127,30 @@ function initFishGame() {
     function showEndMessage(won) {
         gameOver = true;
         message.style.display = 'block';
-        message.textContent = won ? 'YOU WIN!' : 'YOU LOSE!';
+        message.textContent = won ? 'FISH ACQUIRED!' : 'THE FISH WERE SPOOKED AWAY!';
         clearInterval(spawnIntervalId);
+        const crosshair = document.getElementById('crosshair');
+        if (crosshair) {
+            crosshair.style.display = 'none'
+        }
         document.querySelectorAll('.fish').forEach(el => el.remove());
+    
+        if (won) {
+            // Create and display the caught fish image
+            const caughtFish = document.createElement("img");
+            caughtFish.src = "../../assets/fish-sprites/1.png";
+            caughtFish.style.position = "absolute";
+            caughtFish.style.top = "65%"; 
+            caughtFish.style.left = "50%";
+            caughtFish.style.transform = "translate(-50%, -50%)";
+            caughtFish.style.width = "150px"; 
+            caughtFish.style.height = "auto";
+    
+            // Append it to the sandbox content
+            sandboxContent.appendChild(caughtFish);
+        }
     }
+    
 
     function spawnFish() {
         if (gameOver) return;
