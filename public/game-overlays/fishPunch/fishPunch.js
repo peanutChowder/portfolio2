@@ -233,10 +233,10 @@ function initFishGame() {
         requestAnimationFrame(animateFish);
     }
     
-    // Close button removes overlay
+    // Close button sends message to phaser
     document.querySelector('.close-button')?.addEventListener('click', () => {
-        document.getElementById('sandbox-wrapper')?.remove();
-    });
+        window.parent.postMessage({ type: "destroyGameOverlay", overlayName: "fishPunch" }, "*");
+    });    
 }
 
 // Run `initFishGame()` immediately if DOM is ready
