@@ -93,7 +93,7 @@ function initFishGame() {
 
     function onPointerDown(e) {
         if (!gameStarted || gameOver) return; // Ignore clicks before game starts or after it ends
-
+    
         // Set to casting state
         fishingRod.classList.add("casting");
     
@@ -101,7 +101,7 @@ function initFishGame() {
         setTimeout(() => {
             fishingRod.classList.remove("casting");
         }, 400);
-
+    
         let hitSomething = false;
         const rect = sandboxContent.getBoundingClientRect();
         const crosshairCenterX = rect.width / 2;
@@ -119,6 +119,10 @@ function initFishGame() {
                 hitSomething = true;
                 hits++;
                 updateHUD();
+    
+                // Create a CSS-based splash effect at the fish position
+                createSplashEffect(fishCenterX, fishCenterY);
+    
                 fishEl.remove();
     
                 if (hits >= MAX_HITS) {
@@ -133,12 +137,49 @@ function initFishGame() {
             misses++;
             updateHUD();
     
+            // Show red "X" miss animation
+            createMissEffect(crosshairCenterX, crosshairCenterY);
+    
             if (misses >= MAX_MISSES) {
                 showEndMessage(false);
             } else {
                 showGameMessage(`The fish have been spooked! ${MAX_MISSES - misses} more tries left`);
             }
         }
+    }
+
+    function createMissEffect(x, y) {
+        const missX = document.createElement("div");
+        missX.textContent = "✖";
+        missX.style.position = "absolute";
+        missX.style.left = `${x}px`;
+        missX.style.top = `${y}px`;
+        missX.style.transform = "translate(-50%, -50%)";
+        missX.style.fontSize = "4rem";
+        missX.style.color = "red";
+        missX.style.opacity = "1";
+        missX.style.transition = "opacity 0.6s ease-out, transform 0.6s ease-out";
+    
+        sandboxContent.appendChild(missX);
+    
+        // Animate (fade out and scale)
+        setTimeout(() => {
+            missX.style.opacity = "0";
+            missX.style.transform = "translate(-50%, -50%) scale(1.5)";
+            setTimeout(() => missX.remove(), 600);
+        }, 100);
+    }
+
+    function createSplashEffect(x, y) {
+        const splash = document.createElement("div");
+        splash.classList.add("splash-effect");
+        splash.style.left = `${x}px`;
+        splash.style.top = `${y}px`;
+    
+        sandboxContent.appendChild(splash);
+    
+        // Remove after animation
+        setTimeout(() => splash.remove(), 600);
     }
 
 

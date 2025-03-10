@@ -144,6 +144,35 @@
       display: none; /* shown on game end */
       white-space: pre-line;
     }
+
+    /* Splash Animations */
+    .splash-effect {
+        position: absolute;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.8);
+        box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 1;
+        animation: splash 0.6s ease-out forwards;
+    }
+
+    @keyframes splash {
+        0% {
+            transform: translate(-50%, -50%) scale(0);
+            opacity: 1;
+        }
+        50% {
+            transform: translate(-50%, -50%) scale(1.5);
+            opacity: 0.8;
+        }
+        100% {
+            transform: translate(-50%, -50%) scale(2);
+            opacity: 0;
+        }
+    }
+
   </style>
 </head>
 <body>
