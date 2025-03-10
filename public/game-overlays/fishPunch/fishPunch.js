@@ -1,3 +1,5 @@
+import { getRandomFishByCost } from "../fishData.ts";
+
 function initFishGame() {
     console.log("Fish punch is starting!");
 
@@ -21,6 +23,8 @@ function initFishGame() {
     const hudMisses = document.getElementById('misses');
     const message = document.getElementById('message');
 
+    let selectedFish = null;
+
     if (!sandboxContent) {
         console.error("sandbox-content not found! JavaScript may be executing before DOM is loaded.");
         return;
@@ -34,8 +38,14 @@ function initFishGame() {
     // Create the fishing rod element
     const fishingRod = document.createElement('img');
     fishingRod.id = "fishing-rod";
-    fishingRod.src = "../../assets/fishing/rod_ingame.png"; // Default to resting state
+    fishingRod.src = "../../assets/fishing/rod_ingame.png";
     sandboxContent.appendChild(fishingRod);
+
+    // Select a fish
+    selectedFish = getRandomFishByCost();
+    console.log(`Selected fish: ${selectedFish.id}`);
+
+    console.log(selectedFish);
 
     // Create game message element for instructions & status updates
     const gameMessage = document.createElement("div");
@@ -142,16 +152,17 @@ function initFishGame() {
         message.style.display = 'block';
         message.textContent = won ? 'FISH ACQUIRED!' : 'THE FISH WERE SPOOKED AWAY!';
         clearInterval(spawnIntervalId);
+        
         const crosshair = document.getElementById('crosshair');
         if (crosshair) {
             crosshair.style.display = 'none'
         }
         document.querySelectorAll('.fish').forEach(el => el.remove());
     
-        if (won) {
+        if (won) {    
             // Create and display the caught fish image
             const caughtFish = document.createElement("img");
-            caughtFish.src = "../../assets/fish-sprites/1.png";
+            caughtFish.src = `../../assets/fish-sprites/${selectedFish.id}.png`;
             caughtFish.style.position = "absolute";
             caughtFish.style.top = "65%"; 
             caughtFish.style.left = "50%";
@@ -159,8 +170,21 @@ function initFishGame() {
             caughtFish.style.width = "150px"; 
             caughtFish.style.height = "auto";
     
-            // Append it to the sandbox content
+            // Create text below the fish image
+            const fishText = document.createElement("div");
+            fishText.textContent = `You have caught ${selectedFish.name}!`;
+            fishText.style.position = "absolute";
+            fishText.style.top = "70%"; // Position below the fish
+            fishText.style.left = "50%";
+            fishText.style.transform = "translate(-50%, -50%)";
+            fishText.style.fontSize = "1.5rem";
+            fishText.style.fontFamily = "'Prompt', Arial, sans-serif";
+            fishText.style.color = "white";
+            fishText.style.textAlign = "center";
+    
+            // Append both elements to the sandbox content
             sandboxContent.appendChild(caughtFish);
+            sandboxContent.appendChild(fishText);
         }
     }
     
@@ -176,7 +200,7 @@ function initFishGame() {
     
         const fishEl = document.createElement("img");
         fishEl.classList.add("fish");
-        fishEl.src = "../../assets/fish-sprites/1.png"; 
+        fishEl.src = `../../assets/fish-sprites/${selectedFish.id}.png`; 
     
         const direction = Math.random() < 0.5 ? 0 : 1;
         const randomY = randInt((containerHeight / 2 - 200), (containerHeight / 2 + 200));
