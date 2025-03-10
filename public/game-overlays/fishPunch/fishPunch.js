@@ -16,6 +16,7 @@ function initFishGame() {
     let misses = 0;
     let gameOver = false;
     let gameStarted = false; // Track if the game has started
+    let gameStatus = "nostart"; // One of three values: "nostart", "won", "lost"
     let spawnIntervalId = null;
 
     const sandboxContent = document.getElementById('sandbox-content');
@@ -192,6 +193,7 @@ function initFishGame() {
         gameOver = true;
         message.style.display = 'block';
         message.textContent = won ? 'FISH ACQUIRED!' : 'THE FISH WERE SPOOKED AWAY!';
+        gameStatus = won ? "won" : "lost";
         clearInterval(spawnIntervalId);
         
         const crosshair = document.getElementById('crosshair');
@@ -300,7 +302,7 @@ function initFishGame() {
     
     // Close button sends message to phaser
     document.querySelector('.close-button')?.addEventListener('click', () => {
-        window.parent.postMessage({ type: "destroyGameOverlay", overlayName: "fishPunch" }, "*");
+        window.parent.postMessage({ type: "destroyGameOverlay", overlayName: "fishPunch", result: gameStatus}, "*");
     });    
 }
 
