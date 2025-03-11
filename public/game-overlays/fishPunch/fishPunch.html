@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;700&display=swap" rel="stylesheet">
+
+  <title>Fish Punch Minigame</title>
+  <style>
+    /* Full-screen container */
+    #sandbox-wrapper {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: rgba(55, 227, 28, 0.8);
+      z-index: 9999;
+      color: white;
+      font-family: 'Prompt', Arial, sans-serif;
+    }
+    
+    #game-message, #hud, #message, .close-button {
+      font-family: 'Prompt', Arial, sans-serif;
+    }
+
+    #sandbox-content {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      background: #64e9de;
+      border-radius: 0;
+      box-shadow: none;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 0;
+      text-align: center;
+      overflow: hidden;
+    }
+
+    .close-button {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background-color: #ff5e57;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+    .close-button:hover {
+      background-color: #ff3b3b;
+      transform: scale(1.1);
+    }
+
+    /* Crosshair in the center */
+    #crosshair {
+      position: absolute;
+      width: 100px;
+      height: 100px;
+      border: 3px solid #fff;
+      border-radius: 50%;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none; /* so clicks pass through it */
+    }
+    #crosshair::before,
+    #crosshair::after {
+      content: "";
+      position: absolute;
+      background: #fff;
+    }
+
+    .fish {
+      position: absolute;
+      background: transparent;
+      border: none;
+    }
+
+    /*  Fishing Rod Default Position */
+    #fishing-rod {
+        position: absolute;
+        width: 180px; /* Adjust as needed */
+        bottom: 5vh;
+        right: 5vw;
+        transform: rotate(-10deg); /* Angled like a real fishing rod */
+        transition: transform 0.2s ease-in-out;
+        z-index: 50;
+    }
+
+    /* Casting Animation */
+    #fishing-rod.casting {
+      position: absolute;
+      transform: translate(-10vw, -10vw) rotate(-50deg) scale(1.5); /* Extends toward center */
+      bottom: 5vh;
+      right: 5vw;
+    }
+
+
+    #fishing-rod-anim {
+      position: absolute;
+      width: 150px;
+      height: 30px;
+      background: #ccc;
+      border-radius: 4px;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) rotate(-45deg) scale(0);
+      transition: transform 0.2s ease-in-out;
+      pointer-events: none; /* not clickable */
+    }
+    #fishing-rod-anim.active {
+      transform: translate(-50%, -50%) rotate(-45deg) scale(1);
+    }
+
+    /* HUD: hits and misses in top-left */
+    #hud {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      font-size: 1.5rem;
+      pointer-events: none;
+    }
+    #hud span {
+      margin-right: 20px;
+    }
+
+    /* Win or lose message */
+    #message {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 3rem;
+      text-align: center;
+      display: none; /* shown on game end */
+      white-space: pre-line;
+    }
+
+    /* Splash Animations */
+    .splash-effect {
+        position: absolute;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.8);
+        box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 1;
+        animation: splash 0.6s ease-out forwards;
+    }
+
+    @keyframes splash {
+        0% {
+            transform: translate(-50%, -50%) scale(0);
+            opacity: 1;
+        }
+        50% {
+            transform: translate(-50%, -50%) scale(1.5);
+            opacity: 0.8;
+        }
+        100% {
+            transform: translate(-50%, -50%) scale(2);
+            opacity: 0;
+        }
+    }
+
+  </style>
+</head>
+<body>
+  <!-- The entire overlay -->
+  <div id="sandbox-wrapper">
+    <div id="sandbox-content">
+      <div id="crosshair"></div>
+      <div id="fishing-rod-anim"></div>
+      <div id="hud">
+        <span id="hits">Hits: 0</span>
+        <span id="misses">Misses: 0</span>
+      </div>
+      <div id="message"></div>
+    </div>
+    <button class="close-button">Close</button>
+  </div>
+
+  <script type="module" src="fishPunch.js"></script>
+
+</body>
+</html>
