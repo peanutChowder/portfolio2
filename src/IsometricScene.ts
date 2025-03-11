@@ -71,8 +71,9 @@ export default class IsometricScene extends Phaser.Scene {
     private energyDrainRate: number = 1; // Drain rate per tiles
     private energyBarX = 1000;
     private energyBarY = 1000;
-    private energyBarWidth = 800;
+    private energyBarWidth = 900;
     private energyBarHeight = 50;
+    private energyBarText!: Phaser.GameObjects.Text;
 
 
     private fireworkManager!: FireworkManager
@@ -326,9 +327,9 @@ export default class IsometricScene extends Phaser.Scene {
             "Canvas size:", this.game.canvas.width, this.game.canvas.height,
             "Window.innerWidth/innerHeight:", window.innerWidth, window.innerHeight
           );
-          
 
-        this.energyBarX = this.cameras.main.centerX + (this.cameras.main.width / (2 * this.cameras.main.zoom)) - (this.energyBarWidth * 1.035) // multiplied by some (seemingly) arbitrary constant i had to brute force lol
+        this.energyBarWidth = this.mapSystem.getMinimapWidth();
+        this.energyBarX = this.cameras.main.centerX + (this.cameras.main.width / (2 * this.cameras.main.zoom)) - (this.energyBarWidth * 1.025) // multiplied by some (seemingly) arbitrary constant i had to brute force lol
         this.energyBarY = this.mapSystem.getMapBottomRight().y * 0.95 // another arbitrary brute forced constant
 
         console.log(this.energyBarX, this.energyBarY, this.cameras.main.zoomX)
@@ -344,6 +345,14 @@ export default class IsometricScene extends Phaser.Scene {
         this.energyBar.fillStyle(0x00ff00, 1);
         this.energyBar.fillRect(0, 0, this.energyBarWidth, this.energyBarHeight);
         this.energyBar.setScrollFactor(0); // Fix it to the screen
+    
+        // Energy bar Label
+        this.energyBarText = this.add.text(this.energyBarX, this.energyBarY + this.energyBarHeight, 'Energy', {
+            color: 'white',
+            fontFamily: 'Prompt',
+            fontSize: '80px',
+        });
+        this.energyBarText.setScrollFactor(0);
     
         // Move to correct position
         this.energyBarBackground.setPosition(this.energyBarX, this.energyBarY);

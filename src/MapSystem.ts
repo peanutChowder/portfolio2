@@ -189,6 +189,10 @@ export class MapSystem extends Phaser.GameObjects.Container {
         });
     }
 
+    public getMinimapWidth(): number {
+        return this.mapSize;
+    }
+
     private drawBoatMarker(): void {
         this.boatMarker.clear();
         this.boatMarker.fillStyle(0xff0000);
