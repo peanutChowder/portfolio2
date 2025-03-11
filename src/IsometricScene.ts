@@ -326,7 +326,7 @@ export default class IsometricScene extends Phaser.Scene {
           );
           
 
-        this.energyBarX = this.cameras.main.centerX + (this.cameras.main.width / (2 * this.cameras.main.zoom)) - (this.energyBarWidth * 1.028) // multiplied by some (seemingly) arbitrary constant i had to brute force lol
+        this.energyBarX = this.cameras.main.centerX + (this.cameras.main.width / (2 * this.cameras.main.zoom)) - (this.energyBarWidth * 1.035) // multiplied by some (seemingly) arbitrary constant i had to brute force lol
         this.energyBarY = this.mapSystem.getMapBottomRight().y * 0.95 // another arbitrary brute forced constant
 
         console.log(this.energyBarX, this.energyBarY, this.cameras.main.zoomX)
