@@ -71,7 +71,7 @@ export default class IsometricScene extends Phaser.Scene {
     private energyDrainRate: number = 1; // Drain rate per tiles
     private energyBarX = 1000;
     private energyBarY = 1000;
-    private energyBarWidth = 200;
+    private energyBarWidth = 800;
     private energyBarHeight = 50;
 
 
@@ -267,8 +267,6 @@ export default class IsometricScene extends Phaser.Scene {
             const worldWidth = this.map.widthInPixels;
             const worldHeight = this.map.heightInPixels;
 
-            this.createEnergyBar();
-
 
             this.cameras.main.setZoom(0.2);
             this.cameras.main.centerOn(0, 500);
@@ -278,7 +276,7 @@ export default class IsometricScene extends Phaser.Scene {
 
             this.mapSystem = new MapSystem(this, this.interactionAreas);
 
-
+            this.createEnergyBar();
 
             // Create a virtual joystick for non-desktop users to move the boat.
             if (this.isMobileDevice) {
@@ -319,7 +317,20 @@ export default class IsometricScene extends Phaser.Scene {
         console.groupEnd();
     }
 
-    private createEnergyBar(): void {        
+    private createEnergyBar(): void {     
+        console.log(
+            "Phaser scale.width/height:", this.scale.width, this.scale.height,
+            "Phaser scale.displaySize:", this.scale.displaySize,
+            "Canvas size:", this.game.canvas.width, this.game.canvas.height,
+            "Window.innerWidth/innerHeight:", window.innerWidth, window.innerHeight
+          );
+          
+
+        this.energyBarX = this.cameras.main.centerX + (this.cameras.main.width / (2 * this.cameras.main.zoom)) - (this.energyBarWidth * 1.028) // multiplied by some (seemingly) arbitrary constant i had to brute force lol
+        this.energyBarY = this.mapSystem.getMapBottomRight().y * 0.95 // another arbitrary brute forced constant
+
+        console.log(this.energyBarX, this.energyBarY, this.cameras.main.zoomX)
+        
         // Background (Gray)
         this.energyBarBackground = this.add.graphics();
         this.energyBarBackground.fillStyle(0x444444, 1);
@@ -855,13 +866,13 @@ export default class IsometricScene extends Phaser.Scene {
     private updateEnergyBar(): void {
         // Clear only the green bar
         this.energyBar.clear();
-
-        // Update the green energy
+    
+        // Fill with new width based on energy level
         const newWidth = (this.energy / 100) * this.energyBarWidth;
         this.energyBar.fillStyle(0x00ff00, 1);
         this.energyBar.fillRect(0, 0, newWidth, this.energyBarHeight);
-        this.energyBar.setPosition(this.energyBarX, this.energyBarY);
     }
+    
 
     
 

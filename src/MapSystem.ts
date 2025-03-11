@@ -186,6 +186,21 @@ export class MapSystem extends Phaser.GameObjects.Container {
         this.boatMarker.closePath();
         this.boatMarker.fillPath();
     }
+
+    /**
+     * Get the bottom right position of the map container in world coordinates.
+     * Hacky implementation used to position the energy bar relative to the map.
+     * @returns The bottom right position of the map container
+     */
+    public getMapBottomRight(): { x: number; y: number } {
+        const halfSize = this.mapSize / 2;
+    
+        const bottomRightX = this.mapContainer.x + halfSize;
+        const bottomRightY = this.mapContainer.y + halfSize;
+    
+        return { x: bottomRightX, y: bottomRightY };
+    }
+    
     
     public updateBoatMarker(worldX: number, worldY: number, orientation: string): void {
         const mapX = worldX * this.mapScale + this.graphicOffsetX;
