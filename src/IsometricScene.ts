@@ -365,6 +365,22 @@ export default class IsometricScene extends Phaser.Scene {
             locationType: "Projects"
         }
 
+        const safehouseMarkerInfo = {
+            color: 0,
+            radius: -1,
+            locationType: "Safehouse"
+        }
+
+        const safehouseFloatingText = {
+            text: "Safehouse",
+            color: "#2a473a",
+            font: fontFamilies["header"],
+            fontSize: "130px",
+            offset: {
+                x: 0, y: -1000
+            }
+        }
+
         this.interactionAreas["experience-Apple"] = new InteractionArea(
             this,
             10000, 8963,
@@ -650,17 +666,19 @@ export default class IsometricScene extends Phaser.Scene {
             this,
             15510, 12315,
             4100, 2300,
-            "Welcome",
+            "Safehouse",
             "welcomeOverlay",
             0x1689f5,
             0x34b4eb,
             {
-                text: "How to play?",
+                text: "Enter Safehouse",
                 font: fontFamilies["header"],
                 fontColor: "#ffffff",
                 color: 0x1689f5,
                 hoverColor: 0x34b4eb
-            }
+            },
+            safehouseFloatingText,
+            safehouseMarkerInfo
         )
 
         this.interactionAreas["fireworks"] = new InteractionArea(
