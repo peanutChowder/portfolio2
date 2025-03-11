@@ -113,6 +113,7 @@ export default class IsometricScene extends Phaser.Scene {
 
         // Load boat sprites
         Boat.preload(this);
+        MapSystem.preload(this);
 
         this.load.on('loaderror', (file: Phaser.Loader.File) => {
             console.error('Error loading file:', file.key);
