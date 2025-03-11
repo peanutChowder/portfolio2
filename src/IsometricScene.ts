@@ -321,13 +321,6 @@ export default class IsometricScene extends Phaser.Scene {
     }
 
     private createEnergyBar(): void {     
-        console.log(
-            "Phaser scale.width/height:", this.scale.width, this.scale.height,
-            "Phaser scale.displaySize:", this.scale.displaySize,
-            "Canvas size:", this.game.canvas.width, this.game.canvas.height,
-            "Window.innerWidth/innerHeight:", window.innerWidth, window.innerHeight
-          );
-
         this.energyBarWidth = this.mapSystem.getMinimapWidth();
         this.energyBarX = this.cameras.main.centerX + (this.cameras.main.width / (2 * this.cameras.main.zoom)) - (this.energyBarWidth * 1.025) // multiplied by some (seemingly) arbitrary constant i had to brute force lol
         this.energyBarY = this.mapSystem.getMapBottomRight().y * 0.95 // another arbitrary brute forced constant
@@ -357,6 +350,11 @@ export default class IsometricScene extends Phaser.Scene {
         // Move to correct position
         this.energyBarBackground.setPosition(this.energyBarX, this.energyBarY);
         this.energyBar.setPosition(this.energyBarX, this.energyBarY);
+
+        // Depth
+        this.energyBarBackground.setDepth(3);
+        this.energyBar.setDepth(4);
+        this.energyBarText.setDepth(4);
     
         this.lastBoatPosition = { x: this.boat.x, y: this.boat.y };
     }

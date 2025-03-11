@@ -158,7 +158,7 @@ export default class InteractionArea {
             color: info.color
         });
         this.floatingText.setOrigin(0.5);
-        this.floatingText.setDepth(100); 
+        this.floatingText.setDepth(2); 
 
         // Pulsing animation
         this.scene.tweens.add({
