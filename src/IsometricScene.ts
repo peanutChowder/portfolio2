@@ -63,6 +63,18 @@ export default class IsometricScene extends Phaser.Scene {
     private lostOverlay!: Phaser.GameObjects.Rectangle;
     private isHandlingLostBoat: boolean = false;
 
+    // Energy bar
+    private energy: number = 100; // Initial 100% energy
+    private energyBar!: Phaser.GameObjects.Graphics;
+    private energyBarBackground!: Phaser.GameObjects.Graphics;
+    private lastBoatPosition!: { x: number; y: number };
+    private energyDrainRate: number = 1; // Drain rate per tiles
+    private energyBarX = 1000;
+    private energyBarY = 1000;
+    private energyBarWidth = 200;
+    private energyBarHeight = 50;
+
+
     private fireworkManager!: FireworkManager
 
     private mapSystem!: MapSystem;
@@ -255,6 +267,8 @@ export default class IsometricScene extends Phaser.Scene {
             const worldWidth = this.map.widthInPixels;
             const worldHeight = this.map.heightInPixels;
 
+            this.createEnergyBar();
+
 
             this.cameras.main.setZoom(0.2);
             this.cameras.main.centerOn(0, 500);
@@ -304,6 +318,28 @@ export default class IsometricScene extends Phaser.Scene {
 
         console.groupEnd();
     }
+
+    private createEnergyBar(): void {        
+        // Background (Gray)
+        this.energyBarBackground = this.add.graphics();
+        this.energyBarBackground.fillStyle(0x444444, 1);
+        this.energyBarBackground.fillRect(0, 0, this.energyBarWidth, this.energyBarHeight);
+        this.energyBarBackground.setScrollFactor(0); // Fix it to the screen
+    
+        // Foreground (Green)
+        this.energyBar = this.add.graphics();
+        this.energyBar.fillStyle(0x00ff00, 1);
+        this.energyBar.fillRect(0, 0, this.energyBarWidth, this.energyBarHeight);
+        this.energyBar.setScrollFactor(0); // Fix it to the screen
+    
+        // Move to correct position
+        this.energyBarBackground.setPosition(this.energyBarX, this.energyBarY);
+        this.energyBar.setPosition(this.energyBarX, this.energyBarY);
+    
+        this.lastBoatPosition = { x: this.boat.x, y: this.boat.y };
+    }
+    
+    
 
     private setupInteractiveAreas(): void {
         const workMarkerInfo = {
@@ -674,6 +710,15 @@ export default class IsometricScene extends Phaser.Scene {
     update(): void {
         this.boat.update();
         const { x: boatX, y: boatY } = this.boat.getPosition();
+        const distanceMoved = Phaser.Math.Distance.Between(boatX, boatY, this.lastBoatPosition.x, this.lastBoatPosition.y);
+    
+        if (distanceMoved > 0) {
+            this.energy -= (distanceMoved / this.map.tileWidth) * this.energyDrainRate;
+            this.energy = Math.max(this.energy, 0); // Prevent negative energy
+            this.lastBoatPosition = { x: boatX, y: boatY };
+        }
+    
+        this.updateEnergyBar();
 
         if (this.mapSystem) {
             this.mapSystem.updateBoatMarker(boatX, boatY, this.boat.getOrientation());
@@ -806,6 +851,19 @@ export default class IsometricScene extends Phaser.Scene {
                 (IsometricScene.FOG_MAX_ALPHA - IsometricScene.FOG_MIN_ALPHA);
         }
     }
+
+    private updateEnergyBar(): void {
+        // Clear only the green bar
+        this.energyBar.clear();
+
+        // Update the green energy
+        const newWidth = (this.energy / 100) * this.energyBarWidth;
+        this.energyBar.fillStyle(0x00ff00, 1);
+        this.energyBar.fillRect(0, 0, newWidth, this.energyBarHeight);
+        this.energyBar.setPosition(this.energyBarX, this.energyBarY);
+    }
+
+    
 
     private async showLostBoatOverlay(): Promise<void> {
         if (this.isHandlingLostBoat) return;
