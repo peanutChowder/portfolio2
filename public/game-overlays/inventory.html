@@ -289,8 +289,7 @@
     // ============ 1) Close entire inventory overlay  ============
     closeButton?.addEventListener('click', () => {
       parent.postMessage({ 
-        type: "destroyGameOverlay", 
-        overlayName: "inventoryOverlay" 
+        type: "destroyInventoryOverlay", 
       }, "*");
     });
 
