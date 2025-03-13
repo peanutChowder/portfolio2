@@ -23,7 +23,7 @@ const fontFamilies = {
 }
 
 const debugMode = false;
-const debugSpawn = { x: 12441, y: 16104 }
+const debugSpawn = { x: 12901, y: 15449 }
 
 const arrowIndicatorsEnabled = false;
 
@@ -81,6 +81,13 @@ export default class IsometricScene extends Phaser.Scene {
     private mapSystem!: MapSystem;
 
     private fishingButton!: HTMLDivElement | null;
+
+    // inventory elements
+    private inventoryOverlayElement!: HTMLIFrameElement | null; // The HTML <iframe>
+    private inventoryButtonColor = 0xd1b884;
+    private inventoryButtonHoverColor = 0xe3cb98;
+    
+
 
     // Debug text attributes
     private debugText!: Phaser.GameObjects.Text;
@@ -281,6 +288,8 @@ export default class IsometricScene extends Phaser.Scene {
 
             this.createEnergyBar();
 
+            this.createInventoryButton();
+
             // Create a virtual joystick for non-desktop users to move the boat.
             if (this.isMobileDevice) {
                 const joyStickOrigin = { x: this.cameras.main.centerX, y: this.cameras.main.centerY * 4 };
@@ -358,6 +367,54 @@ export default class IsometricScene extends Phaser.Scene {
     
         this.lastBoatPosition = { x: this.boat.x, y: this.boat.y };
     }
+    
+    private createInventoryButton(): void {
+        const buttonWidth = 900;
+        const buttonHeight = 150;
+        const xPos = this.energyBarX;  
+        const yPos = this.energyBarY * 0.75;;
+    
+        const buttonBg = this.add.graphics();
+        const drawButtonBg = (color: number) => {
+            buttonBg.clear();
+            buttonBg.fillStyle(color, 1);
+            buttonBg.fillRoundedRect(0, 0, buttonWidth, buttonHeight, 20);
+            buttonBg.lineStyle(6, 0xffffff, 1);
+            buttonBg.strokeRoundedRect(0, 0, buttonWidth, buttonHeight, 20);
+        };
+        drawButtonBg(this.inventoryButtonColor);
+    
+        const label = this.add.text(buttonWidth / 2, buttonHeight / 2, "Inventory", {
+            fontFamily: "Prompt",
+            fontSize: "100px",
+            color: "#ffffff",
+        }).setOrigin(0.5);
+    
+        const buttonContainer = this.add.container(xPos, yPos, [buttonBg, label]);
+        buttonContainer.setScrollFactor(0).setDepth(9999);
+    
+        buttonContainer.setSize(buttonWidth, buttonHeight);
+        buttonContainer.setInteractive(
+            new Phaser.Geom.Rectangle(buttonWidth / 2, buttonHeight / 2, buttonWidth, buttonHeight),
+            Phaser.Geom.Rectangle.Contains
+        );
+    
+        // Hover effect
+        buttonContainer.on('pointerover', () => {
+            drawButtonBg(this.inventoryButtonHoverColor);
+        });
+        buttonContainer.on('pointerout', () => {
+            drawButtonBg(this.inventoryButtonColor);
+        });
+    
+        // Click handler
+        buttonContainer.on('pointerdown', () => {
+            this.showInventoryOverlay();
+        });
+    }
+    
+    
+    
     
     
 
@@ -1288,6 +1345,97 @@ export default class IsometricScene extends Phaser.Scene {
         } else {
             console.warn("No game overlay to destroy.");
         }
+    }
+
+    private showInventoryOverlay(): void {
+        if (this.inventoryOverlayElement) {
+            this.destroyInventoryOverlay();
+            return;
+        }
+    
+        console.group("Creating inventory overlay");
+    
+        const iframe = document.createElement('iframe');
+        iframe.src = '../game-overlays/inventory.html';
+        iframe.style.position = 'fixed';
+        iframe.style.top = '50%';
+        iframe.style.left = '50%';
+        iframe.style.transform = 'translate(-50%, -50%)';
+        iframe.style.width = '400px';
+        iframe.style.height = '500px';
+        iframe.style.border = 'none';
+        iframe.style.zIndex = '9999';
+    
+        document.body.appendChild(iframe);
+        this.inventoryOverlayElement = iframe;
+    
+        // Fade in effect
+        iframe.style.opacity = '0';
+        iframe.style.transition = 'opacity 0.5s ease-in-out';
+        setTimeout(() => {
+            iframe.style.opacity = '1';
+        }, 50);
+    
+        // Example items with description property
+        const testInventoryItems = [
+            { 
+              id: "fish1", 
+              name: "Crimson Trout", 
+              imgSrc: "../assets/fish-sprites/1.png",
+              description: "desc1" 
+            },
+            { 
+              id: "fish2", 
+              name: "Blue Salmon", 
+              imgSrc: "../assets/fish-sprites/2.png",
+              description: "desc2"
+            },
+            { 
+              id: "rod1", 
+              name: "Old Fishing Rod", 
+              imgSrc: "../assets/fish-sprites/3.png",
+              description: "desc3"
+            },
+            { 
+              id: "bait1", 
+              name: "Wriggly Worms", 
+              imgSrc: "../assets/fish-sprites/4.png",
+              description: "desc4"
+            }
+        ];
+    
+        // Send inventory data when the iframe loads
+        iframe.addEventListener('load', () => {
+            console.log('Inventory iframe loaded, sending test items...');
+            iframe.contentWindow?.postMessage({
+                type: "inventoryData",
+                items: testInventoryItems
+            }, "*");
+        });
+    
+        console.groupEnd();
+    }
+    
+    
+    
+    
+    private destroyInventoryOverlay(): void {
+        if (!this.inventoryOverlayElement) {
+            console.warn('No inventory overlay to destroy.');
+            return;
+        }
+        console.log('Closing inventory overlay...');
+    
+        // Fade out
+        this.inventoryOverlayElement.style.opacity = '1';
+        this.inventoryOverlayElement.style.transition = 'opacity 0.5s ease-in-out';
+        this.inventoryOverlayElement.style.opacity = '0';
+    
+        // Remove from the DOM after fade
+        setTimeout(() => {
+            this.inventoryOverlayElement?.parentNode?.removeChild(this.inventoryOverlayElement);
+            this.inventoryOverlayElement = null;
+        }, 500);
     }
     
     
