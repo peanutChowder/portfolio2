@@ -143,19 +143,16 @@
 
     /* ============== POPUP MENU FOR INSPECT/DUMP ============== */
     #item-popup {
-      position: absolute;
-      top: 50px;
-      left: 50%;
-      transform: translateX(-50%);
-      background-color: #FFF8EE;
-      border: 2px solid #E6D9C2;
-      border-radius: 8px;
-      padding: 10px;
-      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-      display: none; /* hidden by default */
-      flex-direction: column;
-      gap: 10px;
-      z-index: 999;
+        position: absolute;
+        background-color: #FFF8EE;
+        border: 2px solid #E6D9C2;
+        border-radius: 8px;
+        padding: 10px;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        display: none; /* Hidden by default */
+        flex-direction: column;
+        gap: 10px;
+        z-index: 999;
     }
 
     #item-popup button {
@@ -345,9 +342,16 @@
 
     // ============ 4) Show the "inspect/dump" popup  ============
     function showItemPopup(itemDiv) {
-      // Position the popup near the item or just center it
-      // For simplicity, let's just center horizontally.
-      itemPopup.style.display = 'flex';
+        const rect = itemDiv.getBoundingClientRect();
+        
+        // Calculate position
+        const popupX = rect.left + window.scrollX;
+        const popupY = rect.top + window.scrollY + rect.height / 2; // Slight offset below the item
+
+        // Position and show the popup
+        itemPopup.style.left = `${popupX}px`;
+        itemPopup.style.top = `${popupY}px`;
+        itemPopup.style.display = 'flex';
     }
 
     // If user clicks outside the item or the popup itself, hide it
