@@ -1,404 +1,503 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8" />
-  <title>Inventory</title>
-  <style>
-    html, body {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-        width: 100%;
-        height: 100%;
-    }
+    <meta charset="UTF-8" />
+    <title>Inventory</title>
+    <style>
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            width: 100%;
+            height: 100%;
+        }
 
-    /* ============== OVERLAY WRAPPER STYLES ============== */
-    #overlay-wrapper {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      pointer-events: none;
-      font-family: 'Prompt', sans-serif;
-    }
+        /* ============== OVERLAY WRAPPER STYLES ============== */
+        #overlay-wrapper {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            pointer-events: none;
+            font-family: 'Prompt', sans-serif;
+        }
 
-    #simple-overlay {
-      width: 90%;
-      max-width: 600px;
-      height: 90%;
-      max-height: 800px;
-      background-color: rgba(255, 253, 240, 0.95);
-      display: flex;
-      flex-direction: column;
-      padding: 10px;
-      border-radius: 15px;
-      pointer-events: auto;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-      border: 2px solid #F0E6D2;
-    }
+        #simple-overlay {
+            width: 90%;
+            max-width: 600px;
+            height: 90%;
+            max-height: 800px;
+            background-color: rgba(255, 253, 240, 0.95);
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+            border-radius: 15px;
+            pointer-events: auto;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border: 2px solid #F0E6D2;
+        }
 
-    .content-inner {
-      height: 100%;
-      overflow-y: auto;
-      padding: 20px;
-      position: relative; /* so we can position other popups absolutely inside */
-    }
+        .content-inner {
+            height: 100%;
+            overflow-y: auto;
+            padding: 20px;
+            position: relative;
+            /* so we can position other popups absolutely inside */
+        }
 
-    .content-inner h2 {
-      color: #7E6D5A;
-      font-size: 24px;
-      text-align: center;
-      text-transform: uppercase;
-      letter-spacing: 2px;
-      margin-bottom: 20px;
-    }
+        .content-inner h2 {
+            color: #7E6D5A;
+            font-size: 24px;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+        }
 
-    .content-inner p {
-      color: #7E6D5A;
-      font-size: 16px;
-      margin-bottom: 10px;
-    }
+        .content-inner p {
+            color: #7E6D5A;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
 
-    .content-inner::-webkit-scrollbar {
-      width: 8px;
-    }
+        .content-inner::-webkit-scrollbar {
+            width: 8px;
+        }
 
-    .content-inner::-webkit-scrollbar-track {
-      background: #F0E6D2;
-      border-radius: 4px;
-    }
+        .content-inner::-webkit-scrollbar-track {
+            background: #F0E6D2;
+            border-radius: 4px;
+        }
 
-    .content-inner::-webkit-scrollbar-thumb {
-      background: #7E6D5A;
-      border-radius: 4px;
-    }
+        .content-inner::-webkit-scrollbar-thumb {
+            background: #7E6D5A;
+            border-radius: 4px;
+        }
 
-    .close-button {
-      position: sticky;
-      top: 20px;
-      margin-left: auto;
-      background-color: #F0E6D2;
-      border: none;
-      color: #7E6D5A;
-      font-size: 24px;
-      cursor: pointer;
-      transition: all 0.3s ease; 
-      z-index: 2;
-      width: 40px;              
-      height: 40px;              
-      border-radius: 50%;      
-      display: flex;           
-      align-items: center;
-      justify-content: center;
-    }
+        .close-button {
+            position: sticky;
+            top: 20px;
+            margin-left: auto;
+            background-color: #F0E6D2;
+            border: none;
+            color: #7E6D5A;
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 2;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
 
-    .close-button:hover {
-      transform: rotate(90deg);
-      background-color: #E6D9C2;  
-    }
+        .close-button:hover {
+            transform: rotate(90deg);
+            background-color: #E6D9C2;
+        }
 
-    /* ============== INVENTORY GRID ============== */
-    #inventory-grid {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: flex-start;
-      justify-content: center;
-      gap: 1rem;
-    }
+        /* ============== INVENTORY GRID ============== */
+        #inventory-grid {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-start;
+            justify-content: center;
+            gap: 1rem;
+        }
 
-    .inventory-item {
-      width: 120px;
-      min-height: 140px;
-      background-color: #F0E6D2;
-      border: 2px solid #E6D9C2;
-      border-radius: 10px;
-      box-shadow: 1px 1px 5px rgba(0,0,0,0.1);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 10px;
-      cursor: pointer;
-      transition: transform 0.2s ease;
-    }
+        .inventory-item {
+            width: 120px;
+            min-height: 140px;
+            background-color: #F0E6D2;
+            border: 2px solid #E6D9C2;
+            border-radius: 10px;
+            box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
 
-    .inventory-item:hover {
-      transform: scale(1.03);
-    }
+        .inventory-item:hover {
+            transform: scale(1.03);
+        }
 
-    .inventory-item img {
-      max-width: 64px;
-      max-height: 64px;
-      margin-bottom: 8px;
-    }
+        .inventory-item img {
+            max-width: 64px;
+            max-height: 64px;
+            margin-bottom: 8px;
+        }
 
-    .item-name {
-      color: #7E6D5A;
-      text-align: center;
-      font-size: 14px;
-      margin-top: auto;
-    }
+        .item-name {
+            color: #7E6D5A;
+            text-align: center;
+            font-size: 14px;
+            margin-top: auto;
+        }
 
-    /* ============== POPUP MENU FOR INSPECT/DUMP ============== */
-    #item-popup {
-        position: absolute;
-        background-color: #FFF8EE;
-        border: 2px solid #E6D9C2;
-        border-radius: 8px;
-        padding: 10px;
-        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-        display: none; /* Hidden by default */
-        flex-direction: column;
-        gap: 10px;
-        z-index: 999;
-    }
+        /* ============== POPUP MENU FOR INSPECT/DUMP ======== */
+        #item-popup {
+            position: absolute;
+            background-color: #FFF8EE;
+            border: 2px solid #E6D9C2;
+            border-radius: 8px;
+            padding: 10px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            display: none;
+            /* Hidden by default */
+            flex-direction: column;
+            gap: 10px;
+            z-index: 999;
+        }
 
-    #item-popup button {
-      background-color: #D0B49F;
-      color: white;
-      border: none;
-      padding: 8px 12px;
-      border-radius: 5px;
-      cursor: pointer;
-      font-size: 14px;
-      font-weight: bold;
-    }
+        #item-popup button {
+            background-color: #D0B49F;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+        }
 
-    #item-popup button:hover {
-      background-color: #C19A82;
-    }
+        #item-popup button:hover {
+            background-color: #C19A82;
+        }
 
-    /* ============== INSPECT-DETAIL OVERLAY ============== */
-    #inspect-overlay {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0,0,0,0.3);
-      display: none; /* hidden by default */
-      align-items: center;
-      justify-content: center;
-      z-index: 1000;
-    }
+        /* ============== INSPECT-DETAIL OVERLAY ============== */
+        #inspect-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.3);
+            display: none;
+            /* hidden by default */
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
 
-    #inspect-content {
-      width: 80%;
-      max-width: 500px;
-      background: #FFF8EE;
-      border: 2px solid #E6D9C2;
-      border-radius: 8px;
-      padding: 20px;
-      box-shadow: 0 12px 24px rgba(0,0,0,0.3);
-      text-align: center;
-      color: #7E6D5A;
-    }
+        #inspect-content {
+            width: 100%;
+            max-width: 600px;
+            background: #FFF8EE;
+            border: 2px solid #E6D9C2;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            color: #7E6D5A;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
 
-    #inspect-content h3 {
-      margin-bottom: 20px;
-    }
+        #inspect-content img {
+            max-width: 300px;
+            /* Make item larger */
+            max-height: 300px;
+            margin-bottom: 20px;
+        }
 
-    #inspect-content img {
-      max-width: 150px;
-      margin-bottom: 20px;
-    }
 
-    #inspect-close-btn {
-      background-color: #D0B49F;
-      color: white;
-      border: none;
-      padding: 8px 16px;
-      border-radius: 5px;
-      cursor: pointer;
-      font-size: 16px;
-      font-weight: bold;
-    }
 
-    #inspect-close-btn:hover {
-      background-color: #C19A82;
-    }
+        #inspect-content h3 {
+            margin-bottom: 20px;
+        }
 
-    /* ============== RESPONSIVE BEHAVIOR ============== */
-    @media only screen and (max-width: 768px) {
-      #inventory-grid {
-        gap: 0.5rem;
-      }
-      .inventory-item {
-        width: 100px;
-        min-height: 120px;
-      }
-    }
-  </style>
+        #inspect-close-btn {
+            background-color: #D0B49F;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        #inspect-close-btn:hover {
+            background-color: #C19A82;
+        }
+
+        /* ============== RESPONSIVE BEHAVIOR ============== */
+        @media only screen and (max-width: 768px) {
+            #inventory-grid {
+                gap: 0.5rem;
+            }
+
+            .inventory-item {
+                width: 100px;
+                min-height: 120px;
+            }
+        }
+    </style>
 </head>
 
 <body>
-  <div id="overlay-wrapper">
-    <div id="simple-overlay">
-      <div class="content-inner">
-        <button class="close-button">X</button>
-        <h2>Your Inventory</h2>
+    <div id="overlay-wrapper">
+        <div id="simple-overlay">
+            <div class="content-inner">
+                <button class="close-button">X</button>
+                <h2>Your Inventory</h2>
 
-        <!-- Popup for "inspect" / "dump" -->
-        <div id="item-popup">
-          <button id="inspect-btn">Inspect</button>
-          <button id="dump-btn">Dump</button>
+                <!-- Popup for "inspect" / "dump" -->
+                <div id="item-popup">
+                    <button id="inspect-btn">Inspect</button>
+                    <button id="dump-btn">Dump</button>
+                </div>
+
+                <!-- Overlay for the item inspection detail -->
+                <div id="inspect-overlay">
+                    <div id="inspect-content">
+                        <h3 id="inspect-title">Item Name</h3>
+                        <img id="inspect-img" src="" alt="Item Image" />
+                        <p id="inspect-desc">Description about the item</p>
+                        <button id="inspect-close-btn">Close</button>
+                    </div>
+                </div>
+
+                <div id="inventory-grid">
+                </div>
+
+            </div>
         </div>
-
-        <!-- Overlay for the item inspection detail -->
-        <div id="inspect-overlay">
-          <div id="inspect-content">
-            <h3 id="inspect-title">Item Name</h3>
-            <img id="inspect-img" src="" alt="Item Image" />
-            <p id="inspect-desc">Description about the item</p>
-            <button id="inspect-close-btn">Close</button>
-          </div>
-        </div>
-
-        <div id="inventory-grid">
-        </div>
-
-      </div>
     </div>
-  </div>
 
-  <script>
-    /* 
-      We store the entire inventory array in JS memory
-      and the "currently clicked item" in selectedItem.
-    */
-    let items = [];
-    let selectedItem = null;  
+    <script>
+        /* 
+          We store the entire inventory array in JS memory
+          and the "currently clicked item" in selectedItem.
+        */
+        let items = [];
+        let selectedItem = null;
 
-    const itemPopup = document.getElementById('item-popup');
-    const inspectOverlay = document.getElementById('inspect-overlay');
-    const grid = document.getElementById('inventory-grid');
+        const itemPopup = document.getElementById('item-popup');
+        const inspectOverlay = document.getElementById('inspect-overlay');
+        const grid = document.getElementById('inventory-grid');
 
-    // Buttons
-    const closeButton = document.querySelector('.close-button');
-    const inspectBtn = document.getElementById('inspect-btn');
-    const dumpBtn = document.getElementById('dump-btn');
-    const inspectCloseBtn = document.getElementById('inspect-close-btn');
+        // Buttons
+        const closeButton = document.querySelector('.close-button');
+        const inspectBtn = document.getElementById('inspect-btn');
+        const dumpBtn = document.getElementById('dump-btn');
+        const inspectCloseBtn = document.getElementById('inspect-close-btn');
 
-    // Inspect overlay elements
-    const inspectTitle = document.getElementById('inspect-title');
-    const inspectImg = document.getElementById('inspect-img');
-    const inspectDesc = document.getElementById('inspect-desc');
-
-
-    // ============ 1) Close entire inventory overlay  ============
-    closeButton?.addEventListener('click', () => {
-      parent.postMessage({ 
-        type: "destroyInventoryOverlay", 
-      }, "*");
-    });
+        // Inspect overlay elements
+        const inspectTitle = document.getElementById('inspect-title');
+        const inspectImg = document.getElementById('inspect-img');
+        const inspectDesc = document.getElementById('inspect-desc');
 
 
-    // ============ 2) Listen for "inventoryData" from parent  ============
-    window.addEventListener('message', event => {
-      if (event.data?.type === 'inventoryData') {
-        items = event.data.items || [];
-        buildInventoryGrid(items);
-      }
-    });
-
-
-    // ============ 3) Build Grid with Items  ============
-    function buildInventoryGrid(itemsArray) {
-      grid.innerHTML = ''; // Clear old content
-
-      itemsArray.forEach(item => {
-        // each "item" is { id, name, imgSrc, description }
-        const itemDiv = document.createElement('div');
-        itemDiv.classList.add('inventory-item');
-        itemDiv.dataset.id = item.id;
-        itemDiv.dataset.name = item.name;
-        itemDiv.dataset.src = item.imgSrc || 'https://via.placeholder.com/64';
-        itemDiv.dataset.desc = item.description || 'No description.';
-
-        // Image
-        const img = document.createElement('img');
-        img.src = itemDiv.dataset.src;
-        itemDiv.appendChild(img);
-
-        // Name text
-        const nameDiv = document.createElement('div');
-        nameDiv.classList.add('item-name');
-        nameDiv.textContent = item.name;
-        itemDiv.appendChild(nameDiv);
-
-        // On click, we show the small "inspect/dump" popup
-        itemDiv.addEventListener('click', (e) => {
-          e.stopPropagation(); // prevent doc-level click from closing popup
-          selectedItem = item;
-          showItemPopup(itemDiv);
+        // ============ 1) Close entire inventory overlay  ============
+        closeButton?.addEventListener('click', () => {
+            parent.postMessage({
+                type: "destroyInventoryOverlay",
+            }, "*");
         });
 
-        grid.appendChild(itemDiv);
-      });
-    }
+
+        // ============ 2) Listen for "inventoryData" from parent  ============
+        window.addEventListener('message', event => {
+            if (event.data?.type === 'inventoryData') {
+                items = event.data.items || [];
+                buildInventoryGrid(items);
+            }
+        });
 
 
-    // ============ 4) Show the "inspect/dump" popup  ============
-    function showItemPopup(itemDiv) {
-        const rect = itemDiv.getBoundingClientRect();
-        
-        // Calculate position
-        const popupX = rect.left + window.scrollX;
-        const popupY = rect.top + window.scrollY + rect.height / 2; // Slight offset below the item
+        // ============ 3) Build Grid with Items  ============
+        function buildInventoryGrid(itemsArray) {
+            grid.innerHTML = ''; // Clear old content
 
-        // Position and show the popup
-        itemPopup.style.left = `${popupX}px`;
-        itemPopup.style.top = `${popupY}px`;
-        itemPopup.style.display = 'flex';
-    }
+            itemsArray.forEach(item => {
+                const itemDiv = document.createElement('div');
+                itemDiv.classList.add('inventory-item');
+                itemDiv.dataset.id = item.id;
+                itemDiv.dataset.name = item.name;
+                itemDiv.dataset.src = item.imgSrc;
+                itemDiv.dataset.desc = item.description || 'No description.';
 
-    // If user clicks outside the item or the popup itself, hide it
-    document.addEventListener('click', (evt) => {
-      if (!evt.target.closest('#item-popup') && !evt.target.closest('.inventory-item')) {
-        itemPopup.style.display = 'none';
-      }
-    }, true);
+                // Image
+                const img = document.createElement('img');
+                img.src = itemDiv.dataset.src;
+                itemDiv.appendChild(img);
 
+                // Name text
+                const nameDiv = document.createElement('div');
+                nameDiv.classList.add('item-name');
+                nameDiv.textContent = item.name;
+                itemDiv.appendChild(nameDiv);
 
-    // ============ 5) Inspect / Dump Buttons  ============
-    inspectBtn.addEventListener('click', () => {
-      if (!selectedItem) return;
-      // Show the inspect overlay with item details
-      showInspectOverlay(selectedItem);
-      itemPopup.style.display = 'none';
-    });
+                // Directly inspect the item when clicked
+                itemDiv.addEventListener('click', (e) => {
+                    selectedItem = item;
 
-    dumpBtn.addEventListener('click', () => {
-      if (!selectedItem) return;
-      // "Dump" the item -> remove from parent's inventory
-      parent.postMessage({ 
-        type: "dumpItem", 
-        itemId: selectedItem.id 
-      }, "*");
+                    // Get the bounding box of the clicked item
+                    const rect = e.currentTarget.getBoundingClientRect();
 
-      // Optionally remove from local array too:
-      items = items.filter(it => it.id !== selectedItem.id);
-      buildInventoryGrid(items);
+                    itemPopup.style.left = (rect.left + window.scrollX) + 'px';
+                    itemPopup.style.top = (rect.top + window.scrollY) + 'px';
 
-      selectedItem = null;
-      itemPopup.style.display = 'none';
-    });
+                    // Show the popup
+                    itemPopup.style.display = 'flex';
+                });
+
+                grid.appendChild(itemDiv);
+            });
+        }
 
 
-    // ============ 6) Show the Inspect Overlay  ============
-    function showInspectOverlay(item) {
-      inspectTitle.textContent = item.name;
-      inspectImg.src = item.imgSrc;
-      inspectDesc.textContent = item.description;
-      inspectOverlay.style.display = 'flex';
-    }
 
-    // Close Inspect
-    inspectCloseBtn.addEventListener('click', () => {
-      inspectOverlay.style.display = 'none';
-    });
-  </script>
+        // If user clicks outside the item or the popup itself, hide it
+        document.addEventListener('click', (evt) => {
+            if (!evt.target.closest('#item-popup') && !evt.target.closest('.inventory-item')) {
+                itemPopup.style.display = 'none';
+            }
+        }, true);
+
+
+        // ============ 5) Inspect / Dump Buttons  ============
+        inspectBtn.addEventListener('click', () => {
+            if (!selectedItem) return;
+            // Show the inspect overlay with item details
+            showInspectOverlay(selectedItem);
+            itemPopup.style.display = 'none';
+        });
+
+        dumpBtn.addEventListener('click', () => {
+            if (!selectedItem) return;
+            // "Dump" the item -> remove from parent's inventory
+            parent.postMessage({
+                type: "dumpItem",
+                itemId: selectedItem.id
+            }, "*");
+
+            // Optionally remove from local array too:
+            items = items.filter(it => it.id !== selectedItem.id);
+            buildInventoryGrid(items);
+
+            selectedItem = null;
+            itemPopup.style.display = 'none';
+        });
+
+
+        // ============ 6) Show the Inspect Overlay  ============
+        function showInspectOverlay(item) {
+            const contentInner = document.querySelector('.content-inner');
+
+            // Clear out the entire inventory from .content-inner:
+            contentInner.innerHTML = '';
+
+            // Create new container for inspection
+            const inspectContainer = document.createElement('div');
+            inspectContainer.id = 'inspect-container';
+            inspectContainer.style.display = 'flex';
+            inspectContainer.style.flexDirection = 'column';
+            inspectContainer.style.alignItems = 'center';
+            inspectContainer.style.justifyContent = 'center';
+            inspectContainer.style.width = '100%';
+            inspectContainer.style.height = '100%';
+
+            // Title
+            const title = document.createElement('h2');
+            title.textContent = item.name;
+            inspectContainer.appendChild(title);
+
+            // Enlarged Image
+            const img = document.createElement('img');
+            img.src = item.imgSrc;
+            img.style.maxWidth = '250px';
+            img.style.margin = '10px 0';
+            inspectContainer.appendChild(img);
+
+            // Description
+            const desc = document.createElement('p');
+            desc.textContent = item.description;
+            inspectContainer.appendChild(desc);
+
+            // Close Button (just to leave inspection — not the entire overlay)
+            const closeBtn = document.createElement('button');
+            closeBtn.textContent = 'Back to Inventory';
+            closeBtn.style.backgroundColor = '#D0B49F';
+            closeBtn.style.color = 'white';
+            closeBtn.style.border = 'none';
+            closeBtn.style.padding = '10px 20px';
+            closeBtn.style.borderRadius = '5px';
+            closeBtn.style.cursor = 'pointer';
+            closeBtn.style.fontSize = '16px';
+            closeBtn.style.marginTop = '20px';
+
+            // When clicked, restore the inventory
+            closeBtn.addEventListener('click', () => {
+                restoreInventory();
+            });
+
+            inspectContainer.appendChild(closeBtn);
+
+            contentInner.appendChild(inspectContainer);
+        }
+
+
+        function restoreInventory() {
+            const contentInner = document.querySelector('.content-inner');
+            contentInner.innerHTML = ''; // Clear the “inspect” view
+
+            // Re-inject the original “X” close button
+            const mainCloseBtn = document.createElement('button');
+            mainCloseBtn.classList.add('close-button');
+            mainCloseBtn.textContent = 'X';
+            // Overlay-destroy logic:
+            mainCloseBtn.addEventListener('click', () => {
+                parent.postMessage({ type: "destroyInventoryOverlay" }, "*");
+            });
+            contentInner.appendChild(mainCloseBtn);
+
+            // Re-inject the “Your Inventory” heading
+            const inventoryTitle = document.createElement('h2');
+            inventoryTitle.textContent = "Your Inventory";
+            contentInner.appendChild(inventoryTitle);
+
+            // Re-append the existing #item-popup element
+            // so the inspect/dump popup is present again.
+            contentInner.appendChild(itemPopup);
+
+            // Re-append your inventory grid container
+            contentInner.appendChild(grid);
+
+            // Rebuild the items so their click handlers are restored
+            buildInventoryGrid(items);
+        }
+
+
+
+        // Close Inspect
+        inspectCloseBtn.addEventListener('click', () => {
+            // Restore the inventory grid inside content-inner
+            const contentInner = document.querySelector('.content-inner');
+            contentInner.innerHTML = ''; // Clear inspection view
+            contentInner.appendChild(grid); // Restore the grid
+
+            // Restore inventory title
+            const inventoryTitle = document.createElement('h2');
+            inventoryTitle.textContent = "Your Inventory";
+            contentInner.prepend(inventoryTitle);
+
+            inspectOverlay.style.display = 'none';
+        });
+    </script>
 </body>
+
 </html>
