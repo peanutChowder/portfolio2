@@ -230,11 +230,12 @@ export default class IsometricScene extends Phaser.Scene {
                 }
             }
 
-
-            // Create and draw boat
+            // Load boat coords from last visit
+            let savedPosition = localStorage.getItem('boatPosition');
+            let boatCoords = savedPosition ? JSON.parse(savedPosition) : IsometricScene.SPAWN_COORDS;
             this.boat = new Boat(
                 this,
-                IsometricScene.SPAWN_COORDS.x, IsometricScene.SPAWN_COORDS.y,
+                boatCoords.x, boatCoords.y,
                 this.interactionAreas
             );
             this.add.existing(this.boat)
@@ -836,6 +837,9 @@ export default class IsometricScene extends Phaser.Scene {
             this.energy -= (distanceMoved / this.map.tileWidth) * this.energyDrainRate;
             this.energy = Math.max(this.energy, 0); // Prevent negative energy
             this.lastBoatPosition = { x: boatX, y: boatY };
+    
+            // Save position to localStorage
+            localStorage.setItem('boatPosition', JSON.stringify({ x: boatX, y: boatY }));
         }
     
         this.updateEnergyBar();
@@ -1432,7 +1436,25 @@ export default class IsometricScene extends Phaser.Scene {
               name: "Wriggly Worms", 
               imgSrc: "../assets/fish-sprites/4.png",
               description: "desc4"
-            }
+            },
+            { 
+                id: "bait12", 
+                name: "Wriggly Worms", 
+                imgSrc: "../assets/fish-sprites/4.png",
+                description: "desc4"
+              },
+              { 
+                id: "bait13", 
+                name: "Wriggly Worms", 
+                imgSrc: "../assets/fish-sprites/4.png",
+                description: "desc4"
+              },
+              { 
+                id: "bait14", 
+                name: "Wriggly Worms", 
+                imgSrc: "../assets/fish-sprites/4.png",
+                description: "desc4"
+              },
         ];
     
         // Send inventory data when the iframe loads
