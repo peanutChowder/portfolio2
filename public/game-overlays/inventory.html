@@ -323,6 +323,19 @@
         function buildInventoryGrid(itemsArray) {
             grid.innerHTML = ''; // Clear old content
 
+            // show empty message
+            if (itemsArray.length === 0) {
+                const emptyMessage = document.createElement('p');
+                emptyMessage.textContent = "Empty.";
+                emptyMessage.style.fontFamily = "Prompt, sans-serif";
+                emptyMessage.style.color = "#7E6D5A";
+                emptyMessage.style.fontSize = "20px";
+                emptyMessage.style.textAlign = "center";
+                emptyMessage.style.marginTop = "20px";
+                grid.appendChild(emptyMessage);
+                return;
+            }
+
             itemsArray.forEach(item => {
                 const itemDiv = document.createElement('div');
                 itemDiv.classList.add('inventory-item');
