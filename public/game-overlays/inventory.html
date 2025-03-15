@@ -146,7 +146,7 @@
 
         /* ============== POPUP MENU FOR INSPECT/DUMP ======== */
         #item-popup {
-            position: absolute;
+            position: fixed;
             background-color: #FFF8EE;
             border: 2px solid #E6D9C2;
             border-radius: 8px;
@@ -347,9 +347,10 @@
 
                     // Get the bounding box of the clicked item
                     const rect = e.currentTarget.getBoundingClientRect();
+                    const popupRect = itemPopup.getBoundingClientRect();
 
-                    itemPopup.style.left = (rect.left + window.scrollX) + 'px';
-                    itemPopup.style.top = (rect.top + window.scrollY) + 'px';
+                    itemPopup.style.left = (rect.left + window.scrollX + popupRect.width / 2) + 'px';
+                    itemPopup.style.top = (rect.top + window.scrollY + popupRect.height / 2) + 'px';
 
                     // Show the popup
                     itemPopup.style.display = 'flex';
