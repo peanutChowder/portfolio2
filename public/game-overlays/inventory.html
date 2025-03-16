@@ -394,7 +394,7 @@
                     selectedItem = item;
                     const rect = e.currentTarget.getBoundingClientRect();
                     itemPopup.style.left = `${rect.left + window.scrollX}px`;
-                    itemPopup.style.top = `${rect.top + window.scrollY + rect.height}px`;
+                    itemPopup.style.top = `${rect.top + window.scrollY + rect.height / 2}px`;
                     itemPopup.style.display = 'flex';
                 });
 
