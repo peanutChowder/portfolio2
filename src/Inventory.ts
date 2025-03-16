@@ -6,15 +6,35 @@ export interface InventoryData {
 
 export class Inventory {
     private inventory: InventoryData = {};
+    private playerMoney: number = 0; // Track player's money
 
     constructor() {
         const savedInventory = localStorage.getItem('inventory');
         this.inventory = savedInventory ? JSON.parse(savedInventory) : {};
+
+        const savedMoney = localStorage.getItem('playerMoney');
+        this.playerMoney = savedMoney ? parseInt(savedMoney, 10) : 0; // Load money, default to 0
     }
 
     /** Save inventory to localStorage */
     private saveInventory(): void {
         localStorage.setItem('inventory', JSON.stringify(this.inventory));
+    }
+
+    /** Save money to localStorage */
+    private saveMoney(): void {
+        localStorage.setItem('playerMoney', this.playerMoney.toString());
+    }
+
+    /** Get player's current money */
+    public getMoney(): number {
+        return this.playerMoney;
+    }
+
+    /** Set player's money */
+    public setMoney(amount: number): void {
+        this.playerMoney = amount;
+        this.saveMoney();
     }
 
     /** Add an item to inventory */

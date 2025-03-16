@@ -309,12 +309,25 @@ export default class IsometricScene extends Phaser.Scene {
             
                 switch (event.data.type) {
 
-                    // Handle inventory item dumping
+                    case 'addItemToInventory':
+                        {
+                            const { itemId } = event.data;
+                            console.log(`Received fish from minigame: ${itemId}`);
+
+                            if (this.inventory) {
+                                this.inventory.addItem(itemId);
+                            }
+                        }
+                        break;
+
                     case 'dumpItem':
                         {
                             const { itemId } = event.data;
-                            console.log("Received request to dump item:", itemId);
-                            // TODO: Implement item dumping
+                            console.log(`Received request to dump item: ${itemId}`);
+
+                            if (this.inventory) {
+                                this.inventory.removeItem(itemId);
+                            }
                         }
                         break;
                     
@@ -325,16 +338,17 @@ export default class IsometricScene extends Phaser.Scene {
                         }
                         break;
 
-                    // Handle minigame close
                     case 'destroyGameOverlay':
                         {
                             let overlayName = event.data?.overlayName;
                             console.log(`Received destroyGameOverlay event for overlay: ${overlayName}`);
-                            this.destroyGameOverlay(overlayName); 
+                            this.destroyGameOverlay(overlayName);
                         }
+                        break;
                 }
             });
-            
+
+
 
             if (debugMode) {
                 // Add debug info
@@ -359,25 +373,25 @@ export default class IsometricScene extends Phaser.Scene {
         console.groupEnd();
     }
 
-    private createEnergyBar(): void {     
+    private createEnergyBar(): void {
         this.energyBarWidth = this.mapSystem.getMinimapWidth();
         this.energyBarX = this.cameras.main.centerX + (this.cameras.main.width / (2 * this.cameras.main.zoom)) - (this.energyBarWidth * 1.025) // multiplied by some (seemingly) arbitrary constant i had to brute force lol
         this.energyBarY = this.mapSystem.getMapBottomRight().y * 0.95 // another arbitrary brute forced constant
 
         console.log(this.energyBarX, this.energyBarY, this.cameras.main.zoomX)
-        
+
         // Background (Gray)
         this.energyBarBackground = this.add.graphics();
         this.energyBarBackground.fillStyle(0x444444, 1);
         this.energyBarBackground.fillRect(0, 0, this.energyBarWidth, this.energyBarHeight);
         this.energyBarBackground.setScrollFactor(0); // Fix it to the screen
-    
+
         // Foreground (Green)
         this.energyBar = this.add.graphics();
         this.energyBar.fillStyle(0x00ff00, 1);
         this.energyBar.fillRect(0, 0, this.energyBarWidth, this.energyBarHeight);
         this.energyBar.setScrollFactor(0); // Fix it to the screen
-    
+
         // Energy bar Label
         this.energyBarText = this.add.text(this.energyBarX, this.energyBarY + this.energyBarHeight, 'Energy', {
             color: 'white',
@@ -385,7 +399,7 @@ export default class IsometricScene extends Phaser.Scene {
             fontSize: '80px',
         });
         this.energyBarText.setScrollFactor(0);
-    
+
         // Move to correct position
         this.energyBarBackground.setPosition(this.energyBarX, this.energyBarY);
         this.energyBar.setPosition(this.energyBarX, this.energyBarY);
@@ -394,16 +408,16 @@ export default class IsometricScene extends Phaser.Scene {
         this.energyBarBackground.setDepth(3);
         this.energyBar.setDepth(4);
         this.energyBarText.setDepth(4);
-    
+
         this.lastBoatPosition = { x: this.boat.x, y: this.boat.y };
     }
-    
+
     private createInventoryButton(): void {
         const buttonWidth = 900;
         const buttonHeight = 150;
-        const xPos = this.energyBarX;  
+        const xPos = this.energyBarX;
         const yPos = this.energyBarY * 0.75;;
-    
+
         const buttonBg = this.add.graphics();
         const drawButtonBg = (color: number) => {
             buttonBg.clear();
@@ -413,22 +427,22 @@ export default class IsometricScene extends Phaser.Scene {
             buttonBg.strokeRoundedRect(0, 0, buttonWidth, buttonHeight, 20);
         };
         drawButtonBg(this.inventoryButtonColor);
-    
+
         const label = this.add.text(buttonWidth / 2, buttonHeight / 2, "Inventory", {
             fontFamily: "Prompt",
             fontSize: "100px",
             color: "#ffffff",
         }).setOrigin(0.5);
-    
+
         const buttonContainer = this.add.container(xPos, yPos, [buttonBg, label]);
         buttonContainer.setScrollFactor(0).setDepth(9999);
-    
+
         buttonContainer.setSize(buttonWidth, buttonHeight);
         buttonContainer.setInteractive(
             new Phaser.Geom.Rectangle(buttonWidth / 2, buttonHeight / 2, buttonWidth, buttonHeight),
             Phaser.Geom.Rectangle.Contains
         );
-    
+
         // Hover effect
         buttonContainer.on('pointerover', () => {
             drawButtonBg(this.inventoryButtonHoverColor);
@@ -436,17 +450,17 @@ export default class IsometricScene extends Phaser.Scene {
         buttonContainer.on('pointerout', () => {
             drawButtonBg(this.inventoryButtonColor);
         });
-    
+
         // Click handler
         buttonContainer.on('pointerdown', () => {
             this.showInventoryOverlay();
         });
     }
-    
-    
-    
-    
-    
+
+
+
+
+
 
     private setupInteractiveAreas(): void {
         const workMarkerInfo = {
@@ -794,7 +808,7 @@ export default class IsometricScene extends Phaser.Scene {
             },
             undefined,
             undefined,
-            () => {this.fireworkManager.createFireworkDisplay(-7159, 19045)}
+            () => { this.fireworkManager.createFireworkDisplay(-7159, 19045) }
         )
 
 
@@ -836,16 +850,16 @@ export default class IsometricScene extends Phaser.Scene {
         this.boat.update();
         const { x: boatX, y: boatY } = this.boat.getPosition();
         const distanceMoved = Phaser.Math.Distance.Between(boatX, boatY, this.lastBoatPosition.x, this.lastBoatPosition.y);
-    
+
         if (distanceMoved > 0) {
             this.energy -= (distanceMoved / this.map.tileWidth) * this.energyDrainRate;
             this.energy = Math.max(this.energy, 0); // Prevent negative energy
             this.lastBoatPosition = { x: boatX, y: boatY };
-    
+
             // Save position to localStorage
             localStorage.setItem('boatPosition', JSON.stringify({ x: boatX, y: boatY }));
         }
-    
+
         this.updateEnergyBar();
 
         if (this.mapSystem) {
@@ -983,15 +997,15 @@ export default class IsometricScene extends Phaser.Scene {
     private updateEnergyBar(): void {
         // Clear only the green bar
         this.energyBar.clear();
-    
+
         // Fill with new width based on energy level
         const newWidth = (this.energy / 100) * this.energyBarWidth;
         this.energyBar.fillStyle(0x00ff00, 1);
         this.energyBar.fillRect(0, 0, newWidth, this.energyBarHeight);
     }
-    
 
-    
+
+
 
     private async showLostBoatOverlay(): Promise<void> {
         if (this.isHandlingLostBoat) return;
@@ -1151,9 +1165,9 @@ export default class IsometricScene extends Phaser.Scene {
             this.destroyOverlayWithAnimation(overlayHtmlKey);
             return;
         }
-    
+
         console.group("Creating overlay");
-    
+
         // Load HTML content
         const htmlContent = this.cache.html.get(overlayHtmlKey);
 
@@ -1162,11 +1176,11 @@ export default class IsometricScene extends Phaser.Scene {
             console.groupEnd();
             return;
         }
-    
+
         // Create wrapper
         const htmlWrapper = document.createElement('div');
         htmlWrapper.innerHTML = htmlContent;
-    
+
         // Position the overlay to the center of the screen
         htmlWrapper.style.position = 'fixed';
         htmlWrapper.style.top = '0';
@@ -1177,13 +1191,13 @@ export default class IsometricScene extends Phaser.Scene {
         htmlWrapper.style.display = 'flex';
         htmlWrapper.style.justifyContent = 'center';
         htmlWrapper.style.alignItems = 'center';
-    
+
         // Append to the actual document body
         document.body.appendChild(htmlWrapper);
-    
+
         // Save a reference so we can remove it later
         this.overlayElement = htmlWrapper;
-    
+
         // Find the close button in the overlay HTML
         const closeButton = htmlWrapper.querySelector('.close-button');
         if (closeButton) {
@@ -1193,48 +1207,48 @@ export default class IsometricScene extends Phaser.Scene {
         } else {
             console.error("Close button not found in overlay");
         }
-    
+
         console.groupEnd();
-    
+
         // Fade in effect (optional)
         htmlWrapper.style.opacity = '0';
         htmlWrapper.style.transition = 'opacity 0.5s ease-in-out';
         setTimeout(() => {
             htmlWrapper.style.opacity = '1';
         }, 50);
-    
+
         if (!this.fishingButton && areaType === "fishing") {
             this.fishingButton = document.createElement('div');
             this.fishingButton.style.position = 'fixed';
             this.fishingButton.id = 'fishing-button';
-        
+
             // Desktop vs. mobile sizing
             if (this.game.device.os.desktop) {
                 this.fishingButton.style.top = '10vh';
                 this.fishingButton.style.left = '5vh';
-                this.fishingButton.style.width = '20vh'; 
+                this.fishingButton.style.width = '20vh';
                 this.fishingButton.style.height = '20vh';
             } else {
                 this.fishingButton.style.bottom = '10px';
                 this.fishingButton.style.right = '10px';
-                this.fishingButton.style.width = '100px'; 
+                this.fishingButton.style.width = '100px';
                 this.fishingButton.style.height = '100px';
             }
-        
+
             // The rest of your fishing button styling
             this.fishingButton.style.borderRadius = '50%';
             this.fishingButton.style.border = '4px solid #8df7f6';
-            this.fishingButton.style.backgroundColor = '#fff'; 
+            this.fishingButton.style.backgroundColor = '#fff';
             this.fishingButton.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.2)';
             this.fishingButton.style.cursor = 'pointer';
             this.fishingButton.style.zIndex = '1100';
             this.fishingButton.style.display = 'flex';
             this.fishingButton.style.justifyContent = 'center';
             this.fishingButton.style.alignItems = 'center';
-        
+
             this.fishingButton.style.opacity = '0';
             this.fishingButton.style.transition = 'opacity 0.5s ease-in-out';
-        
+
             const styleTag = document.createElement('style');
             styleTag.innerHTML = `
                 #fishing-button:hover {
@@ -1244,7 +1258,7 @@ export default class IsometricScene extends Phaser.Scene {
                 }
             `;
             document.head.appendChild(styleTag);
-        
+
             // The rod image inside the button
             const fishingRodImg = document.createElement('img');
             fishingRodImg.src = fishingRod;
@@ -1254,23 +1268,23 @@ export default class IsometricScene extends Phaser.Scene {
             fishingRodImg.style.objectFit = 'contain';
             fishingRodImg.style.opacity = '0';
             fishingRodImg.style.transition = 'opacity 0.5s ease-in-out';
-        
+
             this.fishingButton.appendChild(fishingRodImg);
             document.body.appendChild(this.fishingButton);
-        
+
             // Fade in the rod
             this.time.delayedCall(0, () => {
                 if (fishingRodImg) {
                     fishingRodImg.style.opacity = '1';
                 }
             });
-        
+
             this.time.delayedCall(500, () => {
                 if (this.fishingButton) {
                     this.fishingButton.style.opacity = '1';
                 }
             });
-        
+
             // If the button is clicked, launch the mini-game or overlay
             this.fishingButton.addEventListener('click', () => {
                 console.log(`Fishing rod button clicked! ${gameOverlayName}`);
@@ -1278,8 +1292,8 @@ export default class IsometricScene extends Phaser.Scene {
             });
         }
     }
-    
-    
+
+
 
     private destroyOverlayWithAnimation(overlayHtmlKey: string): void {
         if (this.overlayElement) {
@@ -1287,14 +1301,14 @@ export default class IsometricScene extends Phaser.Scene {
             this.overlayElement.style.opacity = '1'; // ensure it's visible
             this.overlayElement.style.transition = 'opacity 0.5s ease-in-out';
             this.overlayElement.style.opacity = '0';
-    
+
             // After fade, remove from body
             setTimeout(() => {
                 if (this.overlayElement && this.overlayElement.parentNode) {
                     this.overlayElement.parentNode.removeChild(this.overlayElement);
                 }
                 this.overlayElement = null;
-    
+
                 // Also remove fishing button if needed
                 if (this.fishingButton) {
                     this.fishingButton.remove();
@@ -1304,7 +1318,7 @@ export default class IsometricScene extends Phaser.Scene {
         } else {
             console.warn("No overlay destroyed: currently null");
         }
-    
+
         // Re-enable the button if needed
         const interactionArea = Object.values(this.interactionAreas).find(
             child => child["overlayName"] === overlayHtmlKey
@@ -1317,8 +1331,8 @@ export default class IsometricScene extends Phaser.Scene {
             );
         }
     }
-    
-    
+
+
 
     private handleXKeyPress(): void {
         Object.values(this.interactionAreas).forEach(area => area.handleInteraction());
@@ -1327,16 +1341,16 @@ export default class IsometricScene extends Phaser.Scene {
     private showGameOverlay(gameOverlayName: string): void {
         // If there's an existing overlay, remove it
         if (this.gameOverlayElement) {
-            this.destroyGameOverlay(gameOverlayName); 
+            this.destroyGameOverlay(gameOverlayName);
             return;
         }
-    
+
         console.group(`Creating game overlay: ${gameOverlayName}`);
-    
+
         // 1) Create an iframe
         const iframe = document.createElement('iframe');
         console.log(`../game-overlays/${gameOverlayName}/${gameOverlayName}.html`)
-        iframe.src = `../game-overlays/${gameOverlayName}/${gameOverlayName}.html`;  
+        iframe.src = `../game-overlays/${gameOverlayName}/${gameOverlayName}.html`;
         iframe.style.position = 'fixed';
         iframe.style.top = '0';
         iframe.style.left = '0';
@@ -1345,29 +1359,29 @@ export default class IsometricScene extends Phaser.Scene {
         iframe.style.zIndex = '9999';
         iframe.style.border = 'none';        // remove default iframe border
         iframe.allow = "accelerometer; ..."; // if your game needs special perms
-    
+
         // 2) Append to DOM
         document.body.appendChild(iframe);
         this.gameOverlayElement = iframe;    // so we can remove it later
-    
+
         // 3) Optional fade-in
         iframe.style.opacity = '0';
         iframe.style.transition = 'opacity 0.5s ease-in-out';
         setTimeout(() => {
             iframe.style.opacity = '1';
         }, 50);
-    
+
         console.groupEnd();
     }
-    
+
 
     private destroyGameOverlay(gameOverlayName: string): void {
         if (this.gameOverlayElement) {
             // Fade out
-            this.gameOverlayElement.style.opacity = '1'; 
+            this.gameOverlayElement.style.opacity = '1';
             this.gameOverlayElement.style.transition = 'opacity 0.5s ease-in-out';
             this.gameOverlayElement.style.opacity = '0';
-    
+
             // Remove from the DOM after fade
             setTimeout(() => {
                 if (this.gameOverlayElement && this.gameOverlayElement.parentNode) {
@@ -1385,9 +1399,9 @@ export default class IsometricScene extends Phaser.Scene {
             this.destroyInventoryOverlay();
             return;
         }
-    
+
         console.group("Creating inventory overlay");
-    
+
         // Create an iframe for the inventory
         const iframe = document.createElement('iframe');
         iframe.src = '../game-overlays/inventory.html';
@@ -1398,20 +1412,20 @@ export default class IsometricScene extends Phaser.Scene {
         iframe.style.height = '80%';
         iframe.style.border = 'none';
         iframe.style.zIndex = '9999';
-    
+
         // Adjust width for mobile/desktop
         iframe.style.width = this.isMobileDevice ? '100%' : '80%';
-    
+
         document.body.appendChild(iframe);
         this.inventoryOverlayElement = iframe;
-    
+
         // Fade in effect
         iframe.style.opacity = '0';
         iframe.style.transition = 'opacity 0.5s ease-in-out';
         setTimeout(() => {
             iframe.style.opacity = '1';
         }, 50);
-            
+
         // Send inventory data when the iframe loads
         iframe.addEventListener('load', () => {
             console.log('Inventory iframe loaded, sending test items...');
@@ -1420,32 +1434,32 @@ export default class IsometricScene extends Phaser.Scene {
                 items: this.inventory?.getDetailedInventory() // Sends full inventory details
             }, "*");
         });
-    
+
         console.groupEnd();
     }
-    
-    
-    
-    
-    
+
+
+
+
+
     private destroyInventoryOverlay(): void {
         if (!this.inventoryOverlayElement) {
             console.warn('No inventory overlay to destroy.');
             return;
         }
         console.log('Closing inventory overlay...');
-    
+
         // Fade out
         this.inventoryOverlayElement.style.opacity = '1';
         this.inventoryOverlayElement.style.transition = 'opacity 0.5s ease-in-out';
         this.inventoryOverlayElement.style.opacity = '0';
-    
+
         // Remove from the DOM after fade
         setTimeout(() => {
             this.inventoryOverlayElement?.parentNode?.removeChild(this.inventoryOverlayElement);
             this.inventoryOverlayElement = null;
         }, 500);
     }
-    
-    
+
+
 }

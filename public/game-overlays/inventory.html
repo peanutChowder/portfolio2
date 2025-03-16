@@ -145,6 +145,29 @@
             margin-top: auto;
         }
 
+        /* ============== MONEY DISPLAY ============== */
+        #money-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background-color: #F0E6D2;
+            padding: 8px 15px;
+            border-radius: 10px;
+            border: 2px solid #E6D9C2;
+            box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.1);
+            margin-bottom: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #7E6D5A;
+        }
+
+        #money-icon {
+            width: 28px;
+            height: 28px;
+        }
+
+
         /* ============== POPUP MENU FOR INSPECT/DUMP ======== */
         #item-popup {
             position: fixed;
@@ -255,6 +278,12 @@
                 <button class="close-button">X</button>
                 <h2>Inventory</h2>
 
+                <!-- Money Display -->
+                <div id="money-container">
+                    <img id="money-icon" src="../../assets/coin.png" alt="Coins">
+                    <span id="money-amount">0</span>
+                </div>
+
                 <!-- Popup for "inspect" / "dump" -->
                 <div id="item-popup">
                     <button id="inspect-btn">Inspect</button>
@@ -315,15 +344,20 @@
             if (event.data?.type === 'inventoryData') {
                 items = event.data.items || [];
                 buildInventoryGrid(items);
+
+                if (event.data.money !== undefined) {
+                    document.getElementById('money-amount').textContent = event.data.money;
+                }
             }
+
         });
 
 
         // ============ 3) Build Grid with Items  ============
         function buildInventoryGrid(itemsArray) {
+            const grid = document.getElementById('inventory-grid');
             grid.innerHTML = ''; // Clear old content
 
-            // show empty message
             if (itemsArray.length === 0) {
                 const emptyMessage = document.createElement('p');
                 emptyMessage.textContent = "Empty.";
@@ -350,16 +384,24 @@
                 nameDiv.textContent = item.name;
                 itemDiv.appendChild(nameDiv);
 
-                // Item quantity display
                 const quantityDiv = document.createElement('div');
                 quantityDiv.classList.add('item-quantity');
-                quantityDiv.textContent = `x${item.quantity}`;  // Show quantity
+                quantityDiv.textContent = `x${item.quantity}`;
                 itemDiv.appendChild(quantityDiv);
 
-                itemDiv.addEventListener('click', () => showInspectOverlay(item));
+                // Show inspect/dump popup when clicking
+                itemDiv.addEventListener('click', (e) => {
+                    selectedItem = item;
+                    const rect = e.currentTarget.getBoundingClientRect();
+                    itemPopup.style.left = `${rect.left + window.scrollX}px`;
+                    itemPopup.style.top = `${rect.top + window.scrollY + rect.height}px`;
+                    itemPopup.style.display = 'flex';
+                });
+
                 grid.appendChild(itemDiv);
             });
         }
+
 
 
 
@@ -459,53 +501,60 @@
             contentInner.appendChild(inspectContainer);
         }
 
-
         function restoreInventory() {
             const contentInner = document.querySelector('.content-inner');
+
+            // Store money value before clearing content
+            const moneyElement = document.getElementById('money-amount');
+            const moneyValue = moneyElement ? moneyElement.textContent : "0"; // Default to "0" if missing
+
             contentInner.innerHTML = ''; // Clear the “inspect” view
 
             // Re-inject the original “X” close button
             const mainCloseBtn = document.createElement('button');
             mainCloseBtn.classList.add('close-button');
             mainCloseBtn.textContent = 'X';
-            // Overlay-destroy logic:
             mainCloseBtn.addEventListener('click', () => {
                 parent.postMessage({ type: "destroyInventoryOverlay" }, "*");
             });
             contentInner.appendChild(mainCloseBtn);
 
-            // Re-inject the “Your Inventory” heading
+            // Re-inject the “Inventory” heading
             const inventoryTitle = document.createElement('h2');
             inventoryTitle.textContent = "Inventory";
             contentInner.appendChild(inventoryTitle);
 
+            // Re-inject the money display
+            const moneyContainer = document.createElement('div');
+            moneyContainer.id = "money-container";
+            moneyContainer.innerHTML = `
+        <img id="money-icon" src="../../assets/coin.png" alt="Coins">
+        <span id="money-amount">${moneyValue}</span>
+    `;
+            contentInner.appendChild(moneyContainer);
+
+            // Recreate the inventory grid container
+            const newGrid = document.createElement('div');
+            newGrid.id = "inventory-grid";
+            contentInner.appendChild(newGrid);
+
             // Re-append the existing #item-popup element
-            // so the inspect/dump popup is present again.
             contentInner.appendChild(itemPopup);
 
-            // Re-append your inventory grid container
-            contentInner.appendChild(grid);
-
-            // Rebuild the items so their click handlers are restored
+            // Rebuild the inventory grid with items
             buildInventoryGrid(items);
         }
 
 
 
-        // Close Inspect
+
+
+
         inspectCloseBtn.addEventListener('click', () => {
-            // Restore the inventory grid inside content-inner
-            const contentInner = document.querySelector('.content-inner');
-            contentInner.innerHTML = ''; // Clear inspection view
-            contentInner.appendChild(grid); // Restore the grid
-
-            // Restore inventory title
-            const inventoryTitle = document.createElement('h2');
-            inventoryTitle.textContent = "Inventory";
-            contentInner.prepend(inventoryTitle);
-
+            restoreInventory(); // Ensures everything gets properly rebuilt
             inspectOverlay.style.display = 'none';
         });
+
     </script>
 </body>
 
