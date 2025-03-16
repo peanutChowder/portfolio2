@@ -226,8 +226,14 @@ function initFishGame() {
             // Append both elements to the sandbox content
             sandboxContent.appendChild(caughtFish);
             sandboxContent.appendChild(fishText);
+    
+            window.parent.postMessage({
+                type: "addItemToInventory",
+                itemId: selectedFish.id
+            }, "*");
         }
     }
+    
     
 
     function spawnFish() {
