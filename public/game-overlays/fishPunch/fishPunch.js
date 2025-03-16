@@ -1,4 +1,4 @@
-import { getRandomFishByCost } from "../fishData.ts";
+import { getRandomFishByCost } from "../../src/ItemData.ts";
 
 function initFishGame() {
     console.log("Fish punch is starting!");

@@ -340,36 +340,23 @@
                 const itemDiv = document.createElement('div');
                 itemDiv.classList.add('inventory-item');
                 itemDiv.dataset.id = item.id;
-                itemDiv.dataset.name = item.name;
-                itemDiv.dataset.src = item.imgSrc;
-                itemDiv.dataset.desc = item.description || 'No description.';
 
-                // Image
                 const img = document.createElement('img');
-                img.src = itemDiv.dataset.src;
+                img.src = `../../assets/fish-sprites/${item.imgSrc}`;
                 itemDiv.appendChild(img);
 
-                // Name text
                 const nameDiv = document.createElement('div');
                 nameDiv.classList.add('item-name');
                 nameDiv.textContent = item.name;
                 itemDiv.appendChild(nameDiv);
 
-                // Directly inspect the item when clicked
-                itemDiv.addEventListener('click', (e) => {
-                    selectedItem = item;
+                // Item quantity display
+                const quantityDiv = document.createElement('div');
+                quantityDiv.classList.add('item-quantity');
+                quantityDiv.textContent = `x${item.quantity}`;  // Show quantity
+                itemDiv.appendChild(quantityDiv);
 
-                    // Get the bounding box of the clicked item
-                    const rect = e.currentTarget.getBoundingClientRect();
-                    const popupRect = itemPopup.getBoundingClientRect();
-
-                    itemPopup.style.left = (rect.left + window.scrollX + popupRect.width / 2) + 'px';
-                    itemPopup.style.top = (rect.top + window.scrollY + popupRect.height / 2) + 'px';
-
-                    // Show the popup
-                    itemPopup.style.display = 'flex';
-                });
-
+                itemDiv.addEventListener('click', () => showInspectOverlay(item));
                 grid.appendChild(itemDiv);
             });
         }
@@ -433,8 +420,8 @@
 
             // Inspect image
             const img = document.createElement('img');
-            img.src = item.imgSrc;
-            img.style.width = '30%';  
+            img.src = `../../assets/fish-sprites/${item.imgSrc}`;
+            img.style.width = '30%';
             img.style.margin = '10px 0';
             inspectContainer.appendChild(img);
 
@@ -443,7 +430,14 @@
             desc.textContent = item.description;
             inspectContainer.appendChild(desc);
 
-            // Close Button (just to leave inspection — not the entire overlay)
+            // Inspect view quantity
+            const quantityText = document.createElement('p');
+            quantityText.textContent = `Quantity: x${item.quantity}`;
+            quantityText.style.fontWeight = 'bold';
+            quantityText.style.marginTop = '10px';
+            inspectContainer.appendChild(quantityText);
+
+            // Close Button (return to inventory)
             const closeBtn = document.createElement('button');
             closeBtn.textContent = 'Back to Inventory';
             closeBtn.style.backgroundColor = '#D0B49F';

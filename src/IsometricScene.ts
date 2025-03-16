@@ -14,6 +14,7 @@ import { ArrowIndicator } from './ArrowIndicator';
 import { VirtualJoystick } from './VirtualJoystick';
 import { FireworkManager } from './Fireworks';
 import { MapSystem } from './MapSystem';
+import { Inventory } from './Inventory';
 
 const fontSize = "80px";
 const fontColor = "#ffffff"
@@ -86,6 +87,7 @@ export default class IsometricScene extends Phaser.Scene {
     private inventoryOverlayElement!: HTMLIFrameElement | null; // The HTML <iframe>
     private inventoryButtonColor = 0xd1b884;
     private inventoryButtonHoverColor = 0xe3cb98;
+    private inventory: Inventory | null = null;
     
 
 
@@ -290,6 +292,8 @@ export default class IsometricScene extends Phaser.Scene {
             this.createEnergyBar();
 
             this.createInventoryButton();
+
+            this.inventory = new Inventory(); // Initialize inventory system
 
             // Create a virtual joystick for non-desktop users to move the boat.
             if (this.isMobileDevice) {
@@ -1384,6 +1388,7 @@ export default class IsometricScene extends Phaser.Scene {
     
         console.group("Creating inventory overlay");
     
+        // Create an iframe for the inventory
         const iframe = document.createElement('iframe');
         iframe.src = '../game-overlays/inventory.html';
         iframe.style.position = 'fixed';
@@ -1393,13 +1398,9 @@ export default class IsometricScene extends Phaser.Scene {
         iframe.style.height = '80%';
         iframe.style.border = 'none';
         iframe.style.zIndex = '9999';
-
-        if (this.isMobileDevice) {
-            iframe.style.width = '100%';
-        } else {
-            iframe.style.width = '80%';
-        }
-
+    
+        // Adjust width for mobile/desktop
+        iframe.style.width = this.isMobileDevice ? '100%' : '80%';
     
         document.body.appendChild(iframe);
         this.inventoryOverlayElement = iframe;
@@ -1410,64 +1411,19 @@ export default class IsometricScene extends Phaser.Scene {
         setTimeout(() => {
             iframe.style.opacity = '1';
         }, 50);
-    
-        // Example items with description property
-        const testInventoryItems = [
-            { 
-              id: "fish1", 
-              name: "Crimson Trout", 
-              imgSrc: "../assets/fish-sprites/1.png",
-              description: "desc1" 
-            },
-            { 
-              id: "fish2", 
-              name: "Blue Salmon", 
-              imgSrc: "../assets/fish-sprites/2.png",
-              description: "desc2"
-            },
-            { 
-              id: "rod1", 
-              name: "Old Fishing Rod", 
-              imgSrc: "../assets/fish-sprites/3.png",
-              description: "desc3"
-            },
-            { 
-              id: "bait1", 
-              name: "Wriggly Worms", 
-              imgSrc: "../assets/fish-sprites/4.png",
-              description: "desc4"
-            },
-            { 
-                id: "bait12", 
-                name: "Wriggly Worms", 
-                imgSrc: "../assets/fish-sprites/4.png",
-                description: "desc4"
-              },
-              { 
-                id: "bait13", 
-                name: "Wriggly Worms", 
-                imgSrc: "../assets/fish-sprites/4.png",
-                description: "desc4"
-              },
-              { 
-                id: "bait14", 
-                name: "Wriggly Worms", 
-                imgSrc: "../assets/fish-sprites/4.png",
-                description: "desc4"
-              },
-        ];
-    
+            
         // Send inventory data when the iframe loads
         iframe.addEventListener('load', () => {
             console.log('Inventory iframe loaded, sending test items...');
             iframe.contentWindow?.postMessage({
                 type: "inventoryData",
-                items: testInventoryItems
+                items: this.inventory?.getDetailedInventory() // Sends full inventory details
             }, "*");
         });
     
         console.groupEnd();
     }
+    
     
     
     
