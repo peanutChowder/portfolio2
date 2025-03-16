@@ -46,8 +46,6 @@ function initFishGame() {
     selectedFish = getRandomFishByCost();
     console.log(`Selected fish: ${selectedFish.id}`);
 
-    console.log(selectedFish);
-
     // Create game message element for instructions & status updates
     const gameMessage = document.createElement("div");
     gameMessage.id = "game-message";
@@ -205,7 +203,7 @@ function initFishGame() {
         if (won) {    
             // Create and display the caught fish image
             const caughtFish = document.createElement("img");
-            caughtFish.src = `../../assets/fish-sprites/${selectedFish.id}.png`;
+            caughtFish.src = `../../assets/fish-sprites/${selectedFish.imgSrc}`;
             caughtFish.style.position = "absolute";
             caughtFish.style.top = "65%"; 
             caughtFish.style.left = "50%";
@@ -243,7 +241,7 @@ function initFishGame() {
     
         const fishEl = document.createElement("img");
         fishEl.classList.add("fish");
-        fishEl.src = `../../assets/fish-sprites/${selectedFish.id}.png`; 
+        fishEl.src = `../../assets/fish-sprites/${selectedFish.imgSrc}`; 
     
         const direction = Math.random() < 0.5 ? 0 : 1;
         const randomY = randInt((containerHeight / 2 - 200), (containerHeight / 2 + 200));
