@@ -90,7 +90,13 @@ function initFishGame() {
 
         // Hide the instruction message
         gameMessage.style.opacity = "0";
-
+    
+        // Send message to reduce energy
+        window.parent.postMessage({
+            type: "reduceEnergy",
+            amount: 20
+        }, "*");
+    
         // Start spawning fish
         spawnIntervalId = setInterval(spawnFish, FISH_SPAWN_INTERVAL);
 

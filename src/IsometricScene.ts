@@ -69,7 +69,6 @@ export default class IsometricScene extends Phaser.Scene {
     private energyBar!: Phaser.GameObjects.Graphics;
     private energyBarBackground!: Phaser.GameObjects.Graphics;
     private lastBoatPosition!: { x: number; y: number };
-    private energyDrainRate: number = 1; // Drain rate per tiles
     private energyBarX = 1000;
     private energyBarY = 1000;
     private energyBarWidth = 900;
@@ -306,45 +305,45 @@ export default class IsometricScene extends Phaser.Scene {
             // Listen for messages within iframes for minigames and inventory
             window.addEventListener('message', (event) => {
                 if (!event.data?.type) return;
-            
+
                 switch (event.data.type) {
 
-                    case 'addItemToInventory':
-                        {
-                            const { itemId } = event.data;
-                            console.log(`Received fish from minigame: ${itemId}`);
-
-                            if (this.inventory) {
-                                this.inventory.addItem(itemId);
-                            }
+                    case 'addItemToInventory': {
+                        const { itemId } = event.data;
+                        console.log(`Received fish from minigame: ${itemId}`);
+                        if (this.inventory) {
+                            this.inventory.addItem(itemId);
                         }
                         break;
+                    }
 
-                    case 'dumpItem':
-                        {
-                            const { itemId } = event.data;
-                            console.log(`Received request to dump item: ${itemId}`);
-
-                            if (this.inventory) {
-                                this.inventory.removeItem(itemId);
-                            }
+                    case 'dumpItem': {
+                        const { itemId } = event.data;
+                        console.log(`Received request to dump item: ${itemId}`);
+                        if (this.inventory) {
+                            this.inventory.removeItem(itemId);
                         }
                         break;
-                    
-                    // Handle inventory close
-                    case 'destroyInventoryOverlay':
-                        {
-                            this.destroyInventoryOverlay();
-                        }
-                        break;
+                    }
 
-                    case 'destroyGameOverlay':
-                        {
-                            let overlayName = event.data?.overlayName;
-                            console.log(`Received destroyGameOverlay event for overlay: ${overlayName}`);
-                            this.destroyGameOverlay(overlayName);
-                        }
+                    case 'reduceEnergy': {
+                        const { amount } = event.data;
+                        console.log(`Reducing energy by ${amount}`);
+                        this.energy -= amount;
                         break;
+                    }
+
+                    case 'destroyInventoryOverlay': {
+                        this.destroyInventoryOverlay();
+                        break;
+                    }
+
+                    case 'destroyGameOverlay': {
+                        let overlayName = event.data?.overlayName;
+                        console.log(`Received destroyGameOverlay event for overlay: ${overlayName}`);
+                        this.destroyGameOverlay(overlayName);
+                        break;
+                    }
                 }
             });
 
@@ -851,9 +850,8 @@ export default class IsometricScene extends Phaser.Scene {
         const { x: boatX, y: boatY } = this.boat.getPosition();
         const distanceMoved = Phaser.Math.Distance.Between(boatX, boatY, this.lastBoatPosition.x, this.lastBoatPosition.y);
 
+        // Save position to localStorage
         if (distanceMoved > 0) {
-            this.energy -= (distanceMoved / this.map.tileWidth) * this.energyDrainRate;
-            this.energy = Math.max(this.energy, 0); // Prevent negative energy
             this.lastBoatPosition = { x: boatX, y: boatY };
 
             // Save position to localStorage
@@ -1002,6 +1000,9 @@ export default class IsometricScene extends Phaser.Scene {
         const newWidth = (this.energy / 100) * this.energyBarWidth;
         this.energyBar.fillStyle(0x00ff00, 1);
         this.energyBar.fillRect(0, 0, newWidth, this.energyBarHeight);
+
+        // Update energy text
+        this.energyBarText.setText(`Energy: ${this.energy}%`);
     }
 
 
