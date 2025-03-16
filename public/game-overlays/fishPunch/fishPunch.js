@@ -23,6 +23,7 @@ function initFishGame() {
     const hudHits = document.getElementById('hits');
     const hudMisses = document.getElementById('misses');
     const message = document.getElementById('message');
+    const crosshair = document.getElementById('crosshair');
 
     let selectedFish = null;
 
@@ -30,6 +31,7 @@ function initFishGame() {
         console.error("sandbox-content not found! JavaScript may be executing before DOM is loaded.");
         return;
     }
+    crosshair.style.display = "none";
 
     // Random int between [min, max]
     function randInt(min, max) {
@@ -50,10 +52,10 @@ function initFishGame() {
     const gameMessage = document.createElement("div");
     gameMessage.id = "game-message";
     gameMessage.style.position = "absolute";
-    gameMessage.style.top = "30%";
+    gameMessage.style.top = isMobile() ? "45%" : "25%"; // Lower placement on mobile
     gameMessage.style.left = "50%";
     gameMessage.style.transform = "translate(-50%, -50%)";
-    gameMessage.style.fontSize = "2rem";
+    gameMessage.style.fontSize = isMobile() ? "1.5rem" : "1.8rem"; // Smaller text for mobile
     gameMessage.style.fontFamily = "'Prompt', Arial, sans-serif";
     gameMessage.style.color = "white";
     gameMessage.style.textAlign = "center";
@@ -76,8 +78,14 @@ function initFishGame() {
     // Listen for first click to start the game
     sandboxContent.addEventListener('pointerdown', startGame, { once: true });
 
+    function isMobile() {
+        return window.innerWidth <= 768; 
+    }
+    
+
     function startGame() {
         gameStarted = true;
+        crosshair.style.display = "block";
         console.log("Game started!");
 
         // Hide the instruction message
@@ -191,6 +199,7 @@ function initFishGame() {
         gameOver = true;
         message.style.display = 'block';
         message.textContent = won ? 'FISH ACQUIRED!' : 'THE FISH WERE SPOOKED AWAY!';
+        message.style.top = '20%';
         gameStatus = won ? "won" : "lost";
         clearInterval(spawnIntervalId);
         
@@ -205,7 +214,7 @@ function initFishGame() {
             const caughtFish = document.createElement("img");
             caughtFish.src = `../../assets/fish-sprites/${selectedFish.imgSrc}`;
             caughtFish.style.position = "absolute";
-            caughtFish.style.top = "65%"; 
+            caughtFish.style.top = "45%"; 
             caughtFish.style.left = "50%";
             caughtFish.style.transform = "translate(-50%, -50%)";
             caughtFish.style.width = "150px"; 
