@@ -330,6 +330,11 @@ export default class IsometricScene extends Phaser.Scene {
                         const { amount } = event.data;
                         console.log(`Reducing energy by ${amount}`);
                         this.energy -= amount;
+
+                        this.energy = Math.max(this.energy, 0);
+
+                        // Save to localStorage
+                        localStorage.setItem('energy', this.energy.toString());
                         break;
                     }
 
@@ -373,6 +378,8 @@ export default class IsometricScene extends Phaser.Scene {
     }
 
     private createEnergyBar(): void {
+        const savedEnergy = localStorage.getItem('energy');
+        this.energy = savedEnergy ? parseInt(savedEnergy, 10) : 100;
         this.energyBarWidth = this.mapSystem.getMinimapWidth();
         this.energyBarX = this.cameras.main.centerX + (this.cameras.main.width / (2 * this.cameras.main.zoom)) - (this.energyBarWidth * 1.025) // multiplied by some (seemingly) arbitrary constant i had to brute force lol
         this.energyBarY = this.mapSystem.getMapBottomRight().y * 0.95 // another arbitrary brute forced constant
