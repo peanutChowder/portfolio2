@@ -27,6 +27,8 @@ interface AreaAssignment {
     areaElementType: string | null; // e.g. "fishing", "treasure", or null
 }
 
+const debugPrint = true;
+
 export class IslandManager {
     private static readonly STORAGE_KEY = 'worldData';
     
@@ -52,43 +54,40 @@ export class IslandManager {
     private static readonly FISHING_ASSIGN_PROBABILITY = 0.7;
 
     constructor(private interactionAreas: { [key: string]: InteractionArea }) {
+        console.group("Initializing IslandManager");
         // 1) Load old data from localStorage
         this.loadFromStorage();
 
         // 2) Build or update assignments for each InteractionArea
         this.buildAssignmentsFromAreas();
 
-        // 3) If we haven't assigned in this 5-min block, do it
-        this.assignIfNeeded(false);
+        // 3) Assign game elements to areas
+        this.assignIslandGameElements(true);
 
-        // 4) Sync assigned minigames to each InteractionArea
+        // 4) Sync assigned minigames to each InteractionArea using minigameId
         this.syncToInteractionAreas();
 
-        // Debug: print assigned minigames
-        console.log('--- IslandManager Debug ---');
-        this.assignments.forEach(a => {
-            if (a.gameElementId) {
-                console.log(`Area: ${a.id} → Minigame: ${a.gameElementId}`);
-            }
-        });
-        console.log('--------------------------');
-    }
+        if (debugPrint) {
+            // Debug: print assigned minigames
+            console.log('--- IslandManager Debug ---');
+            this.assignments.forEach(a => {
+                if (a.gameElementId) {
+                    console.log(`Area: ${a.id} → Minigame: ${a.gameElementId}`);
+                }
+            });
+            console.log('--------------------------');
+        }
+        console.groupEnd();
 
-    /**
-     * If we want to forcibly reassign minigames (ignore 5-min block)
-     */
-    public forceAssignNow(): void {
-        this.assignIfNeeded(true);
-        this.syncToInteractionAreas();
     }
 
     /**
      * Ensures each InteractionArea has a corresponding assignment record.
      */
     private buildAssignmentsFromAreas(): void {
-        const areaList = Object.values(this.interactionAreas);
+        const interactionAreaInfo = Object.values(this.interactionAreas);
 
-        areaList.forEach(ia => {
+        interactionAreaInfo.forEach(ia => {
             let existing = this.assignments.find(a => a.id === ia.id);
             if (!existing) {
                 // e.g. "fishing" or "treasure"
@@ -110,57 +109,49 @@ export class IslandManager {
     }
 
     /**
-     * Check if we need to assign new minigames. 
-     * We do so if "forceNow" is true or if we're in a new 5-min block.
+     * Main function for assigning game elements to islands -- minigames, treasures, etc.
      */
-    private assignIfNeeded(forceNow: boolean): void {
-        const currentBlock = this.getCurrent5MinBlock();
-        if (forceNow || currentBlock > this.lastAssignmentBlock) {
-            this.assignAllSystems();
-            this.lastAssignmentBlock = currentBlock;
+    private assignIslandGameElements(forceNow: boolean): void {
+        const curr5MinBlock = this.getCurrent5MinBlock();
+        
+        if (forceNow || curr5MinBlock > this.lastAssignmentBlock) {    
+            this.assignments = Object.values(this.interactionAreas).map(ia => ({
+                id: ia.id,
+                gameElementId: null,
+                resourceLeft: 0,
+                areaElementType: ia.getGameElementType()  // e.g. "fishing", "treasure"
+            }));
+    
+            // Actually sync the minigames to each InteractionArea via InteractionArea.minigameId
+            this.assignFishingToIslands();
+            
+            this.lastAssignmentBlock = curr5MinBlock;
             this.saveToStorage();
-            console.log('Assigned all systems for block', currentBlock);
+            console.log("Assigned new fishing minigames");
         }
     }
-
-    /**
-     * A main function that calls each sub-assignment function (fishing, treasure, etc.)
-     */
-    private assignAllSystems(): void {
-        this.assignFishing();
-        // e.g. this.assignTreasure();
-        // e.g. this.assignPuzzles();
-    }
+    
 
     /**
      * The function dedicated to "fishing" areas
      */
-    private assignFishing(): void {
+    private assignFishingToIslands(): void {        
         this.assignments.forEach(a => {
-            // Only handle areas whose areaElementType === "fishing"
             if (a.areaElementType !== 'fishing') return;
-
-            // 70% chance we assign a fishing game
+    
             if (Math.random() < IslandManager.FISHING_ASSIGN_PROBABILITY) {
-                // Filter gameElements by 'fishing'
+                // Choose a fishing minigame
                 const possible = this.gameElements.filter(g => g.elementType === 'fishing');
                 const chosen = this.getWeightedRandomElement(possible);
-
+    
                 if (chosen) {
                     a.gameElementId = chosen.id;
                     a.resourceLeft = chosen.maxResource;
-                    console.log(`(Fishing) Assigned '${chosen.name}' to '${a.id}'`);
-                } else {
-                    a.gameElementId = null;
-                    a.resourceLeft = 0;
                 }
-            } else {
-                // 30% => nothing assigned
-                a.gameElementId = null;
-                a.resourceLeft = 0;
             }
         });
     }
+    
 
     /**
      * Weighted random picking from a list of game elements. 1.0 is the most common.
@@ -235,7 +226,6 @@ export class IslandManager {
 
         assignment.resourceLeft--;
         this.saveToStorage();
-        console.log(`Resource updated for ${assignment.gameElementId}: ${assignment.resourceLeft}`);
         return true;
     }
 
@@ -255,7 +245,7 @@ export class IslandManager {
     }
 
     /**
-     * Return ID representing the current 5-min block: e.g. 202604121405 for 14:05
+     * Return ID representing the current 5-min block.
      */
     private getCurrent5MinBlock(): number {
         const now = new Date();

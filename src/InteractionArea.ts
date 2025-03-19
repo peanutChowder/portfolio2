@@ -349,7 +349,7 @@ export default class InteractionArea {
     }
 
     public getGameElementType(): string | null {
-        return (this as any).areaConfig?.gameElementType || null;
+        return this.gameElementType;
     }
 
     public setMinigameId(minigameId: string): void {
