@@ -1,6 +1,5 @@
 import Phaser from 'phaser';
 import { Boat } from './Boat';
-import InteractionArea from './InteractionArea';
 
 // import map & map tiles
 import mapJSON from '../assets/world2/world2.json';
@@ -10,6 +9,9 @@ import tileset256x512Trees from '../assets/world2/256x512 Trees.png'
 import tileset256x128TileOverlays from '../assets/world2/256x128 Tile Overlays.png'
 import fishingRod from '../assets/fishing/rod.jpg'
 
+import { INTERACTION_AREAS } from './InteractionAreaData';
+import InteractionArea from './InteractionArea';
+import { IslandManager } from './IslandManager'; 
 import { ArrowIndicator } from './ArrowIndicator';
 import { VirtualJoystick } from './VirtualJoystick';
 import { FireworkManager } from './Fireworks';
@@ -198,7 +200,7 @@ export default class IsometricScene extends Phaser.Scene {
 
             // Draw our interaction zones marked by an ellipse.
             // Interaction zones are areas where users can activate an overlay to see embedded content.
-            this.setupInteractiveAreas();
+            this.createStaticInteractionAreas();
 
             // Draw layer 2 (layer number 1), the lowest land layer
             layerNum = 1
@@ -465,373 +467,22 @@ export default class IsometricScene extends Phaser.Scene {
 
 
 
-
-
-
-    private setupInteractiveAreas(): void {
-        const workMarkerInfo = {
-            color: 0x9028f7,
-            radius: 40,
-            locationType: "Work"
-        }
-
-        const projectMarkerInfo = {
-            color: 0x134aba,
-            radius: 40,
-            locationType: "Projects"
-        }
-
-        const safehouseMarkerInfo = {
-            color: 0,
-            radius: -1,
-            locationType: "Safehouse"
-        }
-
-        const safehouseFloatingText = {
-            text: "Safehouse",
-            color: "#2a473a",
-            font: fontFamilies["header"],
-            fontSize: "130px",
-            offset: {
-                x: 0, y: -1000
-            }
-        }
-
-        this.interactionAreas["experience-Apple"] = new InteractionArea(
-            this,
-            10000, 8963,
-            3900, 2000,
-            "Apple",
-            "experienceOverlay-Apple",
-            0xaa9cff,
-            0xc4baff,
-            {
-                text: "Click for my time at Apple",
-                font: fontFamilies["header"],
-                fontColor: "#ffffff",
-                color: 0xaa9cff,
-                hoverColor: 0x9887fa
-            },
-            {
-                text: "Software Engineer Intern\n        @ Apple",
-                color: "#7340f5",
-                font: fontFamilies["header"],
-                fontSize: "220px",
-                offset: {
-                    x: -0, y: -1200
-                }
-            },
-            workMarkerInfo
-        )
-
-        this.interactionAreas["experience-Teck"] = new InteractionArea(
-            this,
-            15600, 15800,
-            4100, 2300,
-            "Teck",
-            "experienceOverlay-Teck",
-            0x266dc9,
-            0x70a3e6,
-            {
-                text: "Click for my time at Teck",
-                font: fontFamilies["header"],
-                fontColor: "#ffffff",
-                color: 0x266dc9,
-                hoverColor: 0x1960bd
-            },
-            {
-                text: "Wireless Engineer Co-op\n        @ Teck",
-                color: "#1960bd",
-                font: fontFamilies["header"],
-                fontSize: "220px",
-                offset: {
-                    x: -0, y: -1000
-                }
-            },
-            workMarkerInfo
-        )
-
-        this.interactionAreas["experience-UAlberta"] = new InteractionArea(
-            this,
-            -2064, 16620,
-            4100, 2300,
-            "UAlberta",
-            "experienceOverlay-UAlberta",
-            0x21570a,
-            0x688c58,
-            {
-                text: "Click for my time at UAlberta",
-                font: fontFamilies["header"],
-                fontColor: "#ffffff",
-                color: 0x21570a,
-                hoverColor: 0x2d6e10
-            },
-            {
-                text: "Data Analyst Co-op\n    @ UAlberta",
-                color: "#21570a",
-                font: fontFamilies["header"],
-                fontSize: "220px",
-                offset: {
-                    x: -0, y: -1000
-                }
-            },
-            workMarkerInfo
-        )
-
-        this.interactionAreas["education"] = new InteractionArea(
-            this,
-            8689, 13200,
-            3600, 2700,
-            "Education",
-            "educationOverlay",
-            0x21570a,
-            0x688c58,
-            {
-                text: "Click to see my Education",
-                font: fontFamilies["header"],
-                fontColor: "#ffffff",
-                color: 0x21570a,
-                hoverColor: 0x2d6e10
-            },
-            {
-                text: "Education: UAlberta",
-                color: "#21570a",
-                font: fontFamilies["header"],
-                fontSize: "220px",
-                offset: {
-                    x: -0, y: -1420
-                }
-            },
-            {
-                color: 0x114a19,
-                radius: 40,
-                locationType: "Education"
-            }
-        )
-
-        this.interactionAreas["olympicWeightlifting"] = new InteractionArea(
-            this,
-            7780, 6061,
-            2700, 1700,
-            "Olympic\nWeightlifting",
-            "owOverlay",
-            0x145b66,
-            0x43a6b5,
-            {
-                text: "Click to see Olympic\nWeightlifting Content",
-                font: fontFamilies["header"],
-                fontColor: "#ffffff",
-                color: 0x145b66,
-                hoverColor: 0x208999
-            },
-            {
-                text: "Olympic Weightlifting",
-                color: "#145b66",
-                font: fontFamilies["header"],
-                fontSize: "130px",
-                offset: {
-                    x: 0, y: -600
-                }
-            },
-            {
-                color: 0xdbaf1f,
-                radius: 40,
-                locationType: "Oly-Lifting"
-            }
-        )
-
-        this.interactionAreas["formFitness"] = new InteractionArea(
-            this,
-            11390, 16569,
-            3400, 2000,
-            "iOS App",
-            "ffOverlay",
-            0xffa405,
-            0xffdb9c,
-            {
-                text: "Click to see FormFitness",
-                font: fontFamilies["header"],
-                fontColor: "#ffffff",
-                color: 0xa38b48,
-                hoverColor: 0xb89944
-            },
-            {
-                text: "FormFitness",
-                color: "#9e4a09",
-                font: fontFamilies["header"],
-                fontSize: "130px",
-                offset: {
-                    x: 0, y: 100
-                }
-            },
-            projectMarkerInfo,
-            undefined,
-            "fishing",
-            "fishPunch"
-        )
-
-        this.interactionAreas["imageCaptioner"] = new InteractionArea(
-            this,
-            1021, 21472,
-            3400, 2000,
-            "Image Captioner",
-            "icOverlay",
-            0x03b1fc,
-            0x2ad9f7,
-            {
-                text: "Click to see Image Captioner",
-                font: fontFamilies["header"],
-                fontColor: "#ffffff",
-                color: 0x03b1fc,
-                hoverColor: 0x2ad9f7
-            },
-            {
-                text: "Image Captioner",
-                color: "#0a34a8",
-                font: fontFamilies["header"],
-                fontSize: "130px",
-                offset: {
-                    x: 0, y: -800
-                }
-            },
-            projectMarkerInfo
-        )
-
-        this.interactionAreas["aiAsteroids"] = new InteractionArea(
-            this,
-            5378, 14325,
-            3400, 2000,
-            "Asteroids Bot",
-            "abOverlay",
-            0x2019e3,
-            0x7672e8,
-            {
-                text: "Click to see AI Asteroids Bot",
-                font: fontFamilies["header"],
-                fontColor: "#ffffff",
-                color: 0x7672e8,
-                hoverColor: 0x9894f7
-            },
-            {
-                text: "Asteroids Bot",
-                color: "#38375c",
-                font: fontFamilies["header"],
-                fontSize: "130px",
-                offset: {
-                    x: 0, y: -900
-                }
-            },
-            projectMarkerInfo
-        )
-
-        this.interactionAreas["concurrentCLI"] = new InteractionArea(
-            this,
-            -7178, 15667,
-            3400, 2000,
-            "Concurrent Processes",
-            "cpOverlay",
-            0x063580,
-            0x1e66d9,
-            {
-                text: "Click to see Concurrent\nProcess Manager",
-                font: fontFamilies["header"],
-                fontColor: "#ffffff",
-                color: 0x063580,
-                hoverColor: 0x1e66d9
-            },
-            {
-                text: "Concurrent Process\n      Manager",
-                color: "#38375c",
-                font: fontFamilies["header"],
-                fontSize: "130px",
-                offset: {
-                    x: 0, y: -600
-                }
-            },
-            projectMarkerInfo
-        )
-
-        this.interactionAreas["inventoryManager"] = new InteractionArea(
-            this,
-            3771, 9288,
-            3400, 2000,
-            "Inventory Manager",
-            "imOverlay",
-            0x0fd47b,
-            0x69f5cb,
-            {
-                text: "Click to see Inventory Manager",
-                font: fontFamilies["header"],
-                fontColor: "#ffffff",
-                color: 0x1b8c59,
-                hoverColor: 0x0fd47b
-            },
-            {
-                text: "Inventory Manager\n    [Android]",
-                color: "#2a473a",
-                font: fontFamilies["header"],
-                fontSize: "130px",
-                offset: {
-                    x: 0, y: -1000
-                }
-            },
-            projectMarkerInfo
-        )
-
-        this.interactionAreas["welcome"] = new InteractionArea(
-            this,
-            15510, 12315,
-            4100, 2300,
-            "Safehouse",
-            "welcomeOverlay",
-            0x1689f5,
-            0x34b4eb,
-            {
-                text: "Enter Safehouse",
-                font: fontFamilies["header"],
-                fontColor: "#ffffff",
-                color: 0x1689f5,
-                hoverColor: 0x34b4eb
-            },
-            safehouseFloatingText,
-            safehouseMarkerInfo
-        )
-
-        this.interactionAreas["fireworks"] = new InteractionArea(
-            this,
-            -7159, 19045,
-            3000, 1500,
-            "",
-            "",
-            0xa361fa,
-            0xc89eff,
-            {
-                text: "Click me!",
-                font: fontFamilies["header"],
-                fontColor: "#ffffff",
-                color: 0xa361fa,
-                hoverColor: 0xc89eff
-            },
-            undefined,
-            undefined,
-            () => { this.fireworkManager.createFireworkDisplay(-7159, 19045) }
-        )
-
-
+    private createStaticInteractionAreas(): void {
+        INTERACTION_AREAS.forEach(areaData => {
+            const area = new InteractionArea(this, areaData);
+    
+            // Local access to IAs
+            this.interactionAreas[areaData.id] = area;
+        });
+    
         if (arrowIndicatorsEnabled) {
-            // Create arrow indicators for each interaction area
-            let arrowRadius;
-            if (this.game.device.os.desktop) {
-                arrowRadius = 2000;
-            } else {
-                arrowRadius = 900;
-            }
+            let arrowRadius = this.game.device.os.desktop ? 2000 : 900;
+    
             Object.entries(this.interactionAreas).forEach(([key, area]) => {
                 const { x, y } = area.getCenter();
                 this.arrowIndicators[key] = new ArrowIndicator(
                     this,
-                    x,
-                    y,
+                    x, y,
                     area.getName(),
                     fontFamilies,
                     {
@@ -839,16 +490,16 @@ export default class IsometricScene extends Phaser.Scene {
                         textSize: 120,
                         arrowColor: 0xffffff,
                         textColor: '#ffffff',
-                        radius: arrowRadius // Distance from boat to arrow
-                    });
+                        radius: arrowRadius
+                    }
+                );
             });
         }
-
-
+    
         if (this.input.keyboard) {
             this.input.keyboard.on('keydown-X', this.handleXKeyPress, this);
         } else {
-            console.error("Error: Could not add 'x' key listener")
+            console.error("Error: Could not add 'x' key listener");
         }
     }
 
@@ -965,6 +616,10 @@ export default class IsometricScene extends Phaser.Scene {
                 tile.setAlpha(alpha);
             }
         }
+    }
+
+    public getFireworkManager(): FireworkManager {
+        return this.fireworkManager;
     }
 
     public calcBoatFog(worldX: number, worldY: number): number {
