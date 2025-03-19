@@ -885,7 +885,8 @@ export default class IsometricScene extends Phaser.Scene {
             htmlWrapper.style.opacity = '1';
         }, 50);
 
-        if (!this.fishingButton && areaType === "fishing") {
+        // Create our fishing launch button if it's a fishing area + it's been randomly assigned a minigame
+        if (!this.fishingButton && areaType === "fishing" && gameOverlayName != "") {
             this.fishingButton = document.createElement('div');
             this.fishingButton.style.position = 'fixed';
             this.fishingButton.id = 'fishing-button';
