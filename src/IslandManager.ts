@@ -1,8 +1,6 @@
 // IslandManager.ts
 
 import InteractionArea from './InteractionArea';
-import { InteractionAreaData } from './InteractionAreaData';
-
 /**
  * A "game element" that can be randomly assigned (fish, treasure, etc.)
  */
@@ -31,7 +29,7 @@ const debugPrint = true;
 
 export class IslandManager {
     private static readonly STORAGE_KEY = 'worldData';
-    
+
     // 5-minute block from last assignment
     private lastAssignmentBlock: number = 0;
 
@@ -62,7 +60,7 @@ export class IslandManager {
         this.buildAssignmentsFromAreas();
 
         // 3) Assign game elements to areas
-        this.assignIslandGameElements(true);
+        this.assignIslandGameElements(false);
 
         // 4) Sync assigned minigames to each InteractionArea using minigameId
         this.syncToInteractionAreas();
@@ -111,39 +109,39 @@ export class IslandManager {
     /**
      * Main function for assigning game elements to islands -- minigames, treasures, etc.
      */
-    private assignIslandGameElements(forceNow: boolean): void {
+    public assignIslandGameElements(forceNow: boolean): void {
         const curr5MinBlock = this.getCurrent5MinBlock();
-        
-        if (forceNow || curr5MinBlock > this.lastAssignmentBlock) {    
+
+        if (forceNow || curr5MinBlock > this.lastAssignmentBlock) {
             this.assignments = Object.values(this.interactionAreas).map(ia => ({
                 id: ia.id,
                 gameElementId: null,
                 resourceLeft: 0,
                 areaElementType: ia.getGameElementType()  // e.g. "fishing", "treasure"
             }));
-    
+
             // Actually sync the minigames to each InteractionArea via InteractionArea.minigameId
             this.assignFishingToIslands();
-            
+
             this.lastAssignmentBlock = curr5MinBlock;
             this.saveToStorage();
             console.log("Assigned new fishing minigames");
         }
     }
-    
+
 
     /**
      * The function dedicated to "fishing" areas
      */
-    private assignFishingToIslands(): void {        
+    private assignFishingToIslands(): void {
         this.assignments.forEach(a => {
             if (a.areaElementType !== 'fishing') return;
-    
+
             if (Math.random() < IslandManager.FISHING_ASSIGN_PROBABILITY) {
                 // Choose a fishing minigame
                 const possible = this.gameElements.filter(g => g.elementType === 'fishing');
                 const chosen = this.getWeightedRandomElement(possible);
-    
+
                 if (chosen) {
                     a.gameElementId = chosen.id;
                     a.resourceLeft = chosen.maxResource;
@@ -151,7 +149,7 @@ export class IslandManager {
             }
         });
     }
-    
+
 
     /**
      * Weighted random picking from a list of game elements. 1.0 is the most common.
@@ -257,7 +255,7 @@ export class IslandManager {
         minute = minute - (minute % 5);
 
         return (year * 100000000) + (month * 1000000)
-               + (day * 10000) + (hour * 100)
-               + minute;
+            + (day * 10000) + (hour * 100)
+            + minute;
     }
 }
