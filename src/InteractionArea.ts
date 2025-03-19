@@ -24,8 +24,8 @@ export default class InteractionArea {
     public markerInfo?: { color: number; radius: number; locationType: string };
 
     // The "areaType" (e.g. "fishing") & minigame name (e.g. "fishPunch")
-    private areaType: string;
-    private gameOverlayName: string;
+    private gameElementType: string;
+    private minigameId: string = "";
 
     // Button / clickable overlay
     private interactionButton!: Phaser.GameObjects.Container;
@@ -92,8 +92,7 @@ export default class InteractionArea {
 
         // Minigame data
         // E.g. "fishing" -> areaType, "fishPunch" -> gameOverlayName
-        this.areaType = areaData.gameElementType || '';
-        this.gameOverlayName = areaData.minigameId || '';
+        this.gameElementType = areaData.gameElementType || '';
 
         // Draw the ellipse
         this.drawEllipse(lineColor, fillColor);
@@ -286,7 +285,7 @@ export default class InteractionArea {
         // Otherwise, show an overlay (the old default)
         // e.g. (this.scene as any).showOverlay(this.overlayName, this.areaType, this.gameOverlayName)
         if ((this.scene as any).showOverlay) {
-            (this.scene as any).showOverlay(this.overlayName, this.areaType, this.gameOverlayName);
+            (this.scene as any).showOverlay(this.overlayName, this.gameElementType, this.minigameId);
         }
         this.ignoreButtonClick = false;
     }
@@ -351,6 +350,10 @@ export default class InteractionArea {
 
     public getGameElementType(): string | null {
         return (this as any).areaConfig?.gameElementType || null;
+    }
+
+    public setMinigameId(minigameId: string): void {
+        this.minigameId = minigameId;
     }
     
 }
