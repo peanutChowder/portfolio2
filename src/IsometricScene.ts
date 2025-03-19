@@ -831,6 +831,11 @@ export default class IsometricScene extends Phaser.Scene {
             return;
         }
 
+        // We check if we need to refresh the island game element
+        // assignments before showing the overlay. If within a new
+        // time block, we do.
+        this.islandManager.assignIslandGameElements(false);
+
         console.group("Creating overlay");
 
         // Load HTML content
