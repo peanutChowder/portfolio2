@@ -7,6 +7,8 @@ export default class InteractionArea {
     private graphics: Phaser.GameObjects.Graphics;
     private isVisible: boolean;
 
+    public id!: string;
+
     // Scene & overlay references
     private scene: Phaser.Scene;
     private overlayName: string;        // eg: "experienceOverlay-Teck"
@@ -40,9 +42,15 @@ export default class InteractionArea {
     // If there's a custom action (e.g. fireworks) instead of the normal overlay
     private buttonClickHandler?: (scene: Phaser.Scene) => void;
 
+    // Data object containing things like "displayName", "overlayKey", "position", etc.
+    private areaData: InteractionAreaData;
+
     constructor(scene: Phaser.Scene, areaData: InteractionAreaData) {
         this.scene = scene;
         this.isVisible = true;
+        this.areaData = areaData;
+
+        this.id = areaData.id;
 
         // Convert new data fields to old fields
         this.displayName = areaData.displayName;
@@ -84,7 +92,7 @@ export default class InteractionArea {
 
         // Minigame data
         // E.g. "fishing" -> areaType, "fishPunch" -> gameOverlayName
-        this.areaType = areaData.minigameType || '';
+        this.areaType = areaData.gameElementType || '';
         this.gameOverlayName = areaData.minigameId || '';
 
         // Draw the ellipse
@@ -340,4 +348,9 @@ export default class InteractionArea {
     setIgnoreButtonClick(ignore: boolean): void {
         this.ignoreButtonClick = ignore;
     }
+
+    public getGameElementType(): string | null {
+        return (this as any).areaConfig?.gameElementType || null;
+    }
+    
 }

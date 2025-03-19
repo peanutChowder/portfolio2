@@ -90,7 +90,8 @@ export default class IsometricScene extends Phaser.Scene {
     private inventoryButtonHoverColor = 0xe3cb98;
     private inventory: Inventory | null = null;
     
-
+    // Game elements manager
+    private islandManager!: IslandManager;
 
     // Debug text attributes
     private debugText!: Phaser.GameObjects.Text;
@@ -200,7 +201,11 @@ export default class IsometricScene extends Phaser.Scene {
 
             // Draw our interaction zones marked by an ellipse.
             // Interaction zones are areas where users can activate an overlay to see embedded content.
-            this.createStaticInteractionAreas();
+            this.createInteractionAreas();
+
+            // Retrieve game element assignments to islands (or create if first visit)
+            this.islandManager = new IslandManager(this.interactionAreas);
+            console.log(this.interactionAreas)
 
             // Draw layer 2 (layer number 1), the lowest land layer
             layerNum = 1
@@ -467,7 +472,7 @@ export default class IsometricScene extends Phaser.Scene {
 
 
 
-    private createStaticInteractionAreas(): void {
+    private createInteractionAreas(): void {
         INTERACTION_AREAS.forEach(areaData => {
             const area = new InteractionArea(this, areaData);
     
