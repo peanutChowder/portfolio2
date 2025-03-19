@@ -203,10 +203,6 @@ export default class IsometricScene extends Phaser.Scene {
             // Interaction zones are areas where users can activate an overlay to see embedded content.
             this.createInteractionAreas();
 
-            // Retrieve game element assignments to islands (or create if first visit)
-            this.islandManager = new IslandManager(this.interactionAreas);
-            console.log(this.interactionAreas)
-
             // Draw layer 2 (layer number 1), the lowest land layer
             layerNum = 1
             layer = this.map.createLayer(layerNum, tilesets, 0, 0);
@@ -269,6 +265,9 @@ export default class IsometricScene extends Phaser.Scene {
             console.groupEnd();
             // End of map and element drawing
             // ------------------------------------------------------------------------
+
+            // Retrieve game element assignments to islands (or create if first visit)
+            this.islandManager = new IslandManager(this.interactionAreas);
 
             // Create firework animations
             this.fireworkManager.create()
