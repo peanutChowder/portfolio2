@@ -44,10 +44,6 @@ function initFishGame() {
     fishingRod.src = "../../assets/fishing/rod_ingame.png";
     sandboxContent.appendChild(fishingRod);
 
-    // Select a fish
-    selectedFish = getRandomFishByCost();
-    console.log(`Selected fish: ${selectedFish.id}`);
-
     // Create game message element for instructions & status updates
     const gameMessage = document.createElement("div");
     gameMessage.id = "game-message";
@@ -84,6 +80,10 @@ function initFishGame() {
     
 
     function startGame() {
+        // Select a fish
+        selectedFish = getRandomFishByCost();
+        console.log(`Selected fish: ${selectedFish.id}`);
+        
         gameStarted = true;
         crosshair.style.display = "block";
         console.log("Game started!");
