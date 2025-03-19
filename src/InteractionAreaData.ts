@@ -58,7 +58,7 @@ export interface InteractionAreaData {
     markerInfo?: MarkerInfoConfig;
 
     // If this area starts a minigame, specify these
-    minigameType?: string; 
+    gameElementType?: string; // e.g. "fishing", "treasure", or undefined if no spawns
     minigameId?: string;  
 
     // A custom callback if the area has a unique interaction (e.g. fireworks)
@@ -95,7 +95,8 @@ export const INTERACTION_AREAS: InteractionAreaData[] = [
             baseColor: 0x9028f7,
             radius: 40,
             locationType: "Work"
-        }
+        },
+        gameElementType: "fishing",
     },
     {
         id: "experience-Teck",
@@ -126,7 +127,8 @@ export const INTERACTION_AREAS: InteractionAreaData[] = [
             baseColor: 0x9028f7,
             radius: 40,
             locationType: "Work"
-        }
+        },
+        gameElementType: "fishing",
     },
     {
         id: "experience-UAlberta",
@@ -157,7 +159,8 @@ export const INTERACTION_AREAS: InteractionAreaData[] = [
             baseColor: 0x9028f7,
             radius: 40,
             locationType: "Work"
-        }
+        },
+        gameElementType: "fishing",
     },
     {
         id: "education",
@@ -188,7 +191,8 @@ export const INTERACTION_AREAS: InteractionAreaData[] = [
             baseColor: 0x114a19,
             radius: 40,
             locationType: "Education"
-        }
+        },
+        gameElementType: "fishing",
     },
     {
         id: "olympicWeightlifting",
@@ -219,7 +223,8 @@ export const INTERACTION_AREAS: InteractionAreaData[] = [
             baseColor: 0xdbaf1f,
             radius: 40,
             locationType: "Oly-Lifting"
-        }
+        },
+        gameElementType: "fishing",
     },
     {
         id: "formFitness",
@@ -251,8 +256,7 @@ export const INTERACTION_AREAS: InteractionAreaData[] = [
             radius: 40,
             locationType: "Projects"
         },
-        minigameType: "fishing",
-        minigameId: "fishPunch"
+        gameElementType: "fishing",
     },
     {
         id: "imageCaptioner",
@@ -283,7 +287,8 @@ export const INTERACTION_AREAS: InteractionAreaData[] = [
             baseColor: 0x134aba,
             radius: 40,
             locationType: "Projects"
-        }
+        },
+        gameElementType: "fishing",
     },
     {
         id: "aiAsteroids",
@@ -314,7 +319,8 @@ export const INTERACTION_AREAS: InteractionAreaData[] = [
             baseColor: 0x134aba,
             radius: 40,
             locationType: "Projects"
-        }
+        },
+        gameElementType: "fishing",
     },
     {
         id: "concurrentCLI",
@@ -345,7 +351,8 @@ export const INTERACTION_AREAS: InteractionAreaData[] = [
             baseColor: 0x134aba,
             radius: 40,
             locationType: "Projects"
-        }
+        },
+        gameElementType: "fishing",
     },
     {
         id: "inventoryManager",
@@ -376,7 +383,8 @@ export const INTERACTION_AREAS: InteractionAreaData[] = [
             baseColor: 0x134aba,
             radius: 40,
             locationType: "Projects"
-        }
+        },
+        gameElementType: "fishing",
     },
     {
         id: "welcome",
