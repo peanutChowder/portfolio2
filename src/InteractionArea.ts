@@ -48,6 +48,9 @@ export default class InteractionArea {
     // Glowing effect for InteractionAreas with Game elements assigned
     private glowGraphics!: Phaser.GameObjects.Graphics;
     private glowTween?: Phaser.Tweens.Tween;
+    private minigameIdGlowColors: { [key: string]: number } = {
+        "fishPunch": 0xe8feff
+    };
 
     constructor(scene: Phaser.Scene, areaData: InteractionAreaData) {
         this.scene = scene;
@@ -376,14 +379,15 @@ export default class InteractionArea {
         }
         this.glowGraphics.clear();
 
-        this.glowGraphics.lineStyle(30, 0xffffff, 1); 
+        const glowColor: number = this.minigameIdGlowColors[this.minigameId];
+        this.glowGraphics.lineStyle(30, glowColor, 1); 
         this.glowGraphics.strokeEllipseShape(this.ellipse);
         this.glowGraphics.setDepth(0);
 
         this.glowTween = this.scene.tweens.add({
             targets: this.glowGraphics,
             alpha: { from: 0.2, to: 1.0 },
-            duration: 2000,
+            duration: 1000,
             yoyo: true,
             repeat: -1,
             ease: 'Sine.easeIn'
