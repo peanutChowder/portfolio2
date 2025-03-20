@@ -463,7 +463,9 @@
             // Inspect image
             const img = document.createElement('img');
             img.src = `../../assets/fish-sprites/${item.imgSrc}`;
-            img.style.width = '30%';
+            img.onload = () => {
+                img.style.width = `${img.naturalWidth * 1.5}px`;
+            };
             img.style.margin = '10px 0';
             inspectContainer.appendChild(img);
 
