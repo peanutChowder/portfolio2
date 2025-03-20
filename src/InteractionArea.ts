@@ -45,6 +45,10 @@ export default class InteractionArea {
     // Data object containing things like "displayName", "overlayKey", "position", etc.
     private areaData: InteractionAreaData;
 
+    // Glowing effect for InteractionAreas with Game elements assigned
+    private glowGraphics!: Phaser.GameObjects.Graphics;
+    private glowTween?: Phaser.Tweens.Tween;
+
     constructor(scene: Phaser.Scene, areaData: InteractionAreaData) {
         this.scene = scene;
         this.isVisible = true;
@@ -319,6 +323,9 @@ export default class InteractionArea {
      */
     destroy(): void {
         this.graphics.destroy();
+        if (this.glowTween) this.glowTween.stop();
+        this.glowGraphics.destroy();
+
         this.interactionButton.off('pointerover', this.onButtonHover, this);
         this.interactionButton.off('pointerout', this.onButtonOut, this);
         this.interactionButton.off('pointerdown', this.handleClick, this);
@@ -355,5 +362,31 @@ export default class InteractionArea {
     public setMinigameId(minigameId: string): void {
         this.minigameId = minigameId;
     }
-    
+
+    public handleGlowEffect(): void {
+        if (this.gameElementType != "fishing") return;
+
+        if (!this.glowGraphics) {
+            this.glowGraphics = this.scene.add.graphics();
+        }
+
+        // Clear old glow if needed
+        if (this.glowTween) {
+            this.glowTween.stop();
+        }
+        this.glowGraphics.clear();
+
+        this.glowGraphics.lineStyle(30, 0xffffff, 1); 
+        this.glowGraphics.strokeEllipseShape(this.ellipse);
+        this.glowGraphics.setDepth(0);
+
+        this.glowTween = this.scene.tweens.add({
+            targets: this.glowGraphics,
+            alpha: { from: 0.2, to: 1.0 },
+            duration: 2000,
+            yoyo: true,
+            repeat: -1,
+            ease: 'Sine.easeIn'
+        });
+    }
 }

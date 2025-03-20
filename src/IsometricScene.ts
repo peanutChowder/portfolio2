@@ -199,9 +199,19 @@ export default class IsometricScene extends Phaser.Scene {
                 console.error(`Error getting layer number '${layerNum}'`);
             }
 
-            // Draw our interaction zones marked by an ellipse.
+
+            // The following steps must be executed in this order because they are dependent on each other.
+            // (1.) Initialize Interaction Area objects and draw our interaction zones marked by an ellipse.
             // Interaction zones are areas where users can activate an overlay to see embedded content.
             this.createInteractionAreas();
+
+            // (2.) Retrieve game element assignments to islands (or create if first visit)
+            this.islandManager = new IslandManager(this.interactionAreas);
+
+            // (3.) Enable glowing for interactions with an assigned Game element
+            Object.values(this.interactionAreas).forEach((interactionArea: InteractionArea) => {
+                interactionArea.handleGlowEffect();
+            })
 
             // Draw layer 2 (layer number 1), the lowest land layer
             layerNum = 1
@@ -265,9 +275,6 @@ export default class IsometricScene extends Phaser.Scene {
             console.groupEnd();
             // End of map and element drawing
             // ------------------------------------------------------------------------
-
-            // Retrieve game element assignments to islands (or create if first visit)
-            this.islandManager = new IslandManager(this.interactionAreas);
 
             // Create firework animations
             this.fireworkManager.create()
