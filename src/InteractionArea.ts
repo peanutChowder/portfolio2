@@ -46,7 +46,7 @@ export default class InteractionArea {
     private areaData: InteractionAreaData;
 
     // Glowing effect for InteractionAreas with Game elements assigned
-    private glowGraphics!: Phaser.GameObjects.Graphics;
+    private glowGraphics!: Phaser.GameObjects.Graphics | undefined;
     private glowTween?: Phaser.Tweens.Tween;
     private minigameIdGlowColors: { [key: string]: number } = {
         "fishPunch": 0xe8feff
@@ -327,7 +327,7 @@ export default class InteractionArea {
     destroy(): void {
         this.graphics.destroy();
         if (this.glowTween) this.glowTween.stop();
-        this.glowGraphics.destroy();
+        this.glowGraphics?.destroy();
 
         this.interactionButton.off('pointerover', this.onButtonHover, this);
         this.interactionButton.off('pointerout', this.onButtonOut, this);
@@ -367,18 +367,23 @@ export default class InteractionArea {
     }
 
     public handleGlowEffect(): void {
-        if (this.gameElementType != "fishing") return;
-
-        if (!this.glowGraphics) {
-            this.glowGraphics = this.scene.add.graphics();
-        }
-
-        // Clear old glow if needed
         if (this.glowTween) {
             this.glowTween.stop();
+            this.glowTween = undefined;
         }
-        this.glowGraphics.clear();
+        
+        if (this.glowGraphics) {
+            this.glowGraphics.clear();
+            this.glowGraphics.destroy();
+            this.glowGraphics = undefined;
+        }
 
+        // only add graphics if assigned a game element
+        if (this.minigameIdGlowColors.hasOwnProperty(this.minigameId) === false) {
+            return
+        }
+
+        this.glowGraphics = this.scene.add.graphics();
         const glowColor: number = this.minigameIdGlowColors[this.minigameId];
         this.glowGraphics.lineStyle(30, glowColor, 1); 
         this.glowGraphics.strokeEllipseShape(this.ellipse);

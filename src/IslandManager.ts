@@ -109,7 +109,7 @@ export class IslandManager {
     /**
      * Main function for assigning game elements to islands -- minigames, treasures, etc.
      */
-    public assignIslandGameElements(forceNow: boolean): void {
+    public assignIslandGameElements(forceNow: boolean): boolean {
         const curr5MinBlock = this.getCurrent5MinBlock();
 
         if (forceNow || curr5MinBlock > this.lastAssignmentBlock) {
@@ -126,7 +126,9 @@ export class IslandManager {
             this.lastAssignmentBlock = curr5MinBlock;
             this.saveToStorage();
             console.log("Assigned new fishing minigames");
+            return true;
         }
+        return false
     }
 
 

@@ -365,6 +365,23 @@ export default class IsometricScene extends Phaser.Scene {
                 }
             });
 
+            // Check if we need to perform random shuffling of minigames
+            this.time.addEvent({
+                delay: 1000, // 1s refresh
+                callback: () => {
+                    // Check if we need to re-assign game elements.
+                    // If so, we re-assign + re-sync the glow effect.
+                    if (this.islandManager.assignIslandGameElements(false)) {
+                        Object.values(this.interactionAreas).forEach((interactionArea: InteractionArea) => {
+                            interactionArea.handleGlowEffect();
+                        })
+                    }
+
+                },
+                loop: true
+            });
+            
+
 
 
             if (debugMode) {
