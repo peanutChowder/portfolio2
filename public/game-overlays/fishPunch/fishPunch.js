@@ -81,9 +81,9 @@ function initFishGame() {
 
     function startGame() {
         // Select a fish
-        selectedFish = getRandomFishByCost();
+        selectedFish = getRandomFishByCost(0, 19);
         console.log(`Selected fish: ${selectedFish.id}`);
-        
+
         gameStarted = true;
         crosshair.style.display = "block";
         console.log("Game started!");

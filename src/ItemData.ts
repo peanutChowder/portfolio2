@@ -246,16 +246,21 @@ const itemData: Record<string, ItemData> = {
 
 };
 
-function getRandomFishByCost() {
-    // Filter itemData for fish only
-    const fishItems = Object.values(itemData).filter(item => item.type === "fish" && item.cost);
+function getRandomFishByCost(minCost: number, maxCost: number) {
+    // Filter itemData for fish within the cost range
+    const fishItems = Object.values(itemData).filter(
+        item => item.type === "fish" && item.cost !== undefined && item.cost >= minCost && item.cost <= maxCost
+    );
+
+    // If no fish are within the range, return null
+    if (fishItems.length === 0) return null;
 
     // Calculate inverse costs for weighted selection
     const inverseWeights = fishItems.map(fish => ({
         id: fish.id,
         name: fish.name,
         imgSrc: fish.imgSrc,
-        cost: fish.cost as number, // Cost is optional, so we assert it's defined
+        cost: fish.cost as number,
         weight: 1 / (fish.cost as number)
     }));
 
@@ -275,14 +280,13 @@ function getRandomFishByCost() {
     for (const fish of normalizedWeights) {
         cumulativeProbability += fish.probability;
         if (randomValue <= cumulativeProbability) {
-            return { id: fish.id, name: fish.name, imgSrc: fish.imgSrc }; 
+            return { id: fish.id, name: fish.name, imgSrc: fish.imgSrc };
         }
     }
 
     // Fallback (shouldn't happen)
-    const lastFish = normalizedWeights[normalizedWeights.length - 1];
-    return { id: lastFish.id, name: lastFish.name, imgSrc: lastFish.imgSrc };
+    console.error("Failed to select a fish within the cost range");
+    return null;
 }
 
-
-export { itemData, getRandomFishByCost}
+export { itemData, getRandomFishByCost };
