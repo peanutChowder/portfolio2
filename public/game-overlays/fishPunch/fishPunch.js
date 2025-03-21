@@ -84,6 +84,10 @@ function initFishGame() {
         selectedFish = getRandomFishByCost(0, 19);
         console.log(`Selected fish: ${selectedFish.id}`);
 
+        window.parent.postMessage({
+            type: "reduceFish",
+        }, "*");
+
         gameStarted = true;
         crosshair.style.display = "block";
         console.log("Game started!");

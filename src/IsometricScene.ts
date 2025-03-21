@@ -312,7 +312,7 @@ export default class IsometricScene extends Phaser.Scene {
             this.inventory = new Inventory(); // Initialize inventory system
 
 
-            
+
             this.islandManager.assignIslandGameElements(false)
             Object.values(this.interactionAreas).forEach((interactionArea: InteractionArea) => {
                 interactionArea.handleGlowEffect(0);
@@ -348,6 +348,11 @@ export default class IsometricScene extends Phaser.Scene {
                             this.inventory.removeItem(itemId);
                         }
                         break;
+                    }
+
+                    case 'reduceFish': {
+                        // TODO: implement
+                        console.log("Received reduceFish event");
                     }
 
                     case 'reduceEnergy': {
