@@ -366,7 +366,7 @@ export default class InteractionArea {
         this.minigameId = minigameId;
     }
 
-    public handleGlowEffect(): void {
+    public handleGlowEffect(glowEffectDepth: number): void {
         if (this.glowTween) {
             this.glowTween.stop();
             this.glowTween = undefined;
@@ -384,10 +384,10 @@ export default class InteractionArea {
         }
 
         this.glowGraphics = this.scene.add.graphics();
+        this.glowGraphics.setDepth(glowEffectDepth);
         const glowColor: number = this.minigameIdGlowColors[this.minigameId];
         this.glowGraphics.lineStyle(30, glowColor, 1); 
         this.glowGraphics.strokeEllipseShape(this.ellipse);
-        this.glowGraphics.setDepth(0);
 
         this.glowTween = this.scene.tweens.add({
             targets: this.glowGraphics,

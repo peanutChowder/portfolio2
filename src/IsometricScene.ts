@@ -194,6 +194,7 @@ export default class IsometricScene extends Phaser.Scene {
 
                 if (layer.layer.name == "Ocean") {
                     this.oceanLayer = layer;
+                    this.oceanLayer.setDepth(0);
                 }
             } else {
                 console.error(`Error getting layer number '${layerNum}'`);
@@ -210,12 +211,13 @@ export default class IsometricScene extends Phaser.Scene {
 
             // (3.) Enable glowing for interactions with an assigned Game element
             Object.values(this.interactionAreas).forEach((interactionArea: InteractionArea) => {
-                interactionArea.handleGlowEffect();
+                interactionArea.handleGlowEffect(0);
             })
 
             // Draw layer 2 (layer number 1), the lowest land layer
             layerNum = 1
             layer = this.map.createLayer(layerNum, tilesets, 0, 0);
+            layer?.setDepth(1)
             if (layer) {
                 layers[layerNum] = layer;
                 if (this.collisionLayerNames.includes(layer.layer.name)) {
@@ -252,6 +254,7 @@ export default class IsometricScene extends Phaser.Scene {
                 boatCoords.x, boatCoords.y,
                 this.interactionAreas
             );
+            this.boat.setDepth(5);
             this.add.existing(this.boat)
             console.log("Added boat")
 
@@ -259,6 +262,7 @@ export default class IsometricScene extends Phaser.Scene {
             // Add remaining layers
             for (let i = 2; i < this.map.layers.length; i++) {
                 const layer = this.map.createLayer(i, tilesets, 0, 0);
+                layer?.setDepth(i);
                 if (layer) {
                     layers[i] = layer;
 
@@ -373,7 +377,7 @@ export default class IsometricScene extends Phaser.Scene {
                     // If so, we re-assign + re-sync the glow effect.
                     if (this.islandManager.assignIslandGameElements(false)) {
                         Object.values(this.interactionAreas).forEach((interactionArea: InteractionArea) => {
-                            interactionArea.handleGlowEffect();
+                            interactionArea.handleGlowEffect(0);
                         })
                     }
 
