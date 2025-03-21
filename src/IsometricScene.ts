@@ -311,6 +311,13 @@ export default class IsometricScene extends Phaser.Scene {
 
             this.inventory = new Inventory(); // Initialize inventory system
 
+
+            
+            this.islandManager.assignIslandGameElements(false)
+            Object.values(this.interactionAreas).forEach((interactionArea: InteractionArea) => {
+                interactionArea.handleGlowEffect(0);
+            })
+
             // Create a virtual joystick for non-desktop users to move the boat.
             if (this.isMobileDevice) {
                 const joyStickOrigin = { x: this.cameras.main.centerX, y: this.cameras.main.centerY * 4 };

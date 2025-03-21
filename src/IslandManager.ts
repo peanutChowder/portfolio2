@@ -62,19 +62,10 @@ export class IslandManager {
         // 3) Assign game elements to areas
         this.assignIslandGameElements(false);
 
-        // 4) Sync assigned minigames to each InteractionArea using minigameId
+        // 4) Sync game elements to InteractionAreas. Note -- only needs to be called separately 
+        // here. Normally will be called within assignIslandGameElements()
         this.syncToInteractionAreas();
 
-        if (debugPrint) {
-            // Debug: print assigned minigames
-            console.log('--- IslandManager Debug ---');
-            this.assignments.forEach(a => {
-                if (a.gameElementId) {
-                    console.log(`Area: ${a.id} → Minigame: ${a.gameElementId}`);
-                }
-            });
-            console.log('--------------------------');
-        }
         console.groupEnd();
 
     }
@@ -125,7 +116,9 @@ export class IslandManager {
 
             this.lastAssignmentBlock = curr5MinBlock;
             this.saveToStorage();
-            console.log("Assigned new fishing minigames");
+
+            this.syncToInteractionAreas();
+
             return true;
         }
         return false
@@ -179,11 +172,14 @@ export class IslandManager {
      * Sync the final assignment results to each InteractionArea so it knows which minigame to show.
      */
     private syncToInteractionAreas(): void {
+        console.group("Reassigning game elements")
         this.assignments.forEach(a => {
             const area = this.interactionAreas[a.id];
             if (!area) return;
             area.setMinigameId(a.gameElementId || '');
+            console.log("Syncing area", area.id, "to minigame", a.gameElementId);
         });
+        console.groupEnd();
     }
 
     /**
