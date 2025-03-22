@@ -43,8 +43,6 @@ export default class InteractionArea {
 
     // Game Element button properties
     private gameElementButton?: Phaser.GameObjects.Container;
-    private geButtonX: number = 0;
-    private geButtonY: number = 0;
     private geButtonWidth: number;
     private geButtonHeight: number;
 
@@ -371,10 +369,19 @@ export default class InteractionArea {
         // Main interaction button near bottom-center
         this.interactionButton.setPosition(camera.width / 2, camera.height);
         this.interactionButton.setScale(1 / camera.zoom);
+
+        let gameElementOffsetX = 0;
+        let gameElementOffsetY = 0;
+        if (this.scene.sys.game.device.os.desktop) {
+            gameElementOffsetX = (this.buttonWidth / 2) / camera.zoom + (this.geButtonWidth / 2) / camera.zoom + 50;
+        } else {
+            gameElementOffsetX =-((this.buttonWidth / 3) / camera.zoom);
+            gameElementOffsetY = -((this.buttonHeight) / camera.zoom + 50);
+        }
+        
     
-        // The second button, offset by +120 px
         if (this.gameElementButton) {
-            this.gameElementButton.setPosition(camera.width / 2 + this.geButtonX, camera.height + this.geButtonY);
+            this.gameElementButton.setPosition(camera.width / 2 + gameElementOffsetX, camera.height + gameElementOffsetY);
             this.gameElementButton.setScale(1 / camera.zoom);
         }
     }
