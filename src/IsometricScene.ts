@@ -480,9 +480,9 @@ export default class IsometricScene extends Phaser.Scene {
         this.energyBar.setPosition(this.energyBarX, this.energyBarY);
 
         // Depth
-        this.energyBarBackground.setDepth(3);
-        this.energyBar.setDepth(4);
-        this.energyBarText.setDepth(4);
+        this.energyBarBackground.setDepth(50);
+        this.energyBar.setDepth(51);
+        this.energyBarText.setDepth(51);
 
         this.lastBoatPosition = { x: this.boat.x, y: this.boat.y };
     }
