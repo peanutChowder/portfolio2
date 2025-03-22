@@ -1,5 +1,7 @@
 import Phaser from 'phaser';
 import { InteractionAreaData, MarkerInfoConfig } from './InteractionAreaData';
+import fishingRod from '../assets/fishing/rod.jpg'
+
 
 export default class InteractionArea {
     // The ellipse representing the clickable region
@@ -27,7 +29,7 @@ export default class InteractionArea {
     private gameElementType: string;
     private minigameId: string = "";
 
-    // Button / clickable overlay
+    // Button properties for InteractionArea Overlay
     private interactionButton!: Phaser.GameObjects.Container;
     private buttonBg!: Phaser.GameObjects.Graphics;
     private buttonText!: Phaser.GameObjects.Text;
@@ -38,6 +40,13 @@ export default class InteractionArea {
     private buttonY: number = 0;
     private buttonWidth: number;
     private buttonHeight: number;
+
+    // Game Element button properties
+    private gameElementButton?: Phaser.GameObjects.Container;
+    private geButtonX: number = 0;
+    private geButtonY: number = 0;
+    private geButtonWidth: number;
+    private geButtonHeight: number;
 
     // If there's a custom action (e.g. fireworks) instead of the normal overlay
     private buttonClickHandler?: (scene: Phaser.Scene) => void;
@@ -51,6 +60,10 @@ export default class InteractionArea {
     private minigameIdGlowColors: { [key: string]: number } = {
         "fishPunch": 0xe8feff
     };
+
+    static preload(scene: Phaser.Scene): void {
+        scene.load.image('fishingRod', fishingRod);
+    }
 
     constructor(scene: Phaser.Scene, areaData: InteractionAreaData) {
         this.scene = scene;
@@ -127,16 +140,22 @@ export default class InteractionArea {
         if (this.scene.sys.game.device.os.desktop) {
             this.buttonWidth = 300;
             this.buttonHeight = 90;
+            this.geButtonHeight = 90;
+            this.geButtonWidth = 90;
         } else {
             this.buttonWidth = 0.7 * this.scene.cameras.main.width;
             this.buttonHeight = 0.1 * this.scene.cameras.main.height;
+            this.geButtonHeight = 0.1 * this.scene.cameras.main.height;
+            this.geButtonWidth = 0.1 * this.scene.cameras.main.height;
         }
 
+        // Initialize interaction and game element buttons
         this.initInteractionButton(buttonData.text, buttonData.font);
 
         // Finally, hide the button until the player steps inside
         this.interactionButton.setVisible(false);
     }
+
 
     /**
      * Draw the ellipse for the area.
@@ -179,12 +198,85 @@ export default class InteractionArea {
                 this.buttonWidth,
                 this.buttonHeight
             ),
-            Phaser.Geom.Rectangle.Contains
+            Phaser.Geom.Rectangle.Contains,
         );
         this.interactionButton.on('pointerover', this.onButtonHover, this);
         this.interactionButton.on('pointerout', this.onButtonOut, this);
         this.interactionButton.on('pointerdown', this.handleClick, this);
     }
+
+    /**
+     * If this area is assigned a minigame (treasure, fishing, etc.), 
+     * create a second container for that game element button.
+     */
+    private initGameElementButton(): void {
+        if (!this.minigameId) return;
+    
+        // Create container centered at origin (we'll position it later)
+        this.gameElementButton = this.scene.add.container(0, 0);
+        this.gameElementButton.setScrollFactor(0);
+        this.gameElementButton.setDepth(50);
+        this.gameElementButton.setVisible(false);
+    
+        const bg = this.scene.add.graphics();
+    
+        const drawBg = (borderColor: number) => {
+            bg.clear();
+    
+            // Base fill (centered at 0,0)
+            bg.fillStyle(0xffffff, 1);
+            bg.fillRoundedRect(
+                -this.geButtonWidth / 2,
+                -this.geButtonHeight / 2,
+                this.geButtonWidth,
+                this.geButtonHeight,
+                20
+            );
+    
+            // Thin inner border (accent color)
+            bg.lineStyle(10, borderColor, 1);
+            bg.strokeRoundedRect(
+                -this.geButtonWidth / 2 + 2,
+                -this.geButtonHeight / 2 + 2,
+                this.geButtonWidth - 4,
+                this.geButtonHeight - 4,
+                18
+            );
+        };
+    
+        drawBg(this.normalColor);
+    
+        const icon = this.scene.add.image(0, 0, 'fishingRod');
+        icon.setDisplaySize(48, 48);
+        icon.setOrigin(0.5);
+    
+        this.gameElementButton.add([bg, icon]);
+    
+        // Set the hit area relative to container center (0,0)
+        this.gameElementButton.setSize(this.geButtonWidth, this.geButtonHeight);
+        this.gameElementButton.setInteractive(
+            new Phaser.Geom.Rectangle(
+                0,
+                0,
+                this.geButtonWidth,
+                this.geButtonHeight
+            ),
+            Phaser.Geom.Rectangle.Contains
+        );
+    
+        this.gameElementButton.on('pointerover', () => drawBg(this.hoverColor), this);
+        this.gameElementButton.on('pointerout', () => drawBg(this.normalColor), this);
+    
+        this.gameElementButton.on('pointerdown', () => {
+            if ((this.scene as any).showGameOverlay) {
+                (this.scene as any).showGameOverlay(this.minigameId);
+            } else {
+                console.warn(`No showGameOverlay method found on scene for minigameId=${this.minigameId}`);
+            }
+        });
+    }
+    
+
 
     /**
      * Draw/Redraw the button background on hover changes.
@@ -263,16 +355,30 @@ export default class InteractionArea {
 
         if (this.isPlayerInside !== wasInside) {
             this.interactionButton.setVisible(this.isPlayerInside);
+    
+            if (this.gameElementButton) {
+                this.gameElementButton.setVisible(this.isPlayerInside);
+            }
+    
             this.updateButtonPosition();
         }
     }
+    
 
     private updateButtonPosition(): void {
         const camera = this.scene.cameras.main;
-        // Place the button near bottom-center of the screen
-        this.interactionButton.setPosition(camera.width / 2, camera.height - 50);
+    
+        // Main interaction button near bottom-center
+        this.interactionButton.setPosition(camera.width / 2, camera.height);
         this.interactionButton.setScale(1 / camera.zoom);
+    
+        // The second button, offset by +120 px
+        if (this.gameElementButton) {
+            this.gameElementButton.setPosition(camera.width / 2 + this.geButtonX, camera.height + this.geButtonY);
+            this.gameElementButton.setScale(1 / camera.zoom);
+        }
     }
+    
 
     /**
      * The main logic for overlay or custom interaction. 
@@ -364,6 +470,10 @@ export default class InteractionArea {
 
     public setMinigameId(minigameId: string): void {
         this.minigameId = minigameId;
+
+        if (!this.gameElementButton) {
+            this.initGameElementButton();
+        }
     }
 
     public handleGlowEffect(glowEffectDepth: number): void {

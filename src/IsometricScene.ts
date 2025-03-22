@@ -7,7 +7,6 @@ import tileset256x256Cubes from '../assets/world2/256x256 Cubes.png';
 import tileset256x192Tiles from '../assets/world2/256x192 Tiles.png'
 import tileset256x512Trees from '../assets/world2/256x512 Trees.png'
 import tileset256x128TileOverlays from '../assets/world2/256x128 Tile Overlays.png'
-import fishingRod from '../assets/fishing/rod.jpg'
 
 import { INTERACTION_AREAS } from './InteractionAreaData';
 import InteractionArea from './InteractionArea';
@@ -82,8 +81,6 @@ export default class IsometricScene extends Phaser.Scene {
 
     private mapSystem!: MapSystem;
 
-    private fishingButton!: HTMLDivElement | null;
-
     // inventory elements
     private inventoryOverlayElement!: HTMLIFrameElement | null; // The HTML <iframe>
     private inventoryButtonColor = 0xd1b884;
@@ -127,6 +124,8 @@ export default class IsometricScene extends Phaser.Scene {
         Boat.preload(this);
         // Load minimap sprites
         MapSystem.preload(this);
+        
+        InteractionArea.preload(this);
 
         this.load.on('loaderror', (file: Phaser.Loader.File) => {
             console.error('Error loading file:', file.key);
@@ -952,82 +951,6 @@ export default class IsometricScene extends Phaser.Scene {
         setTimeout(() => {
             htmlWrapper.style.opacity = '1';
         }, 50);
-
-        // Create our fishing launch button if it's a fishing area + it's been randomly assigned a minigame
-        if (!this.fishingButton && areaType === "fishing" && gameOverlayName != "") {
-            this.fishingButton = document.createElement('div');
-            this.fishingButton.style.position = 'fixed';
-            this.fishingButton.id = 'fishing-button';
-
-            // Desktop vs. mobile sizing
-            if (this.game.device.os.desktop) {
-                this.fishingButton.style.top = '10vh';
-                this.fishingButton.style.left = '5vh';
-                this.fishingButton.style.width = '20vh';
-                this.fishingButton.style.height = '20vh';
-            } else {
-                this.fishingButton.style.bottom = '10px';
-                this.fishingButton.style.right = '10px';
-                this.fishingButton.style.width = '100px';
-                this.fishingButton.style.height = '100px';
-            }
-
-            // The rest of your fishing button styling
-            this.fishingButton.style.borderRadius = '50%';
-            this.fishingButton.style.border = '4px solid #8df7f6';
-            this.fishingButton.style.backgroundColor = '#fff';
-            this.fishingButton.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.2)';
-            this.fishingButton.style.cursor = 'pointer';
-            this.fishingButton.style.zIndex = '1100';
-            this.fishingButton.style.display = 'flex';
-            this.fishingButton.style.justifyContent = 'center';
-            this.fishingButton.style.alignItems = 'center';
-
-            this.fishingButton.style.opacity = '0';
-            this.fishingButton.style.transition = 'opacity 0.5s ease-in-out';
-
-            const styleTag = document.createElement('style');
-            styleTag.innerHTML = `
-                #fishing-button:hover {
-                    transform: scale(1.3);
-                    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
-                    transition: transform 2s ease, box-shadow 2s ease;
-                }
-            `;
-            document.head.appendChild(styleTag);
-
-            // The rod image inside the button
-            const fishingRodImg = document.createElement('img');
-            fishingRodImg.src = fishingRod;
-            fishingRodImg.alt = 'Fishing Rod';
-            fishingRodImg.style.width = '60%';
-            fishingRodImg.style.height = '60%';
-            fishingRodImg.style.objectFit = 'contain';
-            fishingRodImg.style.opacity = '0';
-            fishingRodImg.style.transition = 'opacity 0.5s ease-in-out';
-
-            this.fishingButton.appendChild(fishingRodImg);
-            document.body.appendChild(this.fishingButton);
-
-            // Fade in the rod
-            this.time.delayedCall(0, () => {
-                if (fishingRodImg) {
-                    fishingRodImg.style.opacity = '1';
-                }
-            });
-
-            this.time.delayedCall(500, () => {
-                if (this.fishingButton) {
-                    this.fishingButton.style.opacity = '1';
-                }
-            });
-
-            // If the button is clicked, launch the mini-game or overlay
-            this.fishingButton.addEventListener('click', () => {
-                console.log(`Fishing rod button clicked! ${gameOverlayName}`);
-                this.showGameOverlay(gameOverlayName);
-            });
-        }
     }
 
 
@@ -1045,12 +968,6 @@ export default class IsometricScene extends Phaser.Scene {
                     this.overlayElement.parentNode.removeChild(this.overlayElement);
                 }
                 this.overlayElement = null;
-
-                // Also remove fishing button if needed
-                if (this.fishingButton) {
-                    this.fishingButton.remove();
-                    this.fishingButton = null;
-                }
             }, 500);
         } else {
             console.warn("No overlay destroyed: currently null");
