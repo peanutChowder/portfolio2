@@ -42,7 +42,7 @@ export class IslandManager {
         {
             id: 'fishPunch',
             name: 'Fish Punch',
-            maxResource: 10,
+            maxResource: 4,
             rarity: 0.8,     // 1.0 => extremely common
             elementType: 'fishing'
         },
@@ -215,7 +215,7 @@ export class IslandManager {
     /**
      * If user starts the assigned game, reduce resource by 1
      */
-    public startGameElement(areaId: string): boolean {
+    public reduceFish(areaId: string): boolean {
         const assignment = this.assignments.find(a => a.id === areaId);
         if (!assignment || !assignment.gameElementId) return false;
         if (assignment.resourceLeft <= 0) return false;
