@@ -351,9 +351,35 @@ export default class IsometricScene extends Phaser.Scene {
                     }
 
                     case 'reduceFish': {
-                        // TODO: implement
                         console.log("Received reduceFish event");
+                    
+                        // Find the active interaction area 
+                        const { x, y } = this.boat.getPosition();
+                        const area = Object.values(this.interactionAreas).find(area =>
+                            area.containsPoint(x, y, 2) // radius = 2 tile padding
+                        );
+                        if (!area) {
+                            console.warn("No nearby interaction area found for reduceFish");
+                            break;
+                        }
+                    
+                        const success = this.islandManager.reduceFish(area.id);
+                    
+                        if (success) {
+                            console.log(`Fish reduced at area ${area.id}. Remaining: ${this.islandManager.getAssignments().find(a => a.id === area.id)?.resourceLeft}`);
+                            
+                            // Remove glow effect if resource is depleted
+                            if (this.islandManager.isResourceDepleted(area.id)) {
+                                console.log(`Area ${area.id} is now depleted. Removing glow effect.`);
+                                area.handleGlowEffect(0);  // Will early return if minigameId is null
+                            }
+                        } else {
+                            console.warn(`Could not reduce fish at area ${area.id}. Maybe already depleted?`);
+                        }
+                        
+                        break;
                     }
+                    
 
                     case 'reduceEnergy': {
                         const { amount } = event.data;
