@@ -334,6 +334,9 @@
                 itemDiv.classList.add('inventory-item');
                 itemDiv.dataset.id = item.id;
 
+                // get border color based on cost
+                itemDiv.style.border = `3px solid ${item.outlineColor || '#E6D9C2'}`; // fallback to default if missing
+
                 const img = document.createElement('img');
                 img.src = `../../assets/fish-sprites/${item.imgSrc}`;
                 itemDiv.appendChild(img);

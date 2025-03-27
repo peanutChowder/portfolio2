@@ -84,7 +84,8 @@ export class Inventory {
                     imgSrc: itemInfo.imgSrc,
                     description: itemInfo.description,
                     cost: itemInfo.cost ?? null, // Cost applies to sellable items
-                    quantity: quantity // Add stored quantity
+                    quantity: quantity, // Add stored quantity
+                    outlineColor: this.getColorForCost(itemInfo.cost ?? null)
                 });
             } else {
                 console.warn(`Warning: Item with ID '${id}' not found in itemData.`);
@@ -93,6 +94,20 @@ export class Inventory {
 
         return detailedInventory;
     }
+
+        /** Get color based on item cost bin */
+    private getColorForCost(cost: number | null): string {
+        if (cost === null || cost === undefined) return '#C2C2C2';  // default to grey, also for no-cost items.
+
+        // color table based on cost, gets more flashy the higher the cost
+        if (cost <= 15) return '#C2C2C2'; // grey
+        else if (cost <= 25) return '#7ea6cf';   
+        else if (cost <= 35) return '#287cd1';   
+        else if (cost <= 45) return "#4144d9";
+        else if (cost <= 55) return '#bf1b80';
+        else return '#ff0051';               
+    }
+
 
     /** Reset inventory (for debugging or resetting game state) */
     public clearInventory(): void {

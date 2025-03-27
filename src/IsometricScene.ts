@@ -1103,7 +1103,7 @@ export default class IsometricScene extends Phaser.Scene {
 
         // Send inventory data when the iframe loads
         iframe.addEventListener('load', () => {
-            console.log('Inventory iframe loaded, sending test items...');
+            console.log('Sending items from Scene to Inventory');
             iframe.contentWindow?.postMessage({
                 type: "inventoryData",
                 items: this.inventory?.getDetailedInventory() // Sends full inventory details
