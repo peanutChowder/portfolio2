@@ -501,11 +501,28 @@ export default class InteractionArea {
 
     public setMinigameId(minigameId: string): void {
         this.minigameId = minigameId;
-
+    
+        // If minigame is removed, clean up the button
+        if (!minigameId) {
+            if (this.gameElementButton) {
+                this.gameElementButton.destroy(true);
+                this.gameElementButton = undefined;
+            }
+    
+            // Also destroy the depletion cross if still lingering
+            if (this.depletionCross) {
+                this.depletionCross.destroy();
+                this.depletionCross = undefined;
+            }
+    
+            return;
+        }
+    
+        // If not already created, build it
         if (!this.gameElementButton) {
             this.initGameElementButton();
         }
-    }
+    }    
 
     public handleGlowEffect(glowEffectDepth: number): void {
         if (this.glowTween) {
