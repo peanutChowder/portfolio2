@@ -167,37 +167,6 @@
             height: 28px;
         }
 
-
-        /* ============== POPUP MENU FOR INSPECT/DUMP ======== */
-        #item-popup {
-            position: fixed;
-            background-color: #FFF8EE;
-            border: 2px solid #E6D9C2;
-            border-radius: 8px;
-            padding: 10px;
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-            display: none;
-            /* Hidden by default */
-            flex-direction: column;
-            gap: 10px;
-            z-index: 999;
-        }
-
-        #item-popup button {
-            background-color: #D0B49F;
-            color: white;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: bold;
-        }
-
-        #item-popup button:hover {
-            background-color: #C19A82;
-        }
-
         /* ============== INSPECT-DETAIL OVERLAY ============== */
         #inspect-overlay {
             position: absolute;
@@ -284,12 +253,6 @@
                     <span id="money-amount">0</span>
                 </div>
 
-                <!-- Popup for "inspect" / "dump" -->
-                <div id="item-popup">
-                    <button id="inspect-btn">Inspect</button>
-                    <button id="dump-btn">Dump</button>
-                </div>
-
                 <!-- Overlay for the item inspection detail -->
                 <div id="inspect-overlay">
                     <div id="inspect-content">
@@ -315,14 +278,11 @@
         let items = [];
         let selectedItem = null;
 
-        const itemPopup = document.getElementById('item-popup');
         const inspectOverlay = document.getElementById('inspect-overlay');
         const grid = document.getElementById('inventory-grid');
 
         // Buttons
         const closeButton = document.querySelector('.close-button');
-        const inspectBtn = document.getElementById('inspect-btn');
-        const dumpBtn = document.getElementById('dump-btn');
         const inspectCloseBtn = document.getElementById('inspect-close-btn');
 
         // Inspect overlay elements
@@ -356,7 +316,7 @@
         // ============ 3) Build Grid with Items  ============
         function buildInventoryGrid(itemsArray) {
             const grid = document.getElementById('inventory-grid');
-            grid.innerHTML = ''; // Clear old content
+            grid.innerHTML = ''; // Clear old content   
 
             if (itemsArray.length === 0) {
                 const emptyMessage = document.createElement('p');
@@ -389,63 +349,23 @@
                 quantityDiv.textContent = `x${item.quantity}`;
                 itemDiv.appendChild(quantityDiv);
 
-                // Show inspect/dump popup when clicking
-                itemDiv.addEventListener('click', (e) => {
+                // Show inspect view on item click
+                itemDiv.addEventListener('click', () => {
                     selectedItem = item;
-                    const rect = e.currentTarget.getBoundingClientRect();
-                    itemPopup.style.left = `${rect.left + window.scrollX}px`;
-                    itemPopup.style.top = `${rect.top + window.scrollY + rect.height / 2}px`;
-                    itemPopup.style.display = 'flex';
+                    showInspectOverlay(selectedItem);
                 });
+
 
                 grid.appendChild(itemDiv);
             });
         }
 
 
-
-
-        // If user clicks outside the item or the popup itself, hide it
-        document.addEventListener('click', (evt) => {
-            if (!evt.target.closest('#item-popup') && !evt.target.closest('.inventory-item')) {
-                itemPopup.style.display = 'none';
-            }
-        }, true);
-
-
-        // ============ 5) Inspect / Dump Buttons  ============
-        inspectBtn.addEventListener('click', () => {
-            if (!selectedItem) return;
-            // Show the inspect overlay with item details
-            showInspectOverlay(selectedItem);
-            itemPopup.style.display = 'none';
-        });
-
-        dumpBtn.addEventListener('click', () => {
-            if (!selectedItem) return;
-            // "Dump" the item -> remove from parent's inventory
-            parent.postMessage({
-                type: "dumpItem",
-                itemId: selectedItem.id
-            }, "*");
-
-            // Optionally remove from local array too:
-            items = items.filter(it => it.id !== selectedItem.id);
-            buildInventoryGrid(items);
-
-            selectedItem = null;
-            itemPopup.style.display = 'none';
-        });
-
-
         // ============ 6) Show the Inspect Overlay  ============
         function showInspectOverlay(item) {
             const contentInner = document.querySelector('.content-inner');
-
-            // Clear out the entire inventory from .content-inner:
             contentInner.innerHTML = '';
 
-            // Create new container for inspection
             const inspectContainer = document.createElement('div');
             inspectContainer.id = 'inspect-container';
             inspectContainer.style.display = 'flex';
@@ -455,12 +375,10 @@
             inspectContainer.style.width = '100%';
             inspectContainer.style.height = '100%';
 
-            // Title
             const title = document.createElement('h2');
             title.textContent = item.name;
             inspectContainer.appendChild(title);
 
-            // Inspect image
             const img = document.createElement('img');
             img.src = `../../assets/fish-sprites/${item.imgSrc}`;
             img.onload = () => {
@@ -469,19 +387,47 @@
             img.style.margin = '10px 0';
             inspectContainer.appendChild(img);
 
-            // Description
             const desc = document.createElement('p');
             desc.textContent = item.description;
             inspectContainer.appendChild(desc);
 
-            // Inspect view quantity
             const quantityText = document.createElement('p');
             quantityText.textContent = `Quantity: x${item.quantity}`;
             quantityText.style.fontWeight = 'bold';
             quantityText.style.marginTop = '10px';
             inspectContainer.appendChild(quantityText);
 
-            // Close Button (return to inventory)
+            const costText = document.createElement('p');
+            costText.textContent = `Value: ${item.cost} coins`;
+            costText.style.marginTop = '5px';
+            inspectContainer.appendChild(costText);
+
+            const throwBtn = document.createElement('button');
+            throwBtn.textContent = 'Throw away one';
+            throwBtn.style.backgroundColor = '#c97855';
+            throwBtn.style.color = 'white';
+            throwBtn.style.marginTop = '15px';
+            throwBtn.style.padding = '10px 20px';
+            throwBtn.style.borderRadius = '5px';
+            throwBtn.style.border = 'none';
+            throwBtn.style.fontSize = '16px';
+            throwBtn.style.cursor = 'pointer';
+            throwBtn.addEventListener('mouseover', () => throwBtn.style.backgroundColor = '#cf511b');
+            throwBtn.addEventListener('mouseout', () => throwBtn.style.backgroundColor = '#c97855');
+
+            throwBtn.addEventListener('click', () => {
+                parent.postMessage({ type: "dumpItem", itemId: item.id }, "*");
+
+                item.quantity--;
+                if (item.quantity <= 0) {
+                    items = items.filter(it => it.id !== item.id);
+                    restoreInventory();
+                } else {
+                    showInspectOverlay(item);
+                }
+            });
+            inspectContainer.appendChild(throwBtn);
+
             const closeBtn = document.createElement('button');
             closeBtn.textContent = 'Back to Inventory';
             closeBtn.style.backgroundColor = '#D0B49F';
@@ -492,27 +438,29 @@
             closeBtn.style.cursor = 'pointer';
             closeBtn.style.fontSize = '16px';
             closeBtn.style.marginTop = '20px';
+            closeBtn.addEventListener('mouseover', () => closeBtn.style.backgroundColor = '#C19A82');
+            closeBtn.addEventListener('mouseout', () => closeBtn.style.backgroundColor = '#D0B49F');
 
-            // When clicked, restore the inventory
             closeBtn.addEventListener('click', () => {
                 restoreInventory();
             });
 
             inspectContainer.appendChild(closeBtn);
-
             contentInner.appendChild(inspectContainer);
         }
+
 
         function restoreInventory() {
             const contentInner = document.querySelector('.content-inner');
 
-            // Store money value before clearing content
+            // Get latest money value before resetting
             const moneyElement = document.getElementById('money-amount');
-            const moneyValue = moneyElement ? moneyElement.textContent : "0"; // Default to "0" if missing
+            const moneyValue = moneyElement ? moneyElement.textContent : "0";
 
-            contentInner.innerHTML = ''; // Clear the “inspect” view
+            // Clear everything
+            contentInner.innerHTML = '';
 
-            // Re-inject the original “X” close button
+            // 1. Re-add Close Button
             const mainCloseBtn = document.createElement('button');
             mainCloseBtn.classList.add('close-button');
             mainCloseBtn.textContent = 'X';
@@ -521,12 +469,12 @@
             });
             contentInner.appendChild(mainCloseBtn);
 
-            // Re-inject the “Inventory” heading
+            // 2. Re-add Title
             const inventoryTitle = document.createElement('h2');
             inventoryTitle.textContent = "Inventory";
             contentInner.appendChild(inventoryTitle);
 
-            // Re-inject the money display
+            // 3. Re-add Money UI
             const moneyContainer = document.createElement('div');
             moneyContainer.id = "money-container";
             moneyContainer.innerHTML = `
@@ -535,21 +483,14 @@
     `;
             contentInner.appendChild(moneyContainer);
 
-            // Recreate the inventory grid container
+            // 4. Re-add Inventory Grid container
             const newGrid = document.createElement('div');
             newGrid.id = "inventory-grid";
             contentInner.appendChild(newGrid);
 
-            // Re-append the existing #item-popup element
-            contentInner.appendChild(itemPopup);
-
-            // Rebuild the inventory grid with items
+            // 5. Rebuild the grid items
             buildInventoryGrid(items);
         }
-
-
-
-
 
 
         inspectCloseBtn.addEventListener('click', () => {
