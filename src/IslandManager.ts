@@ -177,7 +177,12 @@ export class IslandManager {
             const area = this.interactionAreas[a.id];
             if (!area) return;
             area.setMinigameId(a.gameElementId || '');
-            console.log("Syncing area", area.id, "to minigame", a.gameElementId);
+
+            if (a.resourceLeft == 0) {
+                area.disableButtonForDepletion(true);
+            }
+
+            console.log("Synced area", area.id, "to minigame", a.gameElementId);
         });
         console.groupEnd();
     }

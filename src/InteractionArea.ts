@@ -41,6 +41,10 @@ export default class InteractionArea {
     private buttonWidth: number;
     private buttonHeight: number;
 
+    // Game element depletion (e.g. are we out of fish or treasure?)
+    private isResourceDepleted: boolean = false;
+    private depletionCross?: Phaser.GameObjects.Graphics;
+
     // Game Element button properties
     private gameElementButton?: Phaser.GameObjects.Container;
     private geButtonWidth: number;
@@ -266,14 +270,24 @@ export default class InteractionArea {
         this.gameElementButton.on('pointerout', () => drawBg(this.normalColor), this);
     
         this.gameElementButton.on('pointerdown', () => {
-            if ((this.scene as any).showGameOverlay) {
-                (this.scene as any).showGameOverlay(this.minigameId);
-            } else {
-                console.warn(`No showGameOverlay method found on scene for minigameId=${this.minigameId}`);
+            if (this.isResourceDepleted) {
+                // If resource is depleted, just show depletion message
+                const resourceLabel = this.gameElementType === 'fishing'
+                    ? 'Fish'
+                    : this.gameElementType === 'treasure'
+                        ? 'Treasure'
+                        : 'This resource';
+        
+                alert(`${resourceLabel} has been depleted at this island!`);
+            }
+            else {
+                // If not depleted, launch the usual minigame overlay
+                if ((this.scene as any).showGameOverlay) {
+                    (this.scene as any).showGameOverlay(this.minigameId);
+                }
             }
         });
     }
-    
 
 
     /**
@@ -514,5 +528,57 @@ export default class InteractionArea {
             repeat: -1,
             ease: 'Sine.easeIn'
         });
+    }
+
+    public isGameElementDepleted(): boolean {
+        return this.isResourceDepleted;
+    }
+
+    /**
+     * Shows or hides the "depleted" cross on the game-element button (if any).
+     */
+    public disableButtonForDepletion(depleted: boolean): void {
+        this.isResourceDepleted = depleted;
+        
+        // If there’s no minigame button, nothing to draw
+        if (!this.gameElementButton) return;
+
+        // If newly depleted, draw a big red "X"
+        if (depleted) {
+            // Only create the cross if we haven't already
+            if (!this.depletionCross) {
+                const lineThickness = 10;
+                const lineColor = 0xff0000;
+                
+                this.depletionCross = this.scene.add.graphics();
+                this.depletionCross.lineStyle(lineThickness, lineColor, 1);
+
+                // We'll draw the cross inside the container's local coords (0,0) is the container center
+                const halfW = this.geButtonWidth / 2;
+                const halfH = this.geButtonHeight / 2;
+
+                this.depletionCross.beginPath();
+                // Diagonal: top-left to bottom-right
+                this.depletionCross.moveTo(-halfW, -halfH);
+                this.depletionCross.lineTo( halfW,  halfH);
+
+                // Diagonal: top-right to bottom-left
+                this.depletionCross.moveTo( halfW, -halfH);
+                this.depletionCross.lineTo(-halfW,  halfH);
+
+                this.depletionCross.strokePath();
+                this.depletionCross.closePath();
+
+                // Add this cross graphic to the same container as the button
+                this.gameElementButton.add(this.depletionCross);
+            }
+        }
+        else {
+            // If resource is not depleted, remove any existing cross
+            if (this.depletionCross) {
+                this.depletionCross.destroy();
+                this.depletionCross = undefined;
+            }
+        }
     }
 }

@@ -213,6 +213,13 @@ export default class IsometricScene extends Phaser.Scene {
                 interactionArea.handleGlowEffect(0);
             })
 
+            // (4.) Disable game elements buttons in Interaction Areas that have depleted resources
+            Object.values(this.interactionAreas).forEach((interactionArea: InteractionArea) => {
+                if (interactionArea.isGameElementDepleted()) {
+                    interactionArea.disableButtonForDepletion(true)
+                }
+            })
+
             // Draw layer 2 (layer number 1), the lowest land layer
             layerNum = 1
             layer = this.map.createLayer(layerNum, tilesets, 0, 0);
@@ -369,8 +376,9 @@ export default class IsometricScene extends Phaser.Scene {
                             
                             // Remove glow effect if resource is depleted
                             if (this.islandManager.isResourceDepleted(area.id)) {
-                                console.log(`Area ${area.id} is now depleted. Removing glow effect.`);
-                                area.handleGlowEffect(0);  // Will early return if minigameId is null
+                                console.log(`Area ${area.id} is now depleted.`);
+                                area.handleGlowEffect(0);  // Remove glow effect from minigame
+                                area.disableButtonForDepletion(true); // Disable button from further clicks
                             }
                         } else {
                             console.warn(`Could not reduce fish at area ${area.id}. Maybe already depleted?`);
