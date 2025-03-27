@@ -180,6 +180,8 @@ export class IslandManager {
 
             if (a.resourceLeft == 0) {
                 area.disableButtonForDepletion(true);
+            } else {
+                area.disableButtonForDepletion(false);
             }
 
             console.log("Synced area", area.id, "to minigame", a.gameElementId);
