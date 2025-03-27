@@ -9,7 +9,7 @@ function initFishGame() {
     const FISH_SPAWN_INTERVAL = 1500; // ms
     const MIN_SPEED = 80;  // px/sec
     const MAX_SPEED = 220; // px/sec
-    const MAX_HITS = 5;
+    const MAX_HITS = 4;
     const MAX_MISSES = 3;
 
     let hits = 0;
