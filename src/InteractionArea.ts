@@ -43,7 +43,7 @@ export default class InteractionArea {
     private buttonHeight: number;
 
     // Game element depletion (e.g. are we out of fish or treasure?)
-    private isResourceDepleted: boolean = false;
+    private activeBlockers: Set<string> = new Set(); // blockers that should prevent users from clicking on a depletable area
     private depletionCross?: Phaser.GameObjects.Graphics;
 
     // Game Element button properties
@@ -275,23 +275,28 @@ export default class InteractionArea {
         this.gameElementButton.on('pointerout', () => drawBg(this.normalColor), this);
 
         this.gameElementButton.on('pointerdown', () => {
-            if (this.isResourceDepleted) {
-                // If resource is depleted, just show depletion message
+            const blockers = this.activeBlockers;
+        
+            if (blockers.has('depletion')) {
                 const resourceLabel = this.gameElementType === 'fishing'
                     ? 'Fish'
                     : this.gameElementType === 'treasure'
                         ? 'Treasure'
                         : 'This resource';
-
+        
                 this.showDepletionPopup(`${resourceLabel} has been depleted at this island!`);
+                return;
             }
-            else {
-                // If not depleted, launch the usual minigame overlay
-                if ((this.scene as any).showGameOverlay) {
-                    (this.scene as any).showGameOverlay(this.minigameId);
-                }
+        
+            if (blockers.has('inventoryFull')) {
+                this.showDepletionPopup(`Inventory full! You cannot collect more items.`);
+                return;
             }
-        });
+        
+            if ((this.scene as any).showGameOverlay) {
+                (this.scene as any).showGameOverlay(this.minigameId);
+            }
+        });        
     }
 
 
@@ -535,57 +540,47 @@ export default class InteractionArea {
         });
     }
 
-    public isGameElementDepleted(): boolean {
-        return this.isResourceDepleted;
+    public getGameElementBlockers(): Set<string> {
+        return this.activeBlockers;
     }
 
     /**
-     * Shows or hides the "depleted" cross on the game-element button (if any).
+     * Draw a red cross on the button if the resource is depleted OR user inventory full.
      */
-    public disableButtonForDepletion(depleted: boolean): void {
-        this.isResourceDepleted = depleted;
-
-        // If there’s no minigame button, nothing to draw
+    public updateButtonBlockers(blockers: Set<string>): void {
+        this.activeBlockers = blockers;
+    
+        const isBlocked = blockers.size > 0;
+    
+        // Early exit if button doesn't exist yet
         if (!this.gameElementButton) return;
-
-        // If newly depleted, draw a big red "X"
-        if (depleted) {
-            // Only create the cross if we haven't already
-            if (!this.depletionCross) {
-                const lineThickness = 10;
-                const lineColor = 0xff0000;
-
-                this.depletionCross = this.scene.add.graphics();
-                this.depletionCross.lineStyle(lineThickness, lineColor, 1);
-
-                // We'll draw the cross inside the container's local coords (0,0) is the container center
-                const halfW = this.geButtonWidth / 2;
-                const halfH = this.geButtonHeight / 2;
-
-                this.depletionCross.beginPath();
-                // Diagonal: top-left to bottom-right
-                this.depletionCross.moveTo(-halfW, -halfH);
-                this.depletionCross.lineTo(halfW, halfH);
-
-                // Diagonal: top-right to bottom-left
-                this.depletionCross.moveTo(halfW, -halfH);
-                this.depletionCross.lineTo(-halfW, halfH);
-
-                this.depletionCross.strokePath();
-                this.depletionCross.closePath();
-
-                // Add this cross graphic to the same container as the button
-                this.gameElementButton.add(this.depletionCross);
-            }
-        }
-        else {
-            // If resource is not depleted, remove any existing cross
-            if (this.depletionCross) {
-                this.depletionCross.destroy();
-                this.depletionCross = undefined;
-            }
+    
+        if (isBlocked && !this.depletionCross) {
+            // Draw cross exactly as before
+            const lineThickness = 10;
+            const lineColor = 0xff0000;
+            
+            this.depletionCross = this.scene.add.graphics();
+            this.depletionCross.lineStyle(lineThickness, lineColor, 1);
+            
+            const halfW = this.geButtonWidth / 2;
+            const halfH = this.geButtonHeight / 2;
+    
+            this.depletionCross.beginPath();
+            this.depletionCross.moveTo(-halfW, -halfH);
+            this.depletionCross.lineTo(halfW, halfH);
+            this.depletionCross.moveTo(halfW, -halfH);
+            this.depletionCross.lineTo(-halfW, halfH);
+            this.depletionCross.strokePath();
+            this.depletionCross.closePath();
+    
+            this.gameElementButton.add(this.depletionCross);
+        } else if (!isBlocked && this.depletionCross) {
+            this.depletionCross.destroy();
+            this.depletionCross = undefined;
         }
     }
+    
 
     /**
      * Show a "resource depleted" message in the center of the screen,
@@ -632,4 +627,31 @@ export default class InteractionArea {
     public getResourceBehavior(): ResourceBehavior {
         return this.resourceBehavior;
     }
+
+    private isInventoryFull(): boolean {
+        const scene = this.scene as any; // cast to access getInventory
+        const inventory = scene.getInventory?.();
+        return inventory.isInventoryFull();
+    }    
+
+    public evaluateGameElementBlockers(): void {
+        const blockers = new Set<string>();
+    
+        const scene = this.scene as any;
+    
+        // Check for depletion
+        if (this.resourceBehavior === 'depletable' && scene.islandManager?.isResourceDepleted(this.id)) {
+            blockers.add('depletion');
+        }
+    
+        // Check for inventory full
+        if (this.resourceBehavior === 'depletable' && this.isInventoryFull()) {
+            blockers.add('inventoryFull');
+        }
+    
+        // Future blockers like energy, tool, etc. go here
+    
+        this.updateButtonBlockers(blockers);
+    }
+    
 }

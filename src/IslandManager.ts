@@ -176,11 +176,14 @@ export class IslandManager {
             if (!area) return;
             area.setMinigameId(a.gameElementId || '');
 
-            if (a.resourceLeft == 0) {
-                area.disableButtonForDepletion(true);
-            } else {
-                area.disableButtonForDepletion(false);
+            const blockers = new Set<string>();
+            if (a.resourceLeft === 0) {
+                blockers.add('depletion');
             }
+                        
+            area.updateButtonBlockers(blockers);
+            area.evaluateGameElementBlockers(); // check for other blocks, e.g. inventory full
+            
 
             console.log("Synced area", area.id, "to minigame", a.gameElementId);
         });

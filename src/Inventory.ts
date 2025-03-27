@@ -7,11 +7,17 @@ export interface InventoryData {
 export class Inventory {
     private inventory: InventoryData = {};
     private playerMoney: number = 0; // Track player's money
+    private inventorySize: number = 10; 
 
     constructor() {
         const savedInventory = localStorage.getItem('inventory');
         this.inventory = savedInventory ? JSON.parse(savedInventory) : {};
 
+        // retrieve user-upgraded inventory size (if they upgraded)
+        const savedSize = localStorage.getItem('inventorySize');
+        this.inventorySize = savedSize ? parseInt(savedSize, 10) : 10;
+
+        // retrieve user money, default to 0 if first visit
         const savedMoney = localStorage.getItem('playerMoney');
         this.playerMoney = savedMoney ? parseInt(savedMoney, 10) : 0; // Load money, default to 0
     }
@@ -93,4 +99,18 @@ export class Inventory {
         this.inventory = {};
         this.saveInventory();
     }
+
+    public getCurrentSize(): number {
+        return this.inventorySize;
+    }
+    
+    public setInventorySize(size: number): void {
+        this.inventorySize = size;
+        localStorage.setItem('inventorySize', size.toString());
+    }
+
+    public isInventoryFull(): boolean {
+        const currentCount = Object.values(this.inventory).reduce((sum, qty) => sum + qty, 0);
+        return currentCount >= this.inventorySize;
+    }    
 }

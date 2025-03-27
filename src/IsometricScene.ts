@@ -200,23 +200,28 @@ export default class IsometricScene extends Phaser.Scene {
             }
 
 
+
             // The following steps must be executed in this order because they are dependent on each other.
-            // (1.) Initialize Interaction Area objects and draw our interaction zones marked by an ellipse.
+            // (1.) Initialize inventory, which is used by a createInteractionAreas child call method to check
+            // if we need to block buttons from clicks.
+            this.inventory = new Inventory(); 
+
+            // (2.) Initialize Interaction Area objects and draw our interaction zones marked by an ellipse.
             // Interaction zones are areas where users can activate an overlay to see embedded content.
             this.createInteractionAreas();
 
-            // (2.) Retrieve game element assignments to islands (or create if first visit)
+            // (3.) Retrieve game element assignments to islands (or create if first visit)
             this.islandManager = new IslandManager(this.interactionAreas);
 
-            // (3.) Enable glowing for interactions with an assigned Game element
+            // (4.) Enable glowing for interactions with an assigned Game element
             Object.values(this.interactionAreas).forEach((interactionArea: InteractionArea) => {
                 interactionArea.handleGlowEffect(0);
             })
 
-            // (4.) Disable game elements buttons in Interaction Areas that have depleted resources
+            // (5.) Disable game elements buttons in Interaction Areas that have depleted resources
             Object.values(this.interactionAreas).forEach((interactionArea: InteractionArea) => {
-                if (interactionArea.isGameElementDepleted()) {
-                    interactionArea.disableButtonForDepletion(true)
+                if (interactionArea.getGameElementBlockers()) {
+                    interactionArea.updateButtonBlockers(new Set(['depletion']));
                 }
             })
 
@@ -315,14 +320,15 @@ export default class IsometricScene extends Phaser.Scene {
 
             this.createInventoryButton();
 
-            this.inventory = new Inventory(); // Initialize inventory system
-
-
 
             this.islandManager.assignIslandGameElements(false)
+
+            // Set the glow effect for depletable game elements + evaluate if the user will be allowed to interact
             Object.values(this.interactionAreas).forEach((interactionArea: InteractionArea) => {
+                interactionArea.evaluateGameElementBlockers();  
                 interactionArea.handleGlowEffect(0);
-            })
+            });
+            
 
             // Create a virtual joystick for non-desktop users to move the boat.
             if (this.isMobileDevice) {
@@ -378,7 +384,7 @@ export default class IsometricScene extends Phaser.Scene {
                             if (this.islandManager.isResourceDepleted(area.id)) {
                                 console.log(`Area ${area.id} is now depleted.`);
                                 area.handleGlowEffect(0);  // Remove glow effect from minigame
-                                area.disableButtonForDepletion(true); // Disable button from further clicks
+                                area.updateButtonBlockers(new Set(['depletion']));; // Disable button from further clicks
                             }
                         } else {
                             console.warn(`Could not reduce fish at area ${area.id}. Maybe already depleted?`);
@@ -418,18 +424,21 @@ export default class IsometricScene extends Phaser.Scene {
             this.time.addEvent({
                 delay: 1000, // 1s refresh
                 callback: () => {
-                    // Check if we need to re-assign game elements.
-                    // If so, we re-assign + re-sync the glow effect.
-                    if (this.islandManager.assignIslandGameElements(false)) {
+                    const reassigned = this.islandManager.assignIslandGameElements(false);
+            
+                    // Always recheck blockers whether reassigned or not
+                    Object.values(this.interactionAreas).forEach((interactionArea: InteractionArea) => {
+                        interactionArea.evaluateGameElementBlockers();
+                    });
+            
+                    if (reassigned) {
                         Object.values(this.interactionAreas).forEach((interactionArea: InteractionArea) => {
                             interactionArea.handleGlowEffect(0);
-                        })
+                        });
                     }
-
                 },
                 loop: true
-            });
-            
+            });            
 
 
 
@@ -696,6 +705,10 @@ export default class IsometricScene extends Phaser.Scene {
     public getFireworkManager(): FireworkManager {
         return this.fireworkManager;
     }
+
+    public getInventory(): Inventory | null {
+        return this.inventory;
+    }    
 
     public calcBoatFog(worldX: number, worldY: number): number {
         // Convert world coordinates to tile coordinates
