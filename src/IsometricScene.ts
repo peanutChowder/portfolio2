@@ -895,8 +895,8 @@ export default class IsometricScene extends Phaser.Scene {
     // @ts-ignore
     private showOverlay(
         overlayHtmlKey: string,
-        areaType: string,
-        gameOverlayName: string
+        _areaType: string,
+        _gameOverlayName: string
     ): void {
         // Toggle overlay (destroy it) if it is currently shown
         if (this.overlayElement) {
@@ -999,7 +999,7 @@ export default class IsometricScene extends Phaser.Scene {
     private handleXKeyPress(): void {
         Object.values(this.interactionAreas).forEach(area => area.handleInteraction());
     }
-
+    // @ts-ignore
     private showGameOverlay(gameOverlayName: string): void {
         // If there's an existing overlay, remove it
         if (this.gameOverlayElement) {
@@ -1037,7 +1037,7 @@ export default class IsometricScene extends Phaser.Scene {
     }
 
 
-    private destroyGameOverlay(gameOverlayName: string): void {
+    private destroyGameOverlay(_gameOverlayName: string): void {
         if (this.gameOverlayElement) {
             // Fade out
             this.gameOverlayElement.style.opacity = '1';

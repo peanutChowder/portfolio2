@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { InteractionAreaData, MarkerInfoConfig, ResourceBehavior } from './InteractionAreaData';
+import { InteractionAreaData, ResourceBehavior } from './InteractionAreaData';
 import fishingRod from '../assets/fishing/rod.jpg'
 
 
@@ -55,6 +55,7 @@ export default class InteractionArea {
     private buttonClickHandler?: (scene: Phaser.Scene) => void;
 
     // Data object containing things like "displayName", "overlayKey", "position", etc.
+    // @ts-ignore
     private areaData: InteractionAreaData;
 
     // Glowing effect for InteractionAreas with Game elements assigned
@@ -328,7 +329,7 @@ export default class InteractionArea {
     /**
      * Called when the user clicks the button.
      */
-    private handleClick = (pointer: Phaser.Input.Pointer) => {
+    private handleClick = (_pointer: Phaser.Input.Pointer) => {
         if (this.isPlayerInside && this.interactionButton.visible && !this.ignoreButtonClick) {
             this.ignoreButtonClick = true;
             this.handleInteraction();

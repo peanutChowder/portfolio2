@@ -25,8 +25,6 @@ interface AreaAssignment {
     areaElementType: string | null; // e.g. "fishing", "treasure", or null
 }
 
-const debugPrint = true;
-
 export class IslandManager {
     private static readonly STORAGE_KEY = 'worldData';
 
