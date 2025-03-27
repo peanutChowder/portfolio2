@@ -79,14 +79,14 @@ export class IslandManager {
         interactionAreaInfo.forEach(ia => {
             let existing = this.assignments.find(a => a.id === ia.id);
             if (!existing) {
-                // e.g. "fishing" or "treasure"
-                const gType = ia.getGameElementType();
+                // Only depletable elements will be handled. These can be fishing areas, treasure areas, etc.
+                const gameElementType = ia.getResourceBehavior() === 'depletable' ? ia.getGameElementType() : null;
 
                 existing = {
                     id: ia.id,
                     gameElementId: null,
                     resourceLeft: 0,
-                    areaElementType: gType
+                    areaElementType: gameElementType
                 };
                 this.assignments.push(existing);
             }

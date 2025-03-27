@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { InteractionAreaData, MarkerInfoConfig } from './InteractionAreaData';
+import { InteractionAreaData, MarkerInfoConfig, ResourceBehavior } from './InteractionAreaData';
 import fishingRod from '../assets/fishing/rod.jpg'
 
 
@@ -28,6 +28,7 @@ export default class InteractionArea {
     // The "areaType" (e.g. "fishing") & minigame name (e.g. "fishPunch")
     private gameElementType: string;
     private minigameId: string = "";
+    private resourceBehavior: ResourceBehavior = "none";
 
     // Button properties for InteractionArea Overlay
     private interactionButton!: Phaser.GameObjects.Container;
@@ -73,6 +74,9 @@ export default class InteractionArea {
         this.areaData = areaData;
 
         this.id = areaData.id;
+
+        // Is this a depletable area? shop? etc.
+        this.resourceBehavior = areaData.resourceBehavior ?? 'none';
 
         // Convert new data fields to old fields
         this.displayName = areaData.displayName;
@@ -623,6 +627,8 @@ export default class InteractionArea {
                 }
             });
         }
-    
 
+        public getResourceBehavior(): ResourceBehavior {
+            return this.resourceBehavior;
+        }        
 }

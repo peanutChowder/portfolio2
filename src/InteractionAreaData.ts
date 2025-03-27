@@ -34,6 +34,10 @@ export interface MarkerInfoConfig {
     locationType: string; // e.g. "Work", "Projects", "Safehouse"
 }
 
+
+export type ResourceBehavior = 'depletable' | 'shop' | 'none';
+
+
 export interface InteractionAreaData {
     // A unique identifier for this area
     id: string;
@@ -57,9 +61,11 @@ export interface InteractionAreaData {
     floatingText?: FloatingTextConfig;
     markerInfo?: MarkerInfoConfig;
 
-    // If this area starts a minigame, specify these
+    // Game element info
     gameElementType?: string; // e.g. "fishing", "treasure", or undefined if no spawns
     minigameId?: string;  
+    resourceBehavior?: ResourceBehavior; // depletable, shop, or other. defines how we should treat it.
+
 
     // A custom callback if the area has a unique interaction (e.g. fireworks)
     customInteraction?: (scene: Phaser.Scene) => void;
@@ -97,6 +103,7 @@ export const INTERACTION_AREAS: InteractionAreaData[] = [
             locationType: "Work"
         },
         gameElementType: "fishing",
+        resourceBehavior: "depletable"
     },
     {
         id: "experience-Teck",
@@ -129,6 +136,7 @@ export const INTERACTION_AREAS: InteractionAreaData[] = [
             locationType: "Work"
         },
         gameElementType: "fishing",
+        resourceBehavior: "depletable"
     },
     {
         id: "experience-UAlberta",
@@ -161,6 +169,7 @@ export const INTERACTION_AREAS: InteractionAreaData[] = [
             locationType: "Work"
         },
         gameElementType: "fishing",
+        resourceBehavior: "depletable"
     },
     {
         id: "education",
@@ -193,6 +202,7 @@ export const INTERACTION_AREAS: InteractionAreaData[] = [
             locationType: "Education"
         },
         gameElementType: "fishing",
+        resourceBehavior: "depletable"
     },
     {
         id: "olympicWeightlifting",
@@ -225,6 +235,7 @@ export const INTERACTION_AREAS: InteractionAreaData[] = [
             locationType: "Oly-Lifting"
         },
         gameElementType: "fishing",
+        resourceBehavior: "depletable"
     },
     {
         id: "formFitness",
@@ -257,6 +268,7 @@ export const INTERACTION_AREAS: InteractionAreaData[] = [
             locationType: "Projects"
         },
         gameElementType: "fishing",
+        resourceBehavior: "depletable"
     },
     {
         id: "imageCaptioner",
@@ -289,6 +301,7 @@ export const INTERACTION_AREAS: InteractionAreaData[] = [
             locationType: "Projects"
         },
         gameElementType: "fishing",
+        resourceBehavior: "depletable"
     },
     {
         id: "aiAsteroids",
@@ -321,6 +334,7 @@ export const INTERACTION_AREAS: InteractionAreaData[] = [
             locationType: "Projects"
         },
         gameElementType: "fishing",
+        resourceBehavior: "depletable"
     },
     {
         id: "concurrentCLI",
@@ -353,6 +367,7 @@ export const INTERACTION_AREAS: InteractionAreaData[] = [
             locationType: "Projects"
         },
         gameElementType: "fishing",
+        resourceBehavior: "depletable"
     },
     {
         id: "inventoryManager",
@@ -385,6 +400,7 @@ export const INTERACTION_AREAS: InteractionAreaData[] = [
             locationType: "Projects"
         },
         gameElementType: "fishing",
+        resourceBehavior: "depletable"
     },
     {
         id: "welcome",
