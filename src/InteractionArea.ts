@@ -278,7 +278,7 @@ export default class InteractionArea {
                         ? 'Treasure'
                         : 'This resource';
         
-                alert(`${resourceLabel} has been depleted at this island!`);
+                    this.showDepletionPopup(`${resourceLabel} has been depleted at this island!`);
             }
             else {
                 // If not depleted, launch the usual minigame overlay
@@ -581,4 +581,48 @@ export default class InteractionArea {
             }
         }
     }
+
+    /**
+     * Show a "resource depleted" message in the center of the screen,
+     * fade it out, then destroy the text.
+     */
+        public showDepletionPopup(message: string): void {
+            const centerX = this.scene.cameras.main.centerX;
+            const centerY = this.scene.cameras.main.centerY / 3;
+        
+            const popupText = this.scene.add.text(centerX, centerY, message, {
+                fontFamily: 'Prompt, Arial, sans-serif',
+                fontSize: '170px',
+                color: '#ffffff',
+                align: 'center',
+                wordWrap: { width: this.scene.cameras.main.width }
+            });
+        
+            popupText.setOrigin(0.5);
+            popupText.setScrollFactor(0);
+            popupText.setDepth(9999);
+            popupText.setAlpha(0);
+        
+            // Fade in
+            this.scene.tweens.add({
+                targets: popupText,
+                alpha: 1,
+                duration: 300,
+                ease: 'Power1',
+                onComplete: () => {
+                    // Hold for 1.5s, then fade out
+                    this.scene.time.delayedCall(2000, () => {
+                        this.scene.tweens.add({
+                            targets: popupText,
+                            alpha: 0,
+                            duration: 500,
+                            ease: 'Power1',
+                            onComplete: () => popupText.destroy()
+                        });
+                    });
+                }
+            });
+        }
+    
+
 }
