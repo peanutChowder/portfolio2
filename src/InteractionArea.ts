@@ -218,18 +218,18 @@ export default class InteractionArea {
      */
     private initGameElementButton(): void {
         if (!this.minigameId) return;
-    
+
         // Create container centered at origin (we'll position it later)
         this.gameElementButton = this.scene.add.container(0, 0);
         this.gameElementButton.setScrollFactor(0);
         this.gameElementButton.setDepth(50);
         this.gameElementButton.setVisible(false);
-    
+
         const bg = this.scene.add.graphics();
-    
+
         const drawBg = (borderColor: number) => {
             bg.clear();
-    
+
             // Base fill (centered at 0,0)
             bg.fillStyle(0xffffff, 1);
             bg.fillRoundedRect(
@@ -239,7 +239,7 @@ export default class InteractionArea {
                 this.geButtonHeight,
                 20
             );
-    
+
             // Thin inner border (accent color)
             bg.lineStyle(10, borderColor, 1);
             bg.strokeRoundedRect(
@@ -250,15 +250,15 @@ export default class InteractionArea {
                 18
             );
         };
-    
+
         drawBg(this.normalColor);
-    
+
         const icon = this.scene.add.image(0, 0, 'fishingRod');
         icon.setDisplaySize(48, 48);
         icon.setOrigin(0.5);
-    
+
         this.gameElementButton.add([bg, icon]);
-    
+
         // Set the hit area relative to container center (0,0)
         this.gameElementButton.setSize(this.geButtonWidth, this.geButtonHeight);
         this.gameElementButton.setInteractive(
@@ -270,10 +270,10 @@ export default class InteractionArea {
             ),
             Phaser.Geom.Rectangle.Contains
         );
-    
+
         this.gameElementButton.on('pointerover', () => drawBg(this.hoverColor), this);
         this.gameElementButton.on('pointerout', () => drawBg(this.normalColor), this);
-    
+
         this.gameElementButton.on('pointerdown', () => {
             if (this.isResourceDepleted) {
                 // If resource is depleted, just show depletion message
@@ -282,8 +282,8 @@ export default class InteractionArea {
                     : this.gameElementType === 'treasure'
                         ? 'Treasure'
                         : 'This resource';
-        
-                    this.showDepletionPopup(`${resourceLabel} has been depleted at this island!`);
+
+                this.showDepletionPopup(`${resourceLabel} has been depleted at this island!`);
             }
             else {
                 // If not depleted, launch the usual minigame overlay
@@ -372,19 +372,19 @@ export default class InteractionArea {
 
         if (this.isPlayerInside !== wasInside) {
             this.interactionButton.setVisible(this.isPlayerInside);
-    
+
             if (this.gameElementButton) {
                 this.gameElementButton.setVisible(this.isPlayerInside);
             }
-    
+
             this.updateButtonPosition();
         }
     }
-    
+
 
     private updateButtonPosition(): void {
         const camera = this.scene.cameras.main;
-    
+
         // Main interaction button near bottom-center
         this.interactionButton.setPosition(camera.width / 2, camera.height);
         this.interactionButton.setScale(1 / camera.zoom);
@@ -394,17 +394,17 @@ export default class InteractionArea {
         if (this.scene.sys.game.device.os.desktop) {
             gameElementOffsetX = (this.buttonWidth / 2) / camera.zoom + (this.geButtonWidth / 2) / camera.zoom + 50;
         } else {
-            gameElementOffsetX =-((this.buttonWidth / 3) / camera.zoom);
+            gameElementOffsetX = -((this.buttonWidth / 3) / camera.zoom);
             gameElementOffsetY = -((this.buttonHeight) / camera.zoom + 50);
         }
-        
-    
+
+
         if (this.gameElementButton) {
             this.gameElementButton.setPosition(camera.width / 2 + gameElementOffsetX, camera.height + gameElementOffsetY);
             this.gameElementButton.setScale(1 / camera.zoom);
         }
     }
-    
+
 
     /**
      * The main logic for overlay or custom interaction. 
@@ -507,7 +507,7 @@ export default class InteractionArea {
             this.glowTween.stop();
             this.glowTween = undefined;
         }
-        
+
         if (this.glowGraphics) {
             this.glowGraphics.clear();
             this.glowGraphics.destroy();
@@ -522,7 +522,7 @@ export default class InteractionArea {
         this.glowGraphics = this.scene.add.graphics();
         this.glowGraphics.setDepth(glowEffectDepth);
         const glowColor: number = this.minigameIdGlowColors[this.minigameId];
-        this.glowGraphics.lineStyle(30, glowColor, 1); 
+        this.glowGraphics.lineStyle(30, glowColor, 1);
         this.glowGraphics.strokeEllipseShape(this.ellipse);
 
         this.glowTween = this.scene.tweens.add({
@@ -544,7 +544,7 @@ export default class InteractionArea {
      */
     public disableButtonForDepletion(depleted: boolean): void {
         this.isResourceDepleted = depleted;
-        
+
         // If there’s no minigame button, nothing to draw
         if (!this.gameElementButton) return;
 
@@ -554,7 +554,7 @@ export default class InteractionArea {
             if (!this.depletionCross) {
                 const lineThickness = 10;
                 const lineColor = 0xff0000;
-                
+
                 this.depletionCross = this.scene.add.graphics();
                 this.depletionCross.lineStyle(lineThickness, lineColor, 1);
 
@@ -565,11 +565,11 @@ export default class InteractionArea {
                 this.depletionCross.beginPath();
                 // Diagonal: top-left to bottom-right
                 this.depletionCross.moveTo(-halfW, -halfH);
-                this.depletionCross.lineTo( halfW,  halfH);
+                this.depletionCross.lineTo(halfW, halfH);
 
                 // Diagonal: top-right to bottom-left
-                this.depletionCross.moveTo( halfW, -halfH);
-                this.depletionCross.lineTo(-halfW,  halfH);
+                this.depletionCross.moveTo(halfW, -halfH);
+                this.depletionCross.lineTo(-halfW, halfH);
 
                 this.depletionCross.strokePath();
                 this.depletionCross.closePath();
@@ -591,45 +591,45 @@ export default class InteractionArea {
      * Show a "resource depleted" message in the center of the screen,
      * fade it out, then destroy the text.
      */
-        public showDepletionPopup(message: string): void {
-            const centerX = this.scene.cameras.main.centerX;
-            const centerY = this.scene.cameras.main.centerY / 3;
-        
-            const popupText = this.scene.add.text(centerX, centerY, message, {
-                fontFamily: 'Prompt, Arial, sans-serif',
-                fontSize: '170px',
-                color: '#ffffff',
-                align: 'center',
-                wordWrap: { width: this.scene.cameras.main.width }
-            });
-        
-            popupText.setOrigin(0.5);
-            popupText.setScrollFactor(0);
-            popupText.setDepth(9999);
-            popupText.setAlpha(0);
-        
-            // Fade in
-            this.scene.tweens.add({
-                targets: popupText,
-                alpha: 1,
-                duration: 300,
-                ease: 'Power1',
-                onComplete: () => {
-                    // Hold for 1.5s, then fade out
-                    this.scene.time.delayedCall(2000, () => {
-                        this.scene.tweens.add({
-                            targets: popupText,
-                            alpha: 0,
-                            duration: 500,
-                            ease: 'Power1',
-                            onComplete: () => popupText.destroy()
-                        });
-                    });
-                }
-            });
-        }
+    public showDepletionPopup(message: string): void {
+        const centerX = this.scene.cameras.main.centerX;
+        const centerY = this.scene.cameras.main.centerY / 3;
 
-        public getResourceBehavior(): ResourceBehavior {
-            return this.resourceBehavior;
-        }        
+        const popupText = this.scene.add.text(centerX, centerY, message, {
+            fontFamily: 'Prompt, Arial, sans-serif',
+            fontSize: '170px',
+            color: '#ffffff',
+            align: 'center',
+            wordWrap: { width: this.scene.cameras.main.width }
+        });
+
+        popupText.setOrigin(0.5);
+        popupText.setScrollFactor(0);
+        popupText.setDepth(9999);
+        popupText.setAlpha(0);
+
+        // Fade in
+        this.scene.tweens.add({
+            targets: popupText,
+            alpha: 1,
+            duration: 300,
+            ease: 'Power1',
+            onComplete: () => {
+                // Hold for 1.5s, then fade out
+                this.scene.time.delayedCall(2000, () => {
+                    this.scene.tweens.add({
+                        targets: popupText,
+                        alpha: 0,
+                        duration: 500,
+                        ease: 'Power1',
+                        onComplete: () => popupText.destroy()
+                    });
+                });
+            }
+        });
+    }
+
+    public getResourceBehavior(): ResourceBehavior {
+        return this.resourceBehavior;
+    }
 }
