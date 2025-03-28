@@ -35,7 +35,7 @@ export interface MarkerInfoConfig {
 }
 
 
-export type ResourceBehavior = 'depletable' | 'shop' | 'none';
+export type ResourceBehavior = 'depletable' | 'shop' | 'static' | 'none';
 
 
 export interface InteractionAreaData {
@@ -403,13 +403,13 @@ export const INTERACTION_AREAS: InteractionAreaData[] = [
         resourceBehavior: "depletable"
     },
     {
-        id: "welcome",
+        id: "safehouse1",
         positionX: 15510,
         positionY: 12315,
         width: 4100,
         height: 2300,
         displayName: "Safehouse",
-        overlayKey: "welcomeOverlay",
+        overlayKey: "safehouseOverlay",
         areaBaseColor: 0x1689f5,
         areaHoverColor: 0x34b4eb,
 
@@ -431,7 +431,9 @@ export const INTERACTION_AREAS: InteractionAreaData[] = [
             baseColor: 0x000000,
             radius: -1,
             locationType: "Safehouse"
-        }
+        },
+        gameElementType: "safehouse",
+        resourceBehavior: "static"
     },
     {
         id: "fireworks",

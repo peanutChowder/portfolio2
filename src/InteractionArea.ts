@@ -31,7 +31,7 @@ export default class InteractionArea {
     private resourceBehavior: ResourceBehavior = "none";
 
     // Button properties for InteractionArea Overlay
-    private interactionButton!: Phaser.GameObjects.Container;
+    private interactionButton: Phaser.GameObjects.Container | null = null;
     private buttonBg!: Phaser.GameObjects.Graphics;
     private buttonText!: Phaser.GameObjects.Text;
     private ignoreButtonClick: boolean = false;
@@ -156,11 +156,17 @@ export default class InteractionArea {
             this.geButtonWidth = 0.1 * this.scene.cameras.main.height;
         }
 
-        // Initialize interaction and game element buttons
-        this.initInteractionButton(buttonData.text, buttonData.font);
+        // Static areas are handled as game elements, so we skip creating the 
+        // button.
+        if (this.resourceBehavior !== 'static') {
+            this.initInteractionButton(buttonData.text, buttonData.font);
+            // Finally, hide the button until the player steps inside
+            this.interactionButton?.setVisible(false);
+        } else {
+            this.interactionButton = null;
+        }
 
-        // Finally, hide the button until the player steps inside
-        this.interactionButton.setVisible(false);
+
     }
 
 
@@ -335,7 +341,7 @@ export default class InteractionArea {
      * Called when the user clicks the button.
      */
     private handleClick = (_pointer: Phaser.Input.Pointer) => {
-        if (this.isPlayerInside && this.interactionButton.visible && !this.ignoreButtonClick) {
+        if (this.isPlayerInside && this.interactionButton?.visible && !this.ignoreButtonClick) {
             this.ignoreButtonClick = true;
             this.handleInteraction();
         }
@@ -376,7 +382,7 @@ export default class InteractionArea {
         this.isPlayerInside = this.containsPoint(x, y);
 
         if (this.isPlayerInside !== wasInside) {
-            this.interactionButton.setVisible(this.isPlayerInside);
+            this.interactionButton?.setVisible(this.isPlayerInside);
 
             if (this.gameElementButton) {
                 this.gameElementButton.setVisible(this.isPlayerInside);
@@ -391,8 +397,8 @@ export default class InteractionArea {
         const camera = this.scene.cameras.main;
 
         // Main interaction button near bottom-center
-        this.interactionButton.setPosition(camera.width / 2, camera.height);
-        this.interactionButton.setScale(1 / camera.zoom);
+        this.interactionButton?.setPosition(camera.width / 2, camera.height);
+        this.interactionButton?.setScale(1 / camera.zoom);
 
         let gameElementOffsetX = 0;
         let gameElementOffsetY = 0;
@@ -416,6 +422,7 @@ export default class InteractionArea {
      */
     handleInteraction(): void {
         if (!this.isPlayerInside) return;
+        if (this.resourceBehavior === "static") return;
 
         console.info(`Player inside area: '${this.displayName}'`);
 
@@ -466,10 +473,10 @@ export default class InteractionArea {
         if (this.glowTween) this.glowTween.stop();
         this.glowGraphics?.destroy();
 
-        this.interactionButton.off('pointerover', this.onButtonHover, this);
-        this.interactionButton.off('pointerout', this.onButtonOut, this);
-        this.interactionButton.off('pointerdown', this.handleClick, this);
-        this.interactionButton.destroy();
+        this.interactionButton?.off('pointerover', this.onButtonHover, this);
+        this.interactionButton?.off('pointerout', this.onButtonOut, this);
+        this.interactionButton?.off('pointerdown', this.handleClick, this);
+        this.interactionButton?.destroy();
 
         if (this.floatingText) {
             this.floatingText.destroy();
