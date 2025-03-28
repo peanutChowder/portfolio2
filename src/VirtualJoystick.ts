@@ -30,7 +30,7 @@ export class VirtualJoystick extends Phaser.GameObjects.Container {
         this.add(this.stick);
 
         this.setScrollFactor(0);
-        this.setDepth(1000);
+        this.setDepth(99);
 
         // Offset between clicks and where the invisible joystick is. Joystick coords are messed up due to
         // camera movement. 

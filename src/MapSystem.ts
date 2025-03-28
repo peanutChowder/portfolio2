@@ -60,7 +60,7 @@ export class MapSystem extends Phaser.GameObjects.Container {
             this.scene.cameras.main.centerY - (cameraHeight / (2 * cameraZoom)) + (this.mapSize / 1.9)
         );
         this.mapContainer.setScrollFactor(0);
-        this.mapContainer.setDepth(1000);
+        this.mapContainer.setDepth(99);
 
         const backgroundSize = this.mapSize;
         this.mapBackground = this.scene.add.graphics();

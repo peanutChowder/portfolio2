@@ -576,7 +576,7 @@ export default class IsometricScene extends Phaser.Scene {
         }).setOrigin(0.5);
 
         const buttonContainer = this.add.container(xPos, yPos, [buttonBg, label]);
-        buttonContainer.setScrollFactor(0).setDepth(9999);
+        buttonContainer.setScrollFactor(0).setDepth(99);
 
         buttonContainer.setSize(buttonWidth, buttonHeight);
         buttonContainer.setInteractive(

@@ -673,7 +673,7 @@ export default class InteractionArea {
 
         popupText.setOrigin(0.5);
         popupText.setScrollFactor(0);
-        popupText.setDepth(9999);
+        popupText.setDepth(90);
         popupText.setAlpha(0);
 
         // Fade in
