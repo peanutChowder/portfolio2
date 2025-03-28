@@ -224,86 +224,130 @@ export default class InteractionArea {
      */
     private initGameElementButton(): void {
         if (!this.minigameId) return;
-
-        // Create container centered at origin (we'll position it later)
+    
         this.gameElementButton = this.scene.add.container(0, 0);
         this.gameElementButton.setScrollFactor(0);
         this.gameElementButton.setDepth(50);
         this.gameElementButton.setVisible(false);
-
-        const bg = this.scene.add.graphics();
-
-        const drawBg = (borderColor: number) => {
-            bg.clear();
-
-            // Base fill (centered at 0,0)
-            bg.fillStyle(0xffffff, 1);
-            bg.fillRoundedRect(
-                -this.geButtonWidth / 2,
-                -this.geButtonHeight / 2,
-                this.geButtonWidth,
-                this.geButtonHeight,
-                20
+    
+        if (this.gameElementType === 'safehouse') {
+            const btnWidth = 300;
+            const btnHeight = 90;
+            const btnRadius = 20;
+            const btnLineWidth = 6;
+    
+            const bg = this.scene.add.graphics();
+            bg.fillStyle(this.normalColor, 1);
+            bg.fillRoundedRect(-btnWidth / 2, -btnHeight / 2, btnWidth, btnHeight, btnRadius);
+            bg.lineStyle(btnLineWidth, 0xffffff, 1);
+            bg.strokeRoundedRect(-btnWidth / 2, -btnHeight / 2, btnWidth, btnHeight, btnRadius);
+    
+            const label = this.scene.add.text(0, 0, 'Enter Safehouse', {
+                font: `24px Prompt`,
+                color: '#ffffff'
+            });
+            label.setOrigin(0.5);
+    
+            this.gameElementButton.add([bg, label]);
+            this.gameElementButton.setSize(btnWidth, btnHeight);
+    
+            this.gameElementButton.setInteractive(
+                new Phaser.Geom.Rectangle(
+                    0, 
+                    0,
+                    btnWidth,
+                    btnHeight
+                ),
+                Phaser.Geom.Rectangle.Contains
             );
-
-            // Thin inner border (accent color)
-            bg.lineStyle(10, borderColor, 1);
-            bg.strokeRoundedRect(
-                -this.geButtonWidth / 2 + 2,
-                -this.geButtonHeight / 2 + 2,
-                this.geButtonWidth - 4,
-                this.geButtonHeight - 4,
-                18
+    
+            this.gameElementButton.on('pointerover', () => {
+                bg.clear();
+                bg.fillStyle(this.hoverColor, 1);
+                bg.fillRoundedRect(-btnWidth / 2, -btnHeight / 2, btnWidth, btnHeight, btnRadius);
+                bg.lineStyle(btnLineWidth, 0xffffff, 1);
+                bg.strokeRoundedRect(-btnWidth / 2, -btnHeight / 2, btnWidth, btnHeight, btnRadius);
+            });
+    
+            this.gameElementButton.on('pointerout', () => {
+                bg.clear();
+                bg.fillStyle(this.normalColor, 1);
+                bg.fillRoundedRect(-btnWidth / 2, -btnHeight / 2, btnWidth, btnHeight, btnRadius);
+                bg.lineStyle(btnLineWidth, 0xffffff, 1);
+                bg.strokeRoundedRect(-btnWidth / 2, -btnHeight / 2, btnWidth, btnHeight, btnRadius);
+            });
+    
+        } else if (this.gameElementType === 'fishing') {
+            // original fishing button logic
+            const bg = this.scene.add.graphics();
+            const drawBg = (borderColor: number) => {
+                bg.clear();
+                bg.fillStyle(0xffffff, 1);
+                bg.fillRoundedRect(
+                    -this.geButtonWidth / 2,
+                    -this.geButtonHeight / 2,
+                    this.geButtonWidth,
+                    this.geButtonHeight,
+                    20
+                );
+                bg.lineStyle(10, borderColor, 1);
+                bg.strokeRoundedRect(
+                    -this.geButtonWidth / 2 + 2,
+                    -this.geButtonHeight / 2 + 2,
+                    this.geButtonWidth - 4,
+                    this.geButtonHeight - 4,
+                    18
+                );
+            };
+    
+            drawBg(this.normalColor);
+            const icon = this.scene.add.image(0, 0, 'fishingRod');
+            icon.setDisplaySize(48, 48);
+            icon.setOrigin(0.5);
+    
+            this.gameElementButton.add([bg, icon]);
+            this.gameElementButton.setSize(this.geButtonWidth, this.geButtonHeight);
+    
+            this.gameElementButton.setInteractive(
+                new Phaser.Geom.Rectangle(
+                    0,
+                    0,
+                    this.geButtonWidth,
+                    this.geButtonHeight
+                ),
+                Phaser.Geom.Rectangle.Contains
             );
-        };
-
-        drawBg(this.normalColor);
-
-        const icon = this.scene.add.image(0, 0, 'fishingRod');
-        icon.setDisplaySize(48, 48);
-        icon.setOrigin(0.5);
-
-        this.gameElementButton.add([bg, icon]);
-
-        // Set the hit area relative to container center (0,0)
-        this.gameElementButton.setSize(this.geButtonWidth, this.geButtonHeight);
-        this.gameElementButton.setInteractive(
-            new Phaser.Geom.Rectangle(
-                0,
-                0,
-                this.geButtonWidth,
-                this.geButtonHeight
-            ),
-            Phaser.Geom.Rectangle.Contains
-        );
-
-        this.gameElementButton.on('pointerover', () => drawBg(this.hoverColor), this);
-        this.gameElementButton.on('pointerout', () => drawBg(this.normalColor), this);
-
+    
+            this.gameElementButton.on('pointerover', () => drawBg(this.hoverColor));
+            this.gameElementButton.on('pointerout', () => drawBg(this.normalColor));
+        }
+    
+        // Common pointerdown behavior
         this.gameElementButton.on('pointerdown', () => {
             const blockers = this.activeBlockers;
-        
+    
             if (blockers.has('depletion')) {
-                const resourceLabel = this.gameElementType === 'fishing'
+                const label = this.gameElementType === 'fishing'
                     ? 'Fish'
                     : this.gameElementType === 'treasure'
                         ? 'Treasure'
                         : 'This resource';
-        
-                this.showDepletionPopup(`${resourceLabel} has been depleted at this island!`);
+    
+                this.showDepletionPopup(`${label} has been depleted at this island!`);
                 return;
             }
-        
+    
             if (blockers.has('inventoryFull')) {
                 this.showDepletionPopup(`Inventory full! You cannot collect more items.`);
                 return;
             }
-        
+    
             if ((this.scene as any).showGameOverlay) {
                 (this.scene as any).showGameOverlay(this.minigameId);
             }
-        });        
+        });
     }
+    
 
 
     /**
@@ -411,9 +455,14 @@ export default class InteractionArea {
 
 
         if (this.gameElementButton) {
-            this.gameElementButton.setPosition(camera.width / 2 + gameElementOffsetX, camera.height + gameElementOffsetY);
+            if (this.gameElementType === 'safehouse') {
+                this.gameElementButton.setPosition(camera.width / 2, camera.height - 100);
+            } else if (this.gameElementType === 'fishing') {
+                this.gameElementButton.setPosition(camera.width / 2 + gameElementOffsetX, camera.height + gameElementOffsetY);
+            }
             this.gameElementButton.setScale(1 / camera.zoom);
         }
+        
     }
 
 
