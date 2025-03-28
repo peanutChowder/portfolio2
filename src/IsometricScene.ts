@@ -429,8 +429,24 @@ export default class IsometricScene extends Phaser.Scene {
                         blackout.setOrigin(0);
                         blackout.alpha = 0;
                     
+                        // Resting Text
+                        const restingText = this.add.text(
+                            this.cameras.main.centerX,
+                            this.cameras.main.centerY,
+                            'Resting...',
+                            {
+                                font: '120px Prompt',
+                                color: '#ffffff',
+                                align: 'center'
+                            }
+                        );
+                        restingText.setOrigin(0.5);
+                        restingText.setScrollFactor(0);
+                        restingText.setDepth(100000); // must be above blackout
+                        restingText.setAlpha(0);
+                    
                         this.tweens.add({
-                            targets: blackout,
+                            targets: [blackout, restingText],
                             alpha: 1,
                             duration: 500,
                             onComplete: () => {
@@ -443,11 +459,12 @@ export default class IsometricScene extends Phaser.Scene {
                     
                                 this.time.delayedCall(2000, () => {
                                     this.tweens.add({
-                                        targets: blackout,
+                                        targets: [blackout, restingText],
                                         alpha: 0,
                                         duration: 500,
                                         onComplete: () => {
                                             blackout.destroy();
+                                            restingText.destroy();
                                             if (iframe) iframe.style.display = 'block';
                                         }
                                     });
