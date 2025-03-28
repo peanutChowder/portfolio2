@@ -36,14 +36,22 @@ export class IslandManager {
 
     // All minigames, treasure locations, etc.
     private gameElements: GameElement[] = [
-        // For example, "fishPunch" is extremely common at rarity=1
+        {
+            id: 'safehouse',
+            name: 'Safehouse',
+            maxResource: 0,     // irrelevant values to safehouse
+            rarity: 1.0,         
+            elementType: 'safehouse'
+        },
+        // higher rarity value is more common!!
         {
             id: 'fishPunch',
             name: 'Fish Punch',
             maxResource: 4,
-            rarity: 0.8,     // 1.0 => extremely common
+            rarity: 0.8,     
             elementType: 'fishing'
         },
+
     ];
 
     // Probability that a fishing area will have a minigame
@@ -77,9 +85,11 @@ export class IslandManager {
         interactionAreaInfo.forEach(ia => {
             let existing = this.assignments.find(a => a.id === ia.id);
             if (!existing) {
-                // Only depletable elements will be handled. These can be fishing areas, treasure areas, etc.
-                const gameElementType = ia.getResourceBehavior() === 'depletable' ? ia.getGameElementType() : null;
-
+                // All areas that are not none (fishing, safehouses, etc) will have their assignment handled by the island manager
+                const gameElementType = ia.getResourceBehavior() !== 'none'
+                ? ia.getGameElementType()
+                : null;
+            
                 existing = {
                     id: ia.id,
                     gameElementId: null,
@@ -109,8 +119,9 @@ export class IslandManager {
                 areaElementType: ia.getGameElementType()  // e.g. "fishing", "treasure"
             }));
 
-            // Actually sync the minigames to each InteractionArea via InteractionArea.minigameId
+            // Actually sync the game elements to each InteractionArea via InteractionArea.minigameId
             this.assignFishingToIslands();
+            this.assignSafehousesToIslands();
 
             this.lastAssignmentBlock = curr5MinBlock;
             this.saveToStorage();
@@ -142,6 +153,19 @@ export class IslandManager {
             }
         });
     }
+
+    /**
+     * The function dedicated to "safehouse" areas
+     */
+    private assignSafehousesToIslands(): void {
+        this.assignments.forEach(a => {
+            if (a.areaElementType === 'safehouse') {
+                a.gameElementId = 'safehouse';
+                a.resourceLeft = 0; 
+            }
+        });
+    }
+
 
 
     /**
@@ -183,9 +207,8 @@ export class IslandManager {
                         
             area.updateButtonBlockers(blockers);
             area.evaluateGameElementBlockers(); // check for other blocks, e.g. inventory full
-            
 
-            console.log("Synced area", area.id, "to minigame", a.gameElementId);
+            console.log("Synced area", area.id, "to game element", a.gameElementId);
         });
         console.groupEnd();
     }

@@ -148,6 +148,8 @@ export default class IsometricScene extends Phaser.Scene {
         this.load.html('experienceOverlay-UAlberta', 'expUAlbertaOverlay.html');
         this.load.html('welcomeOverlay', 'welcomeOverlay.html');
 
+        // Game element overlays
+        this.load.html('safehouse', 'safehouseOverlay.html');
         this.load.html('fishPunch', 'game-overlays/fishPunch.html');
 
         // load firework animations
@@ -405,6 +407,53 @@ export default class IsometricScene extends Phaser.Scene {
                         localStorage.setItem('energy', this.energy.toString());
                         break;
                     }
+
+                    case 'rest': {
+                        const width = this.cameras.main.width / this.cameras.main.zoom;
+                        const height = this.cameras.main.height / this.cameras.main.zoom;
+                    
+                        const blackout = this.add.rectangle(
+                            this.cameras.main.centerX - width / 2,
+                            this.cameras.main.centerY - height / 2,
+                            width,
+                            height,
+                            0x000000,
+                            1
+                        );
+                        blackout.setScrollFactor(0);
+                        blackout.setDepth(99999);
+                        blackout.setOrigin(0);
+                        blackout.alpha = 0;
+                    
+                        // Show blackout
+                        this.tweens.add({
+                            targets: blackout,
+                            alpha: 1,
+                            duration: 500,
+                            onComplete: () => {
+                                // Wait while screen is black, then reset energy secretly
+                                this.time.delayedCall(1000, () => {
+                                    console.log("Resting... resetting energy to 100%");
+                                    this.energy = 100;
+                                    localStorage.setItem('energy', this.energy.toString());
+                                    this.updateEnergyBar();
+                                });
+                    
+                                // Hold blackout for a bit
+                                this.time.delayedCall(2000, () => {
+                                    this.tweens.add({
+                                        targets: blackout,
+                                        alpha: 0,
+                                        duration: 500,
+                                        onComplete: () => blackout.destroy()
+                                    });
+                                });
+                            }
+                        });
+                    
+                        break;
+                    }
+                    
 
                     case 'destroyInventoryOverlay': {
                         this.destroyInventoryOverlay();
