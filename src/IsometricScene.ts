@@ -24,7 +24,7 @@ const fontFamilies = {
     "body": ""
 }
 
-const debugMode = false;
+const debugMode = true;
 const debugSpawn = { x: 12901, y: 15449 }
 
 const arrowIndicatorsEnabled = false;
@@ -409,6 +409,10 @@ export default class IsometricScene extends Phaser.Scene {
                     }
 
                     case 'rest': {
+                        const iframe = document.getElementById('game-overlay-iframe');
+                        console.log("iframe: ", iframe);
+                        if (iframe) iframe.style.display = 'none'; // hide safehouse overlay temporarily
+                    
                         const width = this.cameras.main.width / this.cameras.main.zoom;
                         const height = this.cameras.main.height / this.cameras.main.zoom;
                     
@@ -421,17 +425,15 @@ export default class IsometricScene extends Phaser.Scene {
                             1
                         );
                         blackout.setScrollFactor(0);
-                        blackout.setDepth(99999);
+                        blackout.setDepth(999);
                         blackout.setOrigin(0);
                         blackout.alpha = 0;
                     
-                        // Show blackout
                         this.tweens.add({
                             targets: blackout,
                             alpha: 1,
                             duration: 500,
                             onComplete: () => {
-                                // Wait while screen is black, then reset energy secretly
                                 this.time.delayedCall(1000, () => {
                                     console.log("Resting... resetting energy to 100%");
                                     this.energy = 100;
@@ -439,21 +441,22 @@ export default class IsometricScene extends Phaser.Scene {
                                     this.updateEnergyBar();
                                 });
                     
-                                // Hold blackout for a bit
                                 this.time.delayedCall(2000, () => {
                                     this.tweens.add({
                                         targets: blackout,
                                         alpha: 0,
                                         duration: 500,
-                                        onComplete: () => blackout.destroy()
+                                        onComplete: () => {
+                                            blackout.destroy();
+                                            if (iframe) iframe.style.display = 'block';
+                                        }
                                     });
                                 });
                             }
                         });
                     
                         break;
-                    }
-                    
+                    } 
 
                     case 'destroyInventoryOverlay': {
                         this.destroyInventoryOverlay();
@@ -1073,6 +1076,7 @@ export default class IsometricScene extends Phaser.Scene {
 
         // 1) Create an iframe
         const iframe = document.createElement('iframe');
+        iframe.id = 'game-overlay-iframe';
         console.log(`../game-overlays/${gameOverlayName}/${gameOverlayName}.html`)
         iframe.src = `../game-overlays/${gameOverlayName}/${gameOverlayName}.html`;
         iframe.style.position = 'fixed';
