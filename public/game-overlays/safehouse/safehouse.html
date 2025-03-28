@@ -125,6 +125,25 @@
             document.querySelector('.rest-button').addEventListener('click', () => {
                 parent.postMessage({ type: "rest" }, "*");
             });
+
+            let inventoryItems = [];
+            let safehouseItems = [];
+            let inventoryMax = 10;
+            let safehouseMax = 20;
+
+            window.addEventListener('message', (event) => {
+                if (event.data?.type === 'safehouseData') {
+                    inventoryItems = event.data.inventory || [];
+                    safehouseItems = event.data.safehouse || [];
+                    inventoryMax = event.data.inventoryMaxSize;
+                    safehouseMax = event.data.safehouseMaxSize;
+
+                    console.log("Safehouse received:", {
+                        inventoryItems, safehouseItems, inventoryMax, safehouseMax
+                    });
+                }
+            });
+
         });
     </script>
 </body>

@@ -16,6 +16,7 @@ import { VirtualJoystick } from './VirtualJoystick';
 import { FireworkManager } from './Fireworks';
 import { MapSystem } from './MapSystem';
 import { Inventory } from './Inventory';
+import { SafehouseInventory } from './SafehouseInventory';
 
 const fontSize = "80px";
 const fontColor = "#ffffff"
@@ -24,7 +25,7 @@ const fontFamilies = {
     "body": ""
 }
 
-const debugMode = true;
+const debugMode = false;
 const debugSpawn = { x: 12901, y: 15449 }
 
 const arrowIndicatorsEnabled = false;
@@ -86,6 +87,9 @@ export default class IsometricScene extends Phaser.Scene {
     private inventoryButtonColor = 0xd1b884;
     private inventoryButtonHoverColor = 0xe3cb98;
     private inventory: Inventory | null = null;
+
+    // Safehouse storage/inventory
+    private safehouseInventory!: SafehouseInventory;
     
     // Game elements manager
     private islandManager!: IslandManager;
@@ -226,6 +230,11 @@ export default class IsometricScene extends Phaser.Scene {
                     interactionArea.updateButtonBlockers(new Set(['depletion']));
                 }
             })
+
+
+            // not load order sensitive
+            this.safehouseInventory = new SafehouseInventory();
+
 
             // Draw layer 2 (layer number 1), the lowest land layer
             layerNum = 1
@@ -1115,6 +1124,21 @@ export default class IsometricScene extends Phaser.Scene {
         setTimeout(() => {
             iframe.style.opacity = '1';
         }, 50);
+
+        if (gameOverlayName === "safehouse") {
+            iframe.addEventListener('load', () => {
+                console.log("Sending inventory + safehouse storage to iframe");
+            
+                iframe.contentWindow?.postMessage({
+                    type: "safehouseData",
+                    inventory: this.inventory?.getDetailedInventory(),
+                    inventoryMaxSize: this.inventory?.getCurrentSize(),
+                    safehouse: this.safehouseInventory?.getDetailedStorage(),
+                    safehouseMaxSize: this.safehouseInventory?.getMaxSize()
+                }, "*");
+            });
+            
+        }
 
         console.groupEnd();
     }
