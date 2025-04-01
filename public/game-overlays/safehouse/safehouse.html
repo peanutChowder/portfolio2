@@ -52,6 +52,14 @@
             text-align: center;
         }
 
+        .section-block {
+            background-color: #FBF5E5;
+            border-radius: 12px;
+            padding: 2px;
+            margin-bottom: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        }
+
         .close-button {
             position: sticky;
             top: 20px;
@@ -76,12 +84,20 @@
             background-color: #E6D9C2;
         }
 
+
+
         .item-grid {
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
             gap: 10px;
             padding: 10px 0;
+        }
+
+        .vertical-divider {
+            width: 1px;
+            background-color: #E6D9C2;
+            margin: 0 10px;
         }
 
         .inventory-item {
@@ -125,11 +141,9 @@
             font-weight: bold;
             border-radius: 8px;
             cursor: pointer;
-            margin-top: 20px;
             width: 80%;
             max-width: 300px;
-            margin-left: auto;
-            margin-right: auto;
+            margin: 5px auto
         }
 
         .rest-button:hover {
@@ -198,25 +212,36 @@
         <div id="simple-overlay">
             <div class="content-inner">
                 <button class="close-button">X</button>
-                <h2>Safehouse</h2>
+                <!-- Description Section -->
+                <h2>SAFEHOUSE</h2>
                 <p>Welcome to your safehouse. You can store items here and take a rest to regain energy.</p>
 
-                <div id="storage-info" class="section-title"></div>
-                <div id="inventory-info" class="section-title"></div>
+                <!-- Inventory Sections -->
+                <div class="section-block">
+                    <div id="storage-info" class="section-title"></div>
+                    <div id="inventory-info" class="section-title"></div>
 
-                <div style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;">
-                    <div style="flex: 1; min-width: 200px;">
-                        <h3 id="safehouse-title">Safehouse Storage</h3>
-                        <div id="safehouse-grid" class="item-grid"></div>
-                    </div>
+                    <div style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;">
+                        <div style="flex: 1; min-width: 200px;">
+                            <h3 id="safehouse-title">Safehouse Storage</h3>
+                            <div id="safehouse-grid" class="item-grid"></div>
+                        </div>
 
-                    <div style="flex: 1; min-width: 200px;">
-                        <h3 id="inventory-title">Inventory</h3>
-                        <div id="inventory-grid" class="item-grid"></div>
+                        <div class="vertical-divider"></div>
+
+                        <div style="flex: 1; min-width: 200px;">
+                            <h3 id="inventory-title">Inventory</h3>
+                            <div id="inventory-grid" class="item-grid"></div>
+                        </div>
                     </div>
                 </div>
 
-                <button class="rest-button">Rest</button>
+
+                <!-- Rest Button Section -->
+                <div class="section-block" style="text-align: center;">
+                    <button class="rest-button">Rest</button>
+                </div>
+
             </div>
         </div>
     </div>
@@ -415,7 +440,6 @@
 
             window.addEventListener('message', (event) => {
                 if (event.data?.type === 'safehouseData') {
-                    console.log('Safehouse received:', event.data);
 
                     safehouseItems = event.data.safehouse || [];
                     inventoryItems = event.data.inventory || [];
