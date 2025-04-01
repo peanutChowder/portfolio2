@@ -250,6 +250,10 @@
     <div id="inspect-overlay">
     </div>
 
+    <!-- Temporary Message -->
+    <div id="temporary-message"
+        style="display:none; position:fixed; bottom:40px; left:50%; transform:translateX(-50%); background:#7E6D5A; color:white; padding:12px 24px; border-radius:10px; font-size:16px; font-family:'Prompt', sans-serif; z-index:2000; box-shadow:0 4px 12px rgba(0,0,0,0.2);">
+    </div>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             document.querySelector('.close-button').addEventListener('click', () => {
@@ -313,6 +317,22 @@
                     selectedSource = source;
                     showInspectOverlay(item, source);
                 });
+
+                function showTemporaryMessage(message) {
+                    const messageBox = document.getElementById('temporary-message');
+                    messageBox.textContent = message;
+                    messageBox.style.display = 'block';
+                    messageBox.style.opacity = '1';
+
+                    setTimeout(() => {
+                        messageBox.style.transition = 'opacity 0.5s ease';
+                        messageBox.style.opacity = '0';
+                        setTimeout(() => {
+                            messageBox.style.display = 'none';
+                        }, 500);
+                    }, 2000); // Visible for 2s
+                }
+
 
                 function showInspectOverlay(item, source) {
                     const overlay = document.getElementById('inspect-overlay');
@@ -385,11 +405,11 @@
                         const destCount = destination.reduce((sum, i) => sum + i.quantity, 0);
 
                         if (destCount >= destMax) {
-                            alert(`${source === 'inventory' ? 'Safehouse' : 'Inventory'} is full.`);
+                            showTemporaryMessage(`${source === 'inventory' ? 'Safehouse' : 'Inventory'} is full.`);
                             return;
                         }
 
-                        // Remove from source
+                        // Remove one from source
                         item.quantity--;
                         if (item.quantity <= 0) {
                             if (source === 'inventory') {
@@ -413,9 +433,15 @@
                             direction: source === 'inventory' ? 'toSafehouse' : 'toInventory'
                         }, "*");
 
-                        closeInspectOverlay();
                         updateUI();
+
+                        if (item.quantity <= 0) {
+                            closeInspectOverlay();
+                        } else {
+                            showInspectOverlay(item, source);
+                        }
                     };
+
                     container.appendChild(transferBtn);
 
                     // === Back Button ===
