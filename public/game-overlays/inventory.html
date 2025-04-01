@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <title>Inventory</title>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;700&display=swap" rel="stylesheet">
     <style>
         html,
         body {
@@ -168,6 +169,7 @@
 
         /* ============== INSPECT-DETAIL OVERLAY ============== */
         #inspect-overlay {
+            font-family: "Prompt", sans-serif;
             position: absolute;
             top: 0;
             left: 0;
@@ -211,6 +213,7 @@
         }
 
         #inspect-close-btn {
+            font-family: 'Prompt', sans-serif;
             background-color: #D0B49F;
             color: white;
             border: none;
@@ -414,6 +417,8 @@
             throwBtn.style.border = 'none';
             throwBtn.style.fontSize = '16px';
             throwBtn.style.cursor = 'pointer';
+            throwBtn.style.fontFamily = "'Prompt', sans-serif";
+
             throwBtn.addEventListener('mouseover', () => throwBtn.style.backgroundColor = '#cf511b');
             throwBtn.addEventListener('mouseout', () => throwBtn.style.backgroundColor = '#c97855');
 
@@ -440,6 +445,8 @@
             closeBtn.style.cursor = 'pointer';
             closeBtn.style.fontSize = '16px';
             closeBtn.style.marginTop = '20px';
+            closeBtn.style.fontFamily = "'Prompt', sans-serif";
+
             closeBtn.addEventListener('mouseover', () => closeBtn.style.backgroundColor = '#C19A82');
             closeBtn.addEventListener('mouseout', () => closeBtn.style.backgroundColor = '#D0B49F');
 
