@@ -1126,7 +1126,6 @@ export default class IsometricScene extends Phaser.Scene {
         iframe.style.height = '100vh';
         iframe.style.zIndex = '9999';
         iframe.style.border = 'none';        // remove default iframe border
-        iframe.allow = "accelerometer; ..."; // if your game needs special perms
 
         // 2) Append to DOM
         document.body.appendChild(iframe);
@@ -1141,7 +1140,6 @@ export default class IsometricScene extends Phaser.Scene {
 
         if (gameOverlayName === "safehouse") {
             iframe.addEventListener('load', () => {
-                console.log("Sending inventory + safehouse storage to iframe");
             
                 iframe.contentWindow?.postMessage({
                     type: "safehouseData",
