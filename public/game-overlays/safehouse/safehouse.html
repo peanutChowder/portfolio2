@@ -148,22 +148,20 @@
                 <p>Welcome to your safehouse. You can store items here and take a rest to regain energy.</p>
                 <div id="storage-info"
                     style="text-align: center; font-weight: bold; color: #7E6D5A; margin-bottom: 10px;">
-                    Safehouse Storage: <span id="storage-count">0</span>/20
                 </div>
 
                 <div id="inventory-info"
                     style="text-align: center; font-weight: bold; color: #7E6D5A; margin-bottom: 10px;">
-                    Inventory: <span id="inventory-count">0</span>/10
                 </div>
 
                 <div style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;">
                     <div style="flex: 1; min-width: 200px;">
-                        <h3 style="text-align: center; color: #7E6D5A;">Safehouse Storage</h3>
+                        <h3 id="safehouse-title" style="text-align: center; color: #7E6D5A;">Safehouse Storage</h3>
                         <div id="safehouse-grid" class="item-grid"></div>
                     </div>
 
                     <div style="flex: 1; min-width: 200px;">
-                        <h3 style="text-align: center; color: #7E6D5A;">Inventory</h3>
+                        <h3 id="inventory-title" style="text-align: center; color: #7E6D5A;">Inventory</h3>
                         <div id="inventory-grid" class="item-grid"></div>
                     </div>
                 </div>
@@ -207,9 +205,13 @@
                     inventoryGrid.appendChild(div);
                 });
 
-                // Update counts
-                document.getElementById('storage-count').textContent = safehouseItems.reduce((sum, i) => sum + i.quantity, 0);
-                document.getElementById('inventory-count').textContent = inventoryItems.reduce((sum, i) => sum + i.quantity, 0);
+                // Count total quantity of all items
+                const safehouseCount = safehouseItems.reduce((sum, i) => sum + i.quantity, 0);
+                const inventoryCount = inventoryItems.reduce((sum, i) => sum + i.quantity, 0);
+
+                // Update headers
+                document.querySelector('#safehouse-title').textContent = `Safehouse Storage: ${safehouseCount}/${safehouseMax}`;
+                document.querySelector('#inventory-title').textContent = `Inventory: ${inventoryCount}/${inventoryMax}`;
             }
 
             function createItemCard(item, source) {
@@ -227,7 +229,6 @@
                 div.appendChild(label);
 
                 div.addEventListener('click', () => {
-                    // Later we'll open the transfer + inspect menu
                     console.log(`Clicked ${item.name} in ${source}`);
                 });
 
@@ -243,13 +244,11 @@
                     safehouseItems = event.data.safehouse || [];
                     inventoryItems = event.data.inventory || [];
 
+                    safehouseMax = event.data.safehouseMax ?? safehouseMax;
+                    inventoryMax = event.data.inventoryMax ?? inventoryMax;
                     updateUI();
                 }
             });
-
-
         });
     </script>
 </body>
-
-</html>

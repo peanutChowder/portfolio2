@@ -1131,11 +1131,11 @@ export default class IsometricScene extends Phaser.Scene {
             
                 iframe.contentWindow?.postMessage({
                     type: "safehouseData",
+                    safehouse: this.safehouseInventory.getDetailedStorage(),
                     inventory: this.inventory?.getDetailedInventory(),
-                    inventoryMaxSize: this.inventory?.getCurrentSize(),
-                    safehouse: this.safehouseInventory?.getDetailedStorage(),
-                    safehouseMaxSize: this.safehouseInventory?.getMaxSize()
-                }, "*");
+                    safehouseMax: this.safehouseInventory.getMaxSize(),
+                    inventoryMax: this.inventory?.getCurrentSize()
+                }, "*");                
             });
             
         }
