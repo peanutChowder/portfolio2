@@ -484,6 +484,20 @@ export default class IsometricScene extends Phaser.Scene {
                         break;
                     } 
 
+                    // transferring items in safehouse between safehouse storage <-> inventory
+                    case 'transferItem': {
+                        const { itemId, direction } = event.data;
+                        if (direction === 'toSafehouse') {
+                            this.safehouseInventory.addItem(itemId);
+                            this.inventory?.removeItem(itemId);
+                        } else {
+                            this.inventory?.addItem(itemId);
+                            this.safehouseInventory.removeItem(itemId);
+                        }
+                        break;
+                    }
+                    
+
                     case 'destroyInventoryOverlay': {
                         this.destroyInventoryOverlay();
                         break;

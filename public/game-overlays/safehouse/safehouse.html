@@ -154,6 +154,39 @@
             justify-content: center;
             z-index: 1000;
         }
+
+        .inspect-button {
+            background-color: #D0B49F;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-family: 'Prompt', sans-serif;
+            margin-top: 12px;
+            transition: background-color 0.2s ease;
+        }
+
+        .inspect-button:hover {
+            background-color: #C19A82;
+        }
+
+        .inspect-button.danger {
+            background-color: #c97855;
+        }
+
+        .inspect-button.danger:hover {
+            background-color: #cf511b;
+        }
+
+        .inspect-button.success {
+            background-color: #7AA47A;
+        }
+
+        .inspect-button.success:hover {
+            background-color: #6A936A;
+        }
     </style>
 </head>
 
@@ -248,9 +281,131 @@
                 div.appendChild(name);
 
                 div.addEventListener('click', () => {
-                    console.log(`Clicked ${item.name} in ${source}`);
-                    // coming next: showInspectOverlay(item, source)
+                    selectedItem = item;
+                    selectedSource = source;
+                    showInspectOverlay(item, source);
                 });
+
+                function showInspectOverlay(item, source) {
+                    const overlay = document.getElementById('inspect-overlay');
+                    overlay.innerHTML = ''; // Clear previous content
+                    overlay.style.display = 'flex';
+
+                    const container = document.createElement('div');
+                    container.style.background = '#FFF8EE';
+                    container.style.padding = '30px';
+                    container.style.borderRadius = '12px';
+                    container.style.border = '2px solid #E6D9C2';
+                    container.style.boxShadow = '0 12px 24px rgba(0, 0, 0, 0.3)';
+                    container.style.textAlign = 'center';
+                    container.style.color = '#7E6D5A';
+                    container.style.maxWidth = '500px';
+                    container.style.width = '100%';
+
+                    const title = document.createElement('h2');
+                    title.textContent = item.name;
+                    container.appendChild(title);
+
+                    const img = document.createElement('img');
+                    img.src = `../../assets/fish-sprites/${item.imgSrc}`;
+                    img.style.maxWidth = '200px';
+                    img.style.marginBottom = '15px';
+                    container.appendChild(img);
+
+                    const desc = document.createElement('p');
+                    desc.textContent = item.description || 'No description.';
+                    container.appendChild(desc);
+
+                    const quantity = document.createElement('p');
+                    quantity.textContent = `Quantity: x${item.quantity}`;
+                    container.appendChild(quantity);
+
+                    const value = document.createElement('p');
+                    value.textContent = `Value: ${item.cost || 0} coins`;
+                    container.appendChild(value);
+
+                    // === Throw Button ===
+                    const throwBtn = document.createElement('button');
+                    throwBtn.textContent = 'Throw away one';
+                    throwBtn.className = 'inspect-button danger';
+                    throwBtn.onclick = () => {
+                        parent.postMessage({ type: "dumpItem", itemId: item.id }, "*");
+
+                        item.quantity--;
+                        if (item.quantity <= 0) {
+                            if (source === 'inventory') {
+                                inventoryItems = inventoryItems.filter(it => it.id !== item.id);
+                            } else {
+                                safehouseItems = safehouseItems.filter(it => it.id !== item.id);
+                            }
+                            closeInspectOverlay();
+                        } else {
+                            showInspectOverlay(item, source);
+                        }
+
+                        updateUI();
+                    };
+                    container.appendChild(throwBtn);
+
+                    // === Transfer Button ===
+                    const transferBtn = document.createElement('button');
+                    transferBtn.textContent = source === 'inventory' ? 'Send to Safehouse' : 'Send to Inventory';
+                    transferBtn.className = 'inspect-button success';
+                    transferBtn.onclick = () => {
+                        const destination = source === 'inventory' ? safehouseItems : inventoryItems;
+                        const destMax = source === 'inventory' ? safehouseMax : inventoryMax;
+                        const destCount = destination.reduce((sum, i) => sum + i.quantity, 0);
+
+                        if (destCount >= destMax) {
+                            alert(`${source === 'inventory' ? 'Safehouse' : 'Inventory'} is full.`);
+                            return;
+                        }
+
+                        // Remove from source
+                        item.quantity--;
+                        if (item.quantity <= 0) {
+                            if (source === 'inventory') {
+                                inventoryItems = inventoryItems.filter(it => it.id !== item.id);
+                            } else {
+                                safehouseItems = safehouseItems.filter(it => it.id !== item.id);
+                            }
+                        }
+
+                        // Add to destination
+                        const existing = destination.find(it => it.id === item.id);
+                        if (existing) {
+                            existing.quantity++;
+                        } else {
+                            destination.push({ ...item, quantity: 1 });
+                        }
+
+                        parent.postMessage({
+                            type: "transferItem",
+                            itemId: item.id,
+                            direction: source === 'inventory' ? 'toSafehouse' : 'toInventory'
+                        }, "*");
+
+                        closeInspectOverlay();
+                        updateUI();
+                    };
+                    container.appendChild(transferBtn);
+
+                    // === Back Button ===
+                    const backBtn = document.createElement('button');
+                    backBtn.textContent = 'Back';
+                    backBtn.className = 'inspect-button';
+                    backBtn.onclick = closeInspectOverlay;
+                    container.appendChild(backBtn);
+
+                    overlay.appendChild(container);
+                }
+
+
+                function closeInspectOverlay() {
+                    document.getElementById('inspect-overlay').style.display = 'none';
+                }
+
+
 
                 return div;
             }
