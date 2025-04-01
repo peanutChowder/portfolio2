@@ -425,7 +425,6 @@ export default class IsometricScene extends Phaser.Scene {
 
                     case 'rest': {
                         const iframe = document.getElementById('game-overlay-iframe');
-                        console.log("iframe: ", iframe);
                         if (iframe) iframe.style.display = 'none'; // hide safehouse overlay temporarily
                     
                         const width = this.cameras.main.width / this.cameras.main.zoom;
