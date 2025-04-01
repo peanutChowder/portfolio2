@@ -423,7 +423,7 @@
             throwBtn.addEventListener('mouseout', () => throwBtn.style.backgroundColor = '#c97855');
 
             throwBtn.addEventListener('click', () => {
-                parent.postMessage({ type: "dumpItem", itemId: item.id }, "*");
+                parent.postMessage({ type: "dumpItem", itemId: item.id, source: "inventory" }, "*");
 
                 item.quantity--;
                 if (item.quantity <= 0) {
