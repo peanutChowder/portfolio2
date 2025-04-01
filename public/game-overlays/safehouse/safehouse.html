@@ -357,7 +357,7 @@
                     throwBtn.textContent = 'Throw away one';
                     throwBtn.className = 'inspect-button danger';
                     throwBtn.onclick = () => {
-                        parent.postMessage({ type: "dumpItem", itemId: item.id }, "*");
+                        parent.postMessage({ type: "dumpItem", itemId: item.id, source }, "*");
 
                         item.quantity--;
                         if (item.quantity <= 0) {

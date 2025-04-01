@@ -365,13 +365,19 @@ export default class IsometricScene extends Phaser.Scene {
                     }
 
                     case 'dumpItem': {
-                        const { itemId } = event.data;
-                        console.log(`Received request to dump item: ${itemId}`);
-                        if (this.inventory) {
+                        const { itemId, source } = event.data;
+                        console.log(`Received request to dump item: ${itemId} from ${source}`);
+                        
+                        if (source === 'inventory' && this.inventory) {
                             this.inventory.removeItem(itemId);
+                        } else if (source === 'safehouse') {
+                            this.safehouseInventory.removeItem(itemId);
+                        } else {
+                            console.warn(`Unknown source '${source}' for dumpItem.`);
                         }
                         break;
                     }
+                    
 
                     case 'reduceFish': {
                         console.log("Received reduceFish event");
