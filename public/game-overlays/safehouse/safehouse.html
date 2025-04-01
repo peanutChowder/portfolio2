@@ -84,6 +84,30 @@
             background-color: #E6D9C2;
         }
 
+        .section-label {
+            text-align: center;
+            font-weight: bold;
+            color: #7E6D5A;
+            margin-bottom: 10px;
+        }
+
+        .panel-wrapper {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .panel {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .panel-title {
+            text-align: center;
+            color: #7E6D5A;
+        }
+
         .item-grid {
             display: flex;
             flex-wrap: wrap;
@@ -115,7 +139,6 @@
             max-height: 48px;
         }
 
-
         .rest-button {
             background-color: #D0B49F;
             border: none;
@@ -146,22 +169,18 @@
                 <button class="close-button">X</button>
                 <h2>Safehouse</h2>
                 <p>Welcome to your safehouse. You can store items here and take a rest to regain energy.</p>
-                <div id="storage-info"
-                    style="text-align: center; font-weight: bold; color: #7E6D5A; margin-bottom: 10px;">
-                </div>
 
-                <div id="inventory-info"
-                    style="text-align: center; font-weight: bold; color: #7E6D5A; margin-bottom: 10px;">
-                </div>
+                <div id="storage-info" class="section-label"></div>
+                <div id="inventory-info" class="section-label"></div>
 
-                <div style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;">
-                    <div style="flex: 1; min-width: 200px;">
-                        <h3 id="safehouse-title" style="text-align: center; color: #7E6D5A;">Safehouse Storage</h3>
+                <div class="panel-wrapper">
+                    <div class="panel">
+                        <h3 id="safehouse-title" class="panel-title">Safehouse Storage</h3>
                         <div id="safehouse-grid" class="item-grid"></div>
                     </div>
 
-                    <div style="flex: 1; min-width: 200px;">
-                        <h3 id="inventory-title" style="text-align: center; color: #7E6D5A;">Inventory</h3>
+                    <div class="panel">
+                        <h3 id="inventory-title" class="panel-title">Inventory</h3>
                         <div id="inventory-grid" class="item-grid"></div>
                     </div>
                 </div>
@@ -193,23 +212,19 @@
                 safehouseGrid.innerHTML = '';
                 inventoryGrid.innerHTML = '';
 
-                // Render Safehouse
                 safehouseItems.forEach(item => {
                     const div = createItemCard(item, 'safehouse');
                     safehouseGrid.appendChild(div);
                 });
 
-                // Render Inventory
                 inventoryItems.forEach(item => {
                     const div = createItemCard(item, 'inventory');
                     inventoryGrid.appendChild(div);
                 });
 
-                // Count total quantity of all items
                 const safehouseCount = safehouseItems.reduce((sum, i) => sum + i.quantity, 0);
                 const inventoryCount = inventoryItems.reduce((sum, i) => sum + i.quantity, 0);
 
-                // Update headers
                 document.querySelector('#safehouse-title').textContent = `Safehouse Storage: ${safehouseCount}/${safehouseMax}`;
                 document.querySelector('#inventory-title').textContent = `Inventory: ${inventoryCount}/${inventoryMax}`;
             }
@@ -235,8 +250,6 @@
                 return div;
             }
 
-
-
             window.addEventListener('message', (event) => {
                 if (event.data?.type === 'safehouseData') {
                     console.log('Safehouse received:', event.data);
@@ -252,3 +265,4 @@
         });
     </script>
 </body>
+</html>
