@@ -51,6 +51,13 @@ export class IslandManager {
             rarity: 0.8,     
             elementType: 'fishing'
         },
+        {
+            id: 'fishBounce',
+            name: 'Fish Bounce',
+            maxResource: 4,
+            rarity: 0.5,     
+            elementType: 'fishing'
+        },
 
     ];
 
