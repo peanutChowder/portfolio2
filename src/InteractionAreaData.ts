@@ -54,7 +54,7 @@ export interface InteractionAreaData {
 
     // Visual styling for the clickable area
     areaBaseColor: number; // e.g. 0xaa9cff
-    areaHoverColor: number;// e.g. 0xc4baff
+    areaEdgeColor: number;// e.g. 0xc4baff
 
     // Optional sub-configs:
     buttonConfig?: ButtonConfig;
@@ -71,6 +71,23 @@ export interface InteractionAreaData {
     customInteraction?: (scene: Phaser.Scene) => void;
 }
 
+
+const projectColor = {
+    areaBaseColor: 0x78b0f5,
+    areaEdgeColor: 0x12db81,
+    buttonBaseColor: 0x428ae3,
+    buttonHoverColor: 0x78b0f5,
+    markerColor: 0x78b0f5
+}
+
+const workExpColor = {
+    areaBaseColor: 0xaa9cff,
+    areaEdgeColor: 0xc4baff,
+    buttonBaseColor: 0xaa9cff,
+    buttonHoverColor: 0x9887fa,
+    markerColor: 0x9028f7
+}
+
 export const INTERACTION_AREAS: InteractionAreaData[] = [
     {
         id: "experience-Apple",
@@ -80,15 +97,15 @@ export const INTERACTION_AREAS: InteractionAreaData[] = [
         height: 2000,
         displayName: "Apple",
         overlayKey: "experienceOverlay-Apple",
-        areaBaseColor: 0xaa9cff,
-        areaHoverColor: 0xc4baff,
+        areaBaseColor: workExpColor.areaBaseColor,
+        areaEdgeColor: workExpColor.areaEdgeColor,
 
         buttonConfig: {
             text: "Click for my time at Apple",
             font: "Arial",        // or fontFamilies["header"]
             fontColor: "#ffffff",
-            baseColor: 0xaa9cff,
-            hoverColor: 0x9887fa
+            baseColor: workExpColor.buttonBaseColor,
+            hoverColor: workExpColor.buttonHoverColor
         },
         floatingText: {
             text: "Software Engineer Intern\n        @ Apple",
@@ -98,7 +115,7 @@ export const INTERACTION_AREAS: InteractionAreaData[] = [
             offset: { x: 0, y: -1200 }
         },
         markerInfo: {
-            baseColor: 0x9028f7,
+            baseColor: workExpColor.markerColor,
             radius: 40,
             locationType: "Work"
         },
@@ -113,15 +130,15 @@ export const INTERACTION_AREAS: InteractionAreaData[] = [
         height: 2300,
         displayName: "Teck",
         overlayKey: "experienceOverlay-Teck",
-        areaBaseColor: 0x266dc9,
-        areaHoverColor: 0x70a3e6,
+        areaBaseColor: workExpColor.areaBaseColor,
+        areaEdgeColor: workExpColor.areaEdgeColor,
 
         buttonConfig: {
             text: "Click for my time at Teck",
             font: "Arial",
             fontColor: "#ffffff",
-            baseColor: 0x266dc9,
-            hoverColor: 0x1960bd
+            baseColor: workExpColor.buttonBaseColor,
+            hoverColor: workExpColor.buttonHoverColor
         },
         floatingText: {
             text: "Wireless Engineer Co-op\n        @ Teck",
@@ -131,7 +148,7 @@ export const INTERACTION_AREAS: InteractionAreaData[] = [
             offset: { x: 0, y: -1000 }
         },
         markerInfo: {
-            baseColor: 0x9028f7,
+            baseColor: workExpColor.markerColor,
             radius: 40,
             locationType: "Work"
         },
@@ -146,15 +163,15 @@ export const INTERACTION_AREAS: InteractionAreaData[] = [
         height: 2300,
         displayName: "UAlberta",
         overlayKey: "experienceOverlay-UAlberta",
-        areaBaseColor: 0x21570a,
-        areaHoverColor: 0x688c58,
+        areaBaseColor: workExpColor.areaBaseColor,
+        areaEdgeColor: workExpColor.areaEdgeColor,
 
         buttonConfig: {
             text: "Click for my time at UAlberta",
             font: "Arial",
             fontColor: "#ffffff",
-            baseColor: 0x21570a,
-            hoverColor: 0x2d6e10
+            baseColor: workExpColor.buttonBaseColor,
+            hoverColor: workExpColor.buttonHoverColor
         },
         floatingText: {
             text: "Data Analyst Co-op\n    @ UAlberta",
@@ -164,7 +181,7 @@ export const INTERACTION_AREAS: InteractionAreaData[] = [
             offset: { x: 0, y: -1000 }
         },
         markerInfo: {
-            baseColor: 0x9028f7,
+            baseColor: workExpColor.markerColor,
             radius: 40,
             locationType: "Work"
         },
@@ -180,7 +197,7 @@ export const INTERACTION_AREAS: InteractionAreaData[] = [
         displayName: "Education",
         overlayKey: "educationOverlay",
         areaBaseColor: 0x21570a,
-        areaHoverColor: 0x688c58,
+        areaEdgeColor: 0x688c58,
 
         buttonConfig: {
             text: "Click to see my Education",
@@ -197,7 +214,7 @@ export const INTERACTION_AREAS: InteractionAreaData[] = [
             offset: { x: 0, y: -1420 }
         },
         markerInfo: {
-            baseColor: 0x114a19,
+            baseColor: 0x2d8038,
             radius: 40,
             locationType: "Education"
         },
@@ -213,7 +230,7 @@ export const INTERACTION_AREAS: InteractionAreaData[] = [
         displayName: "Olympic\nWeightlifting",
         overlayKey: "owOverlay",
         areaBaseColor: 0x145b66,
-        areaHoverColor: 0x43a6b5,
+        areaEdgeColor: 0x43a6b5,
 
         buttonConfig: {
             text: "Click to see Olympic\nWeightlifting Content",
@@ -237,6 +254,7 @@ export const INTERACTION_AREAS: InteractionAreaData[] = [
         gameElementType: "fishing",
         resourceBehavior: "depletable"
     },
+    // -------- Projects --------
     {
         id: "formFitness",
         positionX: 11390,
@@ -245,15 +263,15 @@ export const INTERACTION_AREAS: InteractionAreaData[] = [
         height: 2000,
         displayName: "iOS App",
         overlayKey: "ffOverlay",
-        areaBaseColor: 0xffa405,
-        areaHoverColor: 0xffdb9c,
+        areaBaseColor: projectColor.areaBaseColor,
+        areaEdgeColor: projectColor.areaEdgeColor,
 
         buttonConfig: {
             text: "Click to see FormFitness",
             font: "Arial",
             fontColor: "#ffffff",
-            baseColor: 0xa38b48,
-            hoverColor: 0xb89944
+            baseColor: projectColor.buttonBaseColor,
+            hoverColor: projectColor.buttonHoverColor
         },
         floatingText: {
             text: "FormFitness",
@@ -263,7 +281,7 @@ export const INTERACTION_AREAS: InteractionAreaData[] = [
             offset: { x: 0, y: 100 }
         },
         markerInfo: {
-            baseColor: 0x134aba,
+            baseColor: projectColor.markerColor,
             radius: 40,
             locationType: "Projects"
         },
@@ -278,15 +296,15 @@ export const INTERACTION_AREAS: InteractionAreaData[] = [
         height: 2000,
         displayName: "Image Captioner",
         overlayKey: "icOverlay",
-        areaBaseColor: 0x03b1fc,
-        areaHoverColor: 0x2ad9f7,
+        areaBaseColor: projectColor.areaBaseColor,
+        areaEdgeColor: projectColor.areaEdgeColor,
 
         buttonConfig: {
             text: "Click to see Image Captioner",
             font: "Arial",
             fontColor: "#ffffff",
-            baseColor: 0x03b1fc,
-            hoverColor: 0x2ad9f7
+            baseColor: projectColor.buttonBaseColor,
+            hoverColor: projectColor.buttonHoverColor
         },
         floatingText: {
             text: "Image Captioner",
@@ -296,7 +314,7 @@ export const INTERACTION_AREAS: InteractionAreaData[] = [
             offset: { x: 0, y: -800 }
         },
         markerInfo: {
-            baseColor: 0x134aba,
+            baseColor: projectColor.markerColor,
             radius: 40,
             locationType: "Projects"
         },
@@ -311,15 +329,15 @@ export const INTERACTION_AREAS: InteractionAreaData[] = [
         height: 2000,
         displayName: "Asteroids Bot",
         overlayKey: "abOverlay",
-        areaBaseColor: 0x2019e3,
-        areaHoverColor: 0x7672e8,
+        areaBaseColor: projectColor.areaBaseColor,
+        areaEdgeColor: projectColor.areaEdgeColor,
 
         buttonConfig: {
             text: "Click to see AI Asteroids Bot",
             font: "Arial",
             fontColor: "#ffffff",
-            baseColor: 0x7672e8,
-            hoverColor: 0x9894f7
+            baseColor: projectColor.buttonBaseColor,
+            hoverColor: projectColor.buttonHoverColor
         },
         floatingText: {
             text: "Asteroids Bot",
@@ -329,7 +347,7 @@ export const INTERACTION_AREAS: InteractionAreaData[] = [
             offset: { x: 0, y: -900 }
         },
         markerInfo: {
-            baseColor: 0x134aba,
+            baseColor: projectColor.markerColor,
             radius: 40,
             locationType: "Projects"
         },
@@ -344,15 +362,15 @@ export const INTERACTION_AREAS: InteractionAreaData[] = [
         height: 2000,
         displayName: "Concurrent Processes",
         overlayKey: "cpOverlay",
-        areaBaseColor: 0x063580,
-        areaHoverColor: 0x1e66d9,
+        areaBaseColor: projectColor.areaBaseColor,
+        areaEdgeColor: projectColor.areaEdgeColor,
 
         buttonConfig: {
             text: "Click to see Concurrent\nProcess Manager",
             font: "Arial",
             fontColor: "#ffffff",
-            baseColor: 0x063580,
-            hoverColor: 0x1e66d9
+            baseColor: projectColor.buttonBaseColor,
+            hoverColor: projectColor.buttonHoverColor
         },
         floatingText: {
             text: "Concurrent Process\n      Manager",
@@ -362,7 +380,7 @@ export const INTERACTION_AREAS: InteractionAreaData[] = [
             offset: { x: 0, y: -600 }
         },
         markerInfo: {
-            baseColor: 0x134aba,
+            baseColor: projectColor.markerColor,
             radius: 40,
             locationType: "Projects"
         },
@@ -377,15 +395,15 @@ export const INTERACTION_AREAS: InteractionAreaData[] = [
         height: 2000,
         displayName: "Inventory Manager",
         overlayKey: "imOverlay",
-        areaBaseColor: 0x0fd47b,
-        areaHoverColor: 0x69f5cb,
+        areaBaseColor: projectColor.areaBaseColor,
+        areaEdgeColor: projectColor.areaEdgeColor,
 
         buttonConfig: {
             text: "Click to see Inventory Manager",
             font: "Arial",
             fontColor: "#ffffff",
-            baseColor: 0x1b8c59,
-            hoverColor: 0x0fd47b
+            baseColor: projectColor.buttonBaseColor,
+            hoverColor: projectColor.buttonHoverColor
         },
         floatingText: {
             text: "Inventory Manager\n    [Android]",
@@ -395,7 +413,7 @@ export const INTERACTION_AREAS: InteractionAreaData[] = [
             offset: { x: 0, y: -1000 }
         },
         markerInfo: {
-            baseColor: 0x134aba,
+            baseColor: projectColor.markerColor,
             radius: 40,
             locationType: "Projects"
         },
@@ -411,7 +429,7 @@ export const INTERACTION_AREAS: InteractionAreaData[] = [
         displayName: "Safehouse",
         overlayKey: "safehouseOverlay",
         areaBaseColor: 0x1689f5,
-        areaHoverColor: 0x34b4eb,
+        areaEdgeColor: 0x34b4eb,
 
         buttonConfig: {
             text: "Enter Safehouse",
@@ -444,7 +462,7 @@ export const INTERACTION_AREAS: InteractionAreaData[] = [
         displayName: "Safehouse",
         overlayKey: "safehouseOverlay",
         areaBaseColor: 0x1689f5,
-        areaHoverColor: 0x34b4eb,
+        areaEdgeColor: 0x34b4eb,
 
         buttonConfig: {
             text: "Enter Safehouse",
@@ -477,7 +495,7 @@ export const INTERACTION_AREAS: InteractionAreaData[] = [
         displayName: "Safehouse",
         overlayKey: "safehouseOverlay",
         areaBaseColor: 0x1689f5,
-        areaHoverColor: 0x34b4eb,
+        areaEdgeColor: 0x34b4eb,
 
         buttonConfig: {
             text: "Enter Safehouse",
@@ -510,7 +528,7 @@ export const INTERACTION_AREAS: InteractionAreaData[] = [
         displayName: "",
         overlayKey: "",
         areaBaseColor: 0xa361fa,
-        areaHoverColor: 0xc89eff,
+        areaEdgeColor: 0xc89eff,
 
         buttonConfig: {
             text: "Click me!",

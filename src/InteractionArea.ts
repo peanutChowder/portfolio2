@@ -129,7 +129,7 @@ export default class InteractionArea {
         const fallbackFont = 'Arial';
         const fallbackFontColor = '#ffffff';
         const fallbackBaseColor = areaData.areaBaseColor;
-        const fallbackHoverColor = areaData.areaHoverColor;
+        const fallbackHoverColor = areaData.areaEdgeColor;
 
         const buttonData = areaData.buttonConfig || {
             text: fallbackText,
