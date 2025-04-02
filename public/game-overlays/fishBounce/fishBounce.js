@@ -101,7 +101,7 @@ function startGame() {
     updateHUD();
 
     // Select random fish
-    selectedFish = getRandomFishByCost(0, 19);
+    selectedFish = getRandomFishByCost(15, 34);
     console.log("Selected fish:", selectedFish);
 
     // Deduct resource & energy
@@ -265,7 +265,6 @@ function showMessage(msg) {
     messageEl.textContent = msg;
     messageEl.style.display = 'block';
 
-    // hide after 1.5s (like fishPunch)
     setTimeout(() => {
         if (isGameRunning) {
             messageEl.style.display = 'none';
@@ -277,13 +276,8 @@ function endGame(won) {
     isGameRunning = false;
     gameEnded = true;
 
-    const msgEl = document.getElementById('game-message');
-    msgEl.style.display = 'block';
-
     if (won) {
-        msgEl.textContent = "You caught the fish!";
         const sandbox = document.getElementById("sandbox-content");
-
         const caughtFish = document.createElement("img");
         caughtFish.src = `../../assets/fish-sprites/${selectedFish.imgSrc}`;
         caughtFish.style.position = "absolute";
@@ -297,7 +291,7 @@ function endGame(won) {
         const fishText = document.createElement("div");
         fishText.textContent = `You have caught ${selectedFish.name}!`;
         fishText.style.position = "absolute";
-        fishText.style.top = "75%";
+        fishText.style.top = "50%";
         fishText.style.left = "50%";
         fishText.style.transform = "translate(-50%, -50%)";
         fishText.style.fontSize = "1.5rem";
@@ -314,7 +308,9 @@ function endGame(won) {
             itemId: selectedFish.id
         }, "*");
     } else {
-        msgEl.textContent = "Oh no! The fish escaped!";
+        const msgEl = document.getElementById('game-message');
+        msgEl.style.display = 'block';
+        msgEl.textContent = "The fish slipped out of your hand...";
     }
 
     // remove fish element
