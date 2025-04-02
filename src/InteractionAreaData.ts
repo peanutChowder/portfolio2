@@ -469,6 +469,39 @@ export const INTERACTION_AREAS: InteractionAreaData[] = [
         resourceBehavior: "static"
     },
     {
+        id: "safehouse3",
+        positionX: -4596,
+        positionY: 9592,
+        width: 4100,
+        height: 2300,
+        displayName: "Safehouse",
+        overlayKey: "safehouseOverlay",
+        areaBaseColor: 0x1689f5,
+        areaHoverColor: 0x34b4eb,
+
+        buttonConfig: {
+            text: "Enter Safehouse",
+            font: "Arial",
+            fontColor: "#ffffff",
+            baseColor: 0x1689f5,
+            hoverColor: 0x34b4eb
+        },
+        floatingText: {
+            text: "Safehouse",
+            color: "#2a473a",
+            font: "Arial",
+            fontSize: "130px",
+            offset: { x: 0, y: -1000 }
+        },
+        markerInfo: {
+            baseColor: 0x000000,
+            radius: -1,
+            locationType: "Safehouse"
+        },
+        gameElementType: "safehouse",
+        resourceBehavior: "static"
+    },
+    {
         id: "fireworks",
         positionX: -7159,
         positionY: 19045,
