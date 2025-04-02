@@ -281,7 +281,7 @@ function endGame(won) {
         const caughtFish = document.createElement("img");
         caughtFish.src = `../../assets/fish-sprites/${selectedFish.imgSrc}`;
         caughtFish.style.position = "absolute";
-        caughtFish.style.top = "20%";
+        caughtFish.style.top = "35%";
         caughtFish.style.left = "50%";
         caughtFish.style.transform = "translate(-50%, -50%)";
         caughtFish.style.width = "150px";
