@@ -35,6 +35,9 @@ function initPingPongFish() {
     console.log("Ping Pong Fish loaded.");
 
     const closeBtn = document.querySelector('.close-button');
+    closeBtn.addEventListener('pointerdown', (e) => {
+        e.stopPropagation();
+    });
     closeBtn.addEventListener('click', () => {
         window.parent.postMessage({
             type: "destroyGameOverlay",
