@@ -62,7 +62,8 @@ export default class InteractionArea {
     private glowGraphics!: Phaser.GameObjects.Graphics | undefined;
     private glowTween?: Phaser.Tweens.Tween;
     private minigameIdGlowColors: { [key: string]: number } = {
-        "fishPunch": 0xe8feff
+        "fishPunch": 0xe8feff,
+        "fishBounce": 0xe8feff
     };
 
     static preload(scene: Phaser.Scene): void {
