@@ -322,30 +322,38 @@ export default class InteractionArea {
             this.gameElementButton.on('pointerout', () => drawBg(this.normalColor));
         }
     
-        // Common pointerdown behavior
+        // Fish button click behaviour 
         this.gameElementButton.on('pointerdown', () => {
             const blockers = this.activeBlockers;
-    
+        
+            // Depletion
             if (blockers.has('depletion')) {
                 const label = this.gameElementType === 'fishing'
                     ? 'Fish'
                     : this.gameElementType === 'treasure'
                         ? 'Treasure'
                         : 'This resource';
-    
-                this.showDepletionPopup(`${label} has been depleted at this island!`);
+                this.showDepletionPopup(`${label} has been depleted at this island, find another spot.`);
                 return;
             }
-    
+        
+            // Inventory full
             if (blockers.has('inventoryFull')) {
-                this.showDepletionPopup(`Inventory full! You cannot collect more items.`);
+                this.showDepletionPopup(`Inventory full! Sell your items or store them in safehouse.`);
                 return;
             }
-    
+        
+            // Out of energy
+            if (blockers.has('noEnergy')) {
+                this.showDepletionPopup(`You are too tired to fish, go rest at a safehouse.`);
+                return;
+            }
+        
             if ((this.scene as any).showGameOverlay) {
                 (this.scene as any).showGameOverlay(this.minigameId);
             }
         });
+        
     }
     
 
@@ -709,22 +717,28 @@ export default class InteractionArea {
 
     public evaluateGameElementBlockers(): void {
         const blockers = new Set<string>();
-    
         const scene = this.scene as any;
     
-        // Check for depletion
-        if (this.resourceBehavior === 'depletable' && scene.islandManager?.isResourceDepleted(this.id)) {
-            blockers.add('depletion');
+        if (this.resourceBehavior === 'depletable') {
+
+            // Resource depleted at island
+            if (scene.islandManager?.isResourceDepleted(this.id)) {
+                blockers.add('depletion');
+            }
+
+            // Inventory full
+            if (this.isInventoryFull()) {
+                blockers.add('inventoryFull');
+            }
+
+            // No energy to fish
+            if (scene.energy !== undefined && scene.energy <= 0) {
+                blockers.add('noEnergy');
+            }
         }
-    
-        // Check for inventory full
-        if (this.resourceBehavior === 'depletable' && this.isInventoryFull()) {
-            blockers.add('inventoryFull');
-        }
-    
-        // Future blockers like energy, tool, etc. go here
     
         this.updateButtonBlockers(blockers);
     }
+    
     
 }
