@@ -62,6 +62,12 @@
             z-index: 10;
             position: absolute;
             bottom: 20px;
+
+            /* Prevent accidental text selection */
+            user-select: none;
+            -webkit-user-select: none; /* For Safari */
+            -webkit-touch-callout: none; /* iOS long press menu */
+            touch-action: manipulation; 
         }
 
         .arrow-btn:hover {
