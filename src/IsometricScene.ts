@@ -469,6 +469,9 @@ export default class IsometricScene extends Phaser.Scene {
                                     this.energy = 100;
                                     localStorage.setItem('energy', this.energy.toString());
                                     this.updateEnergyBar();
+
+                                    // Update and remove energy depleted blocker now that we are rested.
+                                    Object.values(this.interactionAreas).forEach(area => area.evaluateGameElementBlockers());
                                 });
                     
                                 this.time.delayedCall(2000, () => {
