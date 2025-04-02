@@ -153,8 +153,7 @@ export default class IsometricScene extends Phaser.Scene {
         this.load.html('welcomeOverlay', 'welcomeOverlay.html');
 
         // Game element overlays
-        this.load.html('safehouse', 'safehouseOverlay.html');
-        this.load.html('fishPunch', 'game-overlays/fishPunch.html');
+        IslandManager.preload(this)
 
         // load firework animations
         this.fireworkManager.preload()
