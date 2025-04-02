@@ -422,7 +422,7 @@ export const INTERACTION_AREAS: InteractionAreaData[] = [
         },
         floatingText: {
             text: "Safehouse",
-            color: "#2a473a",
+            color: "#42d6ff",
             font: "Arial",
             fontSize: "130px",
             offset: { x: 0, y: -1000 }
@@ -455,7 +455,7 @@ export const INTERACTION_AREAS: InteractionAreaData[] = [
         },
         floatingText: {
             text: "Safehouse",
-            color: "#2a473a",
+            color: "#42d6ff",
             font: "Arial",
             fontSize: "130px",
             offset: { x: 0, y: -1000 }
@@ -488,7 +488,7 @@ export const INTERACTION_AREAS: InteractionAreaData[] = [
         },
         floatingText: {
             text: "Safehouse",
-            color: "#2a473a",
+            color: "#42d6ff",
             font: "Arial",
             fontSize: "130px",
             offset: { x: 0, y: -1000 }
