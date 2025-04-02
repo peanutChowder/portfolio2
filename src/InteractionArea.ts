@@ -405,7 +405,7 @@ export default class InteractionArea {
             color: info.color
         });
         this.floatingText.setOrigin(0.5);
-        this.floatingText.setDepth(2);
+        this.floatingText.setDepth(50);
 
         this.scene.tweens.add({
             targets: this.floatingText,
