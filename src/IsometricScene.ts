@@ -10,7 +10,7 @@ import tileset256x128TileOverlays from '../assets/world2/256x128 Tile Overlays.p
 
 import { INTERACTION_AREAS } from './InteractionAreaData';
 import InteractionArea from './InteractionArea';
-import { IslandManager } from './IslandManager'; 
+import { IslandManager } from './IslandManager';
 import { ArrowIndicator } from './ArrowIndicator';
 import { VirtualJoystick } from './VirtualJoystick';
 import { FireworkManager } from './Fireworks';
@@ -59,7 +59,7 @@ export default class IsometricScene extends Phaser.Scene {
     private static readonly FOG_MIN_ALPHA = 0; // alpha for fog edge
     private static readonly FOG_MAX_ALPHA = 1; // alpha for fog start
     private oceanLayer: Phaser.Tilemaps.TilemapLayer | null = null;
-    
+
     // Lost boat handling
     private static readonly LOST_THRESHOLD = 25; // How many tiles off map before "lost" effect
     private lostText!: Phaser.GameObjects.Text;
@@ -90,7 +90,7 @@ export default class IsometricScene extends Phaser.Scene {
 
     // Safehouse storage/inventory
     private safehouseInventory!: SafehouseInventory;
-    
+
     // Game elements manager
     private islandManager!: IslandManager;
 
@@ -128,7 +128,7 @@ export default class IsometricScene extends Phaser.Scene {
         Boat.preload(this);
         // Load minimap sprites
         MapSystem.preload(this);
-        
+
         InteractionArea.preload(this);
 
         this.load.on('loaderror', (file: Phaser.Loader.File) => {
@@ -209,7 +209,7 @@ export default class IsometricScene extends Phaser.Scene {
             // The following steps must be executed in this order because they are dependent on each other.
             // (1.) Initialize inventory, which is used by a createInteractionAreas child call method to check
             // if we need to block buttons from clicks.
-            this.inventory = new Inventory(); 
+            this.inventory = new Inventory();
 
             // (2.) Initialize Interaction Area objects and draw our interaction zones marked by an ellipse.
             // Interaction zones are areas where users can activate an overlay to see embedded content.
@@ -335,10 +335,10 @@ export default class IsometricScene extends Phaser.Scene {
 
             // Set the glow effect for depletable game elements + evaluate if the user will be allowed to interact
             Object.values(this.interactionAreas).forEach((interactionArea: InteractionArea) => {
-                interactionArea.evaluateGameElementBlockers();  
+                interactionArea.evaluateGameElementBlockers();
                 interactionArea.handleGlowEffect(0);
             });
-            
+
 
             // Create a virtual joystick for non-desktop users to move the boat.
             if (this.isMobileDevice) {
@@ -366,7 +366,7 @@ export default class IsometricScene extends Phaser.Scene {
                     case 'dumpItem': {
                         const { itemId, source } = event.data;
                         console.log(`Received request to dump item: ${itemId} from ${source}`);
-                        
+
                         if (source === 'inventory' && this.inventory) {
                             this.inventory.removeItem(itemId);
                         } else if (source === 'safehouse') {
@@ -376,11 +376,11 @@ export default class IsometricScene extends Phaser.Scene {
                         }
                         break;
                     }
-                    
+
 
                     case 'reduceFish': {
                         console.log("Received reduceFish event");
-                    
+
                         // Find the active interaction area 
                         const { x, y } = this.boat.getPosition();
                         const area = Object.values(this.interactionAreas).find(area =>
@@ -390,12 +390,12 @@ export default class IsometricScene extends Phaser.Scene {
                             console.warn("No nearby interaction area found for reduceFish");
                             break;
                         }
-                    
+
                         const success = this.islandManager.reduceFish(area.id);
-                    
+
                         if (success) {
                             console.log(`Fish reduced at area ${area.id}. Remaining: ${this.islandManager.getAssignments().find(a => a.id === area.id)?.resourceLeft}`);
-                            
+
                             // Remove glow effect if resource is depleted
                             if (this.islandManager.isResourceDepleted(area.id)) {
                                 console.log(`Area ${area.id} is now depleted.`);
@@ -405,10 +405,10 @@ export default class IsometricScene extends Phaser.Scene {
                         } else {
                             console.warn(`Could not reduce fish at area ${area.id}. Maybe already depleted?`);
                         }
-                        
+
                         break;
                     }
-                    
+
 
                     case 'reduceEnergy': {
                         const { amount } = event.data;
@@ -419,16 +419,21 @@ export default class IsometricScene extends Phaser.Scene {
 
                         // Save to localStorage
                         localStorage.setItem('energy', this.energy.toString());
+
+                        // Re-evaluate all I.As to see if we have enough eneergy to interact
+                        Object.values(this.interactionAreas).forEach(area =>
+                            area.evaluateGameElementBlockers()
+                        );
                         break;
                     }
 
                     case 'rest': {
                         const iframe = document.getElementById('game-overlay-iframe');
                         if (iframe) iframe.style.display = 'none'; // hide safehouse overlay temporarily
-                    
+
                         const width = this.cameras.main.width / this.cameras.main.zoom;
                         const height = this.cameras.main.height / this.cameras.main.zoom;
-                    
+
                         const blackout = this.add.rectangle(
                             this.cameras.main.centerX - width / 2,
                             this.cameras.main.centerY - height / 2,
@@ -441,7 +446,7 @@ export default class IsometricScene extends Phaser.Scene {
                         blackout.setDepth(999);
                         blackout.setOrigin(0);
                         blackout.alpha = 0;
-                    
+
                         // Resting Text
                         const restingText = this.add.text(
                             this.cameras.main.centerX,
@@ -457,7 +462,7 @@ export default class IsometricScene extends Phaser.Scene {
                         restingText.setScrollFactor(0);
                         restingText.setDepth(100000); // must be above blackout
                         restingText.setAlpha(0);
-                    
+
                         this.tweens.add({
                             targets: [blackout, restingText],
                             alpha: 1,
@@ -472,7 +477,7 @@ export default class IsometricScene extends Phaser.Scene {
                                     // Update and remove energy depleted blocker now that we are rested.
                                     Object.values(this.interactionAreas).forEach(area => area.evaluateGameElementBlockers());
                                 });
-                    
+
                                 this.time.delayedCall(2000, () => {
                                     this.tweens.add({
                                         targets: [blackout, restingText],
@@ -487,9 +492,9 @@ export default class IsometricScene extends Phaser.Scene {
                                 });
                             }
                         });
-                    
+
                         break;
-                    } 
+                    }
 
                     // transferring items in safehouse between safehouse storage <-> inventory
                     case 'transferItem': {
@@ -503,7 +508,7 @@ export default class IsometricScene extends Phaser.Scene {
                         }
                         break;
                     }
-                    
+
 
                     case 'destroyInventoryOverlay': {
                         this.destroyInventoryOverlay();
@@ -524,12 +529,12 @@ export default class IsometricScene extends Phaser.Scene {
                 delay: 1000, // 1s refresh
                 callback: () => {
                     const reassigned = this.islandManager.assignIslandGameElements(false);
-            
+
                     // Always recheck blockers whether reassigned or not
                     Object.values(this.interactionAreas).forEach((interactionArea: InteractionArea) => {
                         interactionArea.evaluateGameElementBlockers();
                     });
-            
+
                     if (reassigned) {
                         Object.values(this.interactionAreas).forEach((interactionArea: InteractionArea) => {
                             interactionArea.handleGlowEffect(0);
@@ -537,7 +542,7 @@ export default class IsometricScene extends Phaser.Scene {
                     }
                 },
                 loop: true
-            });            
+            });
 
 
 
@@ -653,14 +658,14 @@ export default class IsometricScene extends Phaser.Scene {
     private createInteractionAreas(): void {
         INTERACTION_AREAS.forEach(areaData => {
             const area = new InteractionArea(this, areaData);
-    
+
             // Local access to IAs
             this.interactionAreas[areaData.id] = area;
         });
-    
+
         if (arrowIndicatorsEnabled) {
             let arrowRadius = this.game.device.os.desktop ? 2000 : 900;
-    
+
             Object.entries(this.interactionAreas).forEach(([key, area]) => {
                 const { x, y } = area.getCenter();
                 this.arrowIndicators[key] = new ArrowIndicator(
@@ -678,7 +683,7 @@ export default class IsometricScene extends Phaser.Scene {
                 );
             });
         }
-    
+
         if (this.input.keyboard) {
             this.input.keyboard.on('keydown-X', this.handleXKeyPress, this);
         } else {
@@ -807,7 +812,7 @@ export default class IsometricScene extends Phaser.Scene {
 
     public getInventory(): Inventory | null {
         return this.inventory;
-    }    
+    }
 
     public calcBoatFog(worldX: number, worldY: number): number {
         // Convert world coordinates to tile coordinates
@@ -1147,17 +1152,27 @@ export default class IsometricScene extends Phaser.Scene {
 
         if (gameOverlayName === "safehouse") {
             iframe.addEventListener('load', () => {
-            
+
                 iframe.contentWindow?.postMessage({
                     type: "safehouseData",
                     safehouse: this.safehouseInventory.getDetailedStorage(),
                     inventory: this.inventory?.getDetailedInventory(),
                     safehouseMax: this.safehouseInventory.getMaxSize(),
                     inventoryMax: this.inventory?.getCurrentSize()
-                }, "*");                
+                }, "*");
             });
-            
+
         }
+
+        const gameElem = this.islandManager.getGameElementById(gameOverlayName);
+        const cost = gameElem ? gameElem.energyCost : 0;
+        iframe.addEventListener('load', () => {
+            iframe.contentWindow?.postMessage({
+                type: "gameSetup",
+                gameId: gameOverlayName,
+                energyCost: cost
+            }, "*");
+        });
 
         console.groupEnd();
     }

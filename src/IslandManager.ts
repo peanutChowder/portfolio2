@@ -10,6 +10,7 @@ export interface GameElement {
     maxResource: number;    // e.g. 10
     rarity: number;         // 0.0 -> 1.0 (0.0 = extremely rare, 1.0 = very common)
     elementType: string;    // e.g. "fishing", "treasure", etc.
+    energyCost: number;
 }
 
 /**
@@ -41,7 +42,8 @@ export class IslandManager {
             name: 'Safehouse',
             maxResource: 0,     // irrelevant values to safehouse
             rarity: 1.0,         
-            elementType: 'safehouse'
+            elementType: 'safehouse',
+            energyCost: 0
         },
         // higher rarity value is more common!!
         {
@@ -49,14 +51,16 @@ export class IslandManager {
             name: 'Fish Punch',
             maxResource: 4,
             rarity: 0.8,     
-            elementType: 'fishing'
+            elementType: 'fishing',
+            energyCost: 15
         },
         {
             id: 'fishBounce',
             name: 'Fish Bounce',
             maxResource: 4,
             rarity: 0.5,     
-            elementType: 'fishing'
+            elementType: 'fishing',
+            energyCost: 20
         },
 
     ];
@@ -88,6 +92,14 @@ export class IslandManager {
         scene.load.html('fishPunch', 'game-overlays/fishPunch.html');
         scene.load.html('fishBounce', 'game-overlays/fishBounce.html');
     }
+
+    /**
+     * Retrieve a GameElement by its ID. Returns null if not found.
+     */
+    public getGameElementById(id: string): GameElement | null {
+        return this.gameElements.find(el => el.id === id) || null;
+      }
+      
 
     /**
      * Ensures each InteractionArea has a corresponding assignment record.

@@ -1,5 +1,7 @@
 import { getRandomFishByCost } from "../../src/ItemData.ts";
 
+let energyCost = 0;
+
 let selectedFish = null;
 let fishElement = null;    // DOM element for the fish
 let fishX = 0, fishY = 0;
@@ -109,7 +111,7 @@ function startGame() {
 
     // Deduct resource & energy
     window.parent.postMessage({ type: "reduceFish" }, "*");
-    window.parent.postMessage({ type: "reduceEnergy", amount: 25 }, "*");
+    window.parent.postMessage({ type: "reduceEnergy", amount: energyCost }, "*");
 
     spawnFish();
 }
@@ -321,7 +323,12 @@ function endGame(won) {
     fishElement = null;
 }
 
-
+window.addEventListener('message', (e) => {
+    if (e.data?.type === 'gameSetup') {
+        energyCost = e.data.energyCost || 0;
+        console.log("Received energy cost from parent:", energyCost);
+    }
+});
 
 // If DOM loaded, run init
 if (document.readyState === "loading") {

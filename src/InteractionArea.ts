@@ -346,7 +346,7 @@ export default class InteractionArea {
         
             // Out of energy
             if (blockers.has('noEnergy')) {
-                this.showDepletionPopup(`You are too tired to fish, go rest at a safehouse.`);
+                this.showDepletionPopup(`You are too tired to fish here, go rest at a safehouse.`);
                 return;
             }
         
@@ -720,9 +720,12 @@ export default class InteractionArea {
         const blockers = new Set<string>();
         const scene = this.scene as any;
     
-        if (this.resourceBehavior === 'depletable') {
+        // Find the assigned game element 
+        const assignedGameId = this.minigameId;
+        const gameElement = scene.islandManager?.getGameElementById?.(assignedGameId);
 
-            // Resource depleted at island
+        if (gameElement && this.resourceBehavior === 'depletable') {
+            // Resource depletion
             if (scene.islandManager?.isResourceDepleted(this.id)) {
                 blockers.add('depletion');
             }
@@ -732,11 +735,13 @@ export default class InteractionArea {
                 blockers.add('inventoryFull');
             }
 
-            // No energy to fish
-            if (scene.energy !== undefined && scene.energy <= 0) {
+            // Not enough energy
+            const currentEnergy = scene.energy ?? 0;
+            if (currentEnergy < gameElement.energyCost) {
                 blockers.add('noEnergy');
             }
         }
+
     
         this.updateButtonBlockers(blockers);
     }
