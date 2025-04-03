@@ -1123,13 +1123,13 @@ export default class IsometricScene extends Phaser.Scene {
             this.destroyGameOverlay(gameOverlayName);
             return;
         }
-
+    
         console.group(`Creating game overlay: ${gameOverlayName}`);
-
+    
         // 1) Create an iframe
         const iframe = document.createElement('iframe');
         iframe.id = 'game-overlay-iframe';
-        console.log(`../game-overlays/${gameOverlayName}/${gameOverlayName}.html`)
+        console.log(`../game-overlays/${gameOverlayName}/${gameOverlayName}.html`);
         iframe.src = `../game-overlays/${gameOverlayName}/${gameOverlayName}.html`;
         iframe.style.position = 'fixed';
         iframe.style.top = '0';
@@ -1137,21 +1137,33 @@ export default class IsometricScene extends Phaser.Scene {
         iframe.style.width = '100vw';
         iframe.style.height = '100vh';
         iframe.style.zIndex = '9999';
-        iframe.style.border = 'none';        // remove default iframe border
-
+        iframe.style.border = 'none';
+    
         // 2) Append to DOM
         document.body.appendChild(iframe);
-        this.gameOverlayElement = iframe;    // so we can remove it later
-
+        this.gameOverlayElement = iframe; // so we can remove it later
+    
         // 3) Optional fade-in
         iframe.style.opacity = '0';
         iframe.style.transition = 'opacity 0.5s ease-in-out';
         setTimeout(() => {
             iframe.style.opacity = '1';
         }, 50);
-
-        // 2) Once the iframe loads, pass minCost & maxCost to the minigame
+    
+        // 4) On load, post safehouse data (if safehouse) AND minigame setup data
         iframe.addEventListener('load', () => {
+            // If it's a safehouse overlay, send safehouse inventory data
+            if (gameOverlayName === "safehouse") {
+                iframe.contentWindow?.postMessage({
+                    type: "safehouseData",
+                    safehouse: this.safehouseInventory.getDetailedStorage(),
+                    inventory: this.inventory?.getDetailedInventory(),
+                    safehouseMax: this.safehouseInventory.getMaxSize(),
+                    inventoryMax: this.inventory?.getCurrentSize()
+                }, "*");
+            }
+    
+            // For minigames: figure out cost range & energy cost
             // a) Find the interaction area for the player's current position
             const { x, y } = this.boat.getPosition();
             const nearArea = Object.values(this.interactionAreas).find(a =>
@@ -1177,12 +1189,12 @@ export default class IsometricScene extends Phaser.Scene {
                 const gameElem = this.islandManager.getGameElementById(assignment.gameElementId);
                 energyCost = gameElem ? gameElem.energyCost : 0;
             }
-
-            // d) Use safe defaults if not assigned
+    
+            // d) Safe defaults
             const minCost = assignment.minCost ?? 0;
             const maxCost = assignment.maxCost ?? 999;
-
-            // e) Post a "gameSetup" message to the iframe
+    
+            // e) Post a "gameSetup" message for minigame usage
             iframe.contentWindow?.postMessage({
                 type: "gameSetup",
                 gameId: gameOverlayName,
@@ -1191,9 +1203,10 @@ export default class IsometricScene extends Phaser.Scene {
                 maxCost: maxCost
             }, "*");
         });
-
+    
         console.groupEnd();
     }
+    
 
 
 
