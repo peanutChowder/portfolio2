@@ -1219,7 +1219,9 @@ export default class IsometricScene extends Phaser.Scene {
             console.log('Sending items from Scene to Inventory');
             iframe.contentWindow?.postMessage({
                 type: "inventoryData",
-                items: this.inventory?.getDetailedInventory() // Sends full inventory details
+                items: this.inventory?.getDetailedInventory(), // Sends full inventory details
+                money: this.inventory?.getMoney(),
+                inventoryMax: this.inventory?.getCurrentSize()
             }, "*");
         });
 

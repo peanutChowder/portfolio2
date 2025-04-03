@@ -248,7 +248,7 @@
         <div id="simple-overlay">
             <div class="content-inner">
                 <button class="close-button">X</button>
-                <h2>Inventory</h2>
+                <h2 id="inventory-title">Inventory</h2>
 
                 <!-- Money Display -->
                 <div id="money-container">
@@ -274,12 +274,10 @@
     </div>
 
     <script>
-        /* 
-          We store the entire inventory array in JS memory
-          and the "currently clicked item" in selectedItem.
-        */
         let items = [];
         let selectedItem = null;
+
+        let inventoryMax = 0; // inventory capacity
 
         const inspectOverlay = document.getElementById('inspect-overlay');
         const grid = document.getElementById('inventory-grid');
@@ -306,6 +304,11 @@
         window.addEventListener('message', event => {
             if (event.data?.type === 'inventoryData') {
                 items = event.data.items || [];
+
+                if (event.data.inventoryMax !== undefined) {
+                    inventoryMax = event.data.inventoryMax;
+                }
+
                 buildInventoryGrid(items);
 
                 if (event.data.money !== undefined) {
@@ -319,8 +322,9 @@
         // ============ 3) Build Grid with Items  ============
         function buildInventoryGrid(itemsArray) {
             const grid = document.getElementById('inventory-grid');
-            grid.innerHTML = ''; // Clear old content   
+            grid.innerHTML = ''; // Clear old content
 
+            // Handle empty inventory
             if (itemsArray.length === 0) {
                 const emptyMessage = document.createElement('p');
                 emptyMessage.textContent = "Empty.";
@@ -330,41 +334,58 @@
                 emptyMessage.style.textAlign = "center";
                 emptyMessage.style.marginTop = "20px";
                 grid.appendChild(emptyMessage);
-                return;
+            } else {
+                // Build items
+                itemsArray.forEach(item => {
+                    const itemDiv = document.createElement('div');
+                    itemDiv.classList.add('inventory-item');
+                    itemDiv.dataset.id = item.id;
+
+                    // optional outline color
+                    itemDiv.style.border = `3px solid ${item.outlineColor || '#E6D9C2'}`;
+
+                    // Item image
+                    const img = document.createElement('img');
+                    img.src = `../../assets/fish-sprites/${item.imgSrc}`;
+                    itemDiv.appendChild(img);
+
+                    // Item name
+                    const nameDiv = document.createElement('div');
+                    nameDiv.classList.add('item-name');
+                    nameDiv.textContent = item.name;
+                    itemDiv.appendChild(nameDiv);
+
+                    // Item quantity
+                    const quantityDiv = document.createElement('div');
+                    quantityDiv.classList.add('item-quantity');
+                    quantityDiv.textContent = `x${item.quantity}`;
+                    itemDiv.appendChild(quantityDiv);
+
+                    // On click, show inspect overlay
+                    itemDiv.addEventListener('click', () => {
+                        selectedItem = item;
+                        showInspectOverlay(selectedItem);
+                    });
+
+                    grid.appendChild(itemDiv);
+                });
             }
 
-            itemsArray.forEach(item => {
-                const itemDiv = document.createElement('div');
-                itemDiv.classList.add('inventory-item');
-                itemDiv.dataset.id = item.id;
+            // ===== Update "Inventory" title with fraction =====
+            // If each item can have multiple quantity, sum them:
+            const totalCount = itemsArray.reduce((sum, it) => sum + it.quantity, 0);
 
-                // get border color based on cost
-                itemDiv.style.border = `3px solid ${item.outlineColor || '#E6D9C2'}`; // fallback to default if missing
-
-                const img = document.createElement('img');
-                img.src = `../../assets/fish-sprites/${item.imgSrc}`;
-                itemDiv.appendChild(img);
-
-                const nameDiv = document.createElement('div');
-                nameDiv.classList.add('item-name');
-                nameDiv.textContent = item.name;
-                itemDiv.appendChild(nameDiv);
-
-                const quantityDiv = document.createElement('div');
-                quantityDiv.classList.add('item-quantity');
-                quantityDiv.textContent = `x${item.quantity}`;
-                itemDiv.appendChild(quantityDiv);
-
-                // Show inspect view on item click
-                itemDiv.addEventListener('click', () => {
-                    selectedItem = item;
-                    showInspectOverlay(selectedItem);
-                });
-
-
-                grid.appendChild(itemDiv);
-            });
+            const titleEl = document.getElementById('inventory-title');
+            // If inventoryMax is a global variable from "inventoryData"
+            if (inventoryMax > 0) {
+                titleEl.textContent = `Inventory (${totalCount}/${inventoryMax})`;
+            } else {
+                // fallback if no max is provided
+                titleEl.textContent = "Inventory";
+            }
         }
+
+
 
 
         // ============ 6) Show the Inspect Overlay  ============
@@ -481,16 +502,22 @@
 
             // 2. Re-add Title
             const inventoryTitle = document.createElement('h2');
-            inventoryTitle.textContent = "Inventory";
+            inventoryTitle.id = "inventory-title";
+            const totalCount = items.reduce((sum, it) => sum + it.quantity, 0);
+            if (typeof inventoryMax !== 'undefined' && inventoryMax > 0) {
+                inventoryTitle.textContent = `Inventory (${totalCount}/${inventoryMax})`;
+            } else {
+                inventoryTitle.textContent = "Inventory";
+            }
             contentInner.appendChild(inventoryTitle);
+
 
             // 3. Re-add Money UI
             const moneyContainer = document.createElement('div');
             moneyContainer.id = "money-container";
             moneyContainer.innerHTML = `
-        <img id="money-icon" src="../../assets/coin.png" alt="Coins">
-        <span id="money-amount">${moneyValue}</span>
-    `;
+                <img id="money-icon" src="../../assets/coin.png" alt="Coins">
+                <span id="money-amount">${moneyValue}</span>`;
             contentInner.appendChild(moneyContainer);
 
             // 4. Re-add Inventory Grid container
