@@ -1,8 +1,11 @@
 import Phaser from 'phaser';
 import { InteractionAreaData, ResourceBehavior } from './InteractionAreaData';
-import fishingRod from '../assets/fishing/rod.jpg'
+import fishingRod from '../assets/fishing/rod.jpg';
 
-
+/**
+ * Manages a single "InteractionArea" on the map – could be
+ * a fishing spot, a safehouse, or a static area.
+ */
 export default class InteractionArea {
     // The ellipse representing the clickable region
     private ellipse: Phaser.Geom.Ellipse;
@@ -58,9 +61,12 @@ export default class InteractionArea {
     // @ts-ignore
     private areaData: InteractionAreaData;
 
-    // Glowing effect for InteractionAreas with Game elements assigned
-    private glowGraphics!: Phaser.GameObjects.Graphics | undefined;
+    // Glow effect for assigned minigame color
+    private assignedGlowColor: string | undefined;
+    private glowGraphics?: Phaser.GameObjects.Graphics;
     private glowTween?: Phaser.Tweens.Tween;
+
+    // If no band color is assigned, fallback to these minigame-based glow colors
     private minigameIdGlowColors: { [key: string]: number } = {
         "fishPunch": 0xe8feff,
         "fishBounce": 0xe8feff
@@ -74,13 +80,10 @@ export default class InteractionArea {
         this.scene = scene;
         this.isVisible = true;
         this.areaData = areaData;
-
         this.id = areaData.id;
 
-        // Is this a depletable area? shop? etc.
         this.resourceBehavior = areaData.resourceBehavior ?? 'none';
 
-        // Convert new data fields to old fields
         this.displayName = areaData.displayName;
         this.overlayName = areaData.overlayKey;
 
@@ -92,16 +95,12 @@ export default class InteractionArea {
             areaData.height
         );
 
-        // We used lineColor/fillColor in the old code – 
-        // let's reuse areaBaseColor for both (with alpha) 
+        // We'll reuse areaBaseColor for line/fill
         const lineColor = areaData.areaBaseColor;
         const fillColor = areaData.areaBaseColor;
 
-        // Initialize the graphics object for drawing the ellipse
         this.graphics = this.scene.add.graphics();
 
-        // If there's marker info, convert baseColor->color to match old usage
-        // so MapSystem can do markerInfo.color, markerInfo.radius, etc.
         if (areaData.markerInfo) {
             this.markerInfo = {
                 color: areaData.markerInfo.baseColor,
@@ -110,22 +109,17 @@ export default class InteractionArea {
             };
         }
 
-        // If there's floating text info, create it
         if (areaData.floatingText) {
             this.addFloatingText(areaData.floatingText);
         }
 
-        // If there's a custom interaction (e.g. fireworks), store it
         this.buttonClickHandler = areaData.customInteraction;
-
-        // Minigame data
-        // E.g. "fishing" -> areaType, "fishPunch" -> gameOverlayName
         this.gameElementType = areaData.gameElementType || '';
 
         // Draw the ellipse
         this.drawEllipse(lineColor, fillColor);
 
-        // Setup the button text & colors (fallback if no button info was given)
+        // Setup button text & colors
         const fallbackText = areaData.displayName || 'No Title';
         const fallbackFont = 'Arial';
         const fallbackFontColor = '#ffffff';
@@ -140,40 +134,31 @@ export default class InteractionArea {
             hoverColor: fallbackHoverColor
         };
 
-        // Normal & hover color for the button
         this.normalColor = buttonData.baseColor;
         this.hoverColor = buttonData.hoverColor;
 
-        // Decide the button dimensions based on device
+        // Decide button dimensions (desktop vs. mobile)
         if (this.scene.sys.game.device.os.desktop) {
             this.buttonWidth = 300;
             this.buttonHeight = 90;
-            this.geButtonHeight = 90;
             this.geButtonWidth = 90;
+            this.geButtonHeight = 90;
         } else {
             this.buttonWidth = 0.7 * this.scene.cameras.main.width;
             this.buttonHeight = 0.1 * this.scene.cameras.main.height;
-            this.geButtonHeight = 0.1 * this.scene.cameras.main.height;
             this.geButtonWidth = 0.1 * this.scene.cameras.main.height;
+            this.geButtonHeight = 0.1 * this.scene.cameras.main.height;
         }
 
-        // Static areas are handled as game elements, so we skip creating the 
-        // button.
+        // If it's a "static" resource, we skip creating the main overlay button
         if (this.resourceBehavior !== 'static') {
             this.initInteractionButton(buttonData.text, buttonData.font);
-            // Finally, hide the button until the player steps inside
             this.interactionButton?.setVisible(false);
         } else {
             this.interactionButton = null;
         }
-
-
     }
 
-
-    /**
-     * Draw the ellipse for the area.
-     */
     private drawEllipse(lineColor: number, fillColor: number) {
         this.graphics.clear();
         if (!this.isVisible) return;
@@ -184,9 +169,6 @@ export default class InteractionArea {
         this.graphics.fillEllipseShape(this.ellipse);
     }
 
-    /**
-     * Create a clickable button for this interaction area (e.g. "Click for my time at Apple").
-     */
     private initInteractionButton(text: string, font: string) {
         this.interactionButton = this.scene.add.container(this.buttonX, this.buttonY);
         this.interactionButton.setScrollFactor(0);
@@ -212,56 +194,48 @@ export default class InteractionArea {
                 this.buttonWidth,
                 this.buttonHeight
             ),
-            Phaser.Geom.Rectangle.Contains,
+            Phaser.Geom.Rectangle.Contains
         );
         this.interactionButton.on('pointerover', this.onButtonHover, this);
         this.interactionButton.on('pointerout', this.onButtonOut, this);
         this.interactionButton.on('pointerdown', this.handleClick, this);
     }
 
-    /**
-     * If this area is assigned a minigame (treasure, fishing, etc.), 
-     * create a second container for that game element button.
-     */
     private initGameElementButton(): void {
         if (!this.minigameId) return;
-    
+
         this.gameElementButton = this.scene.add.container(0, 0);
         this.gameElementButton.setScrollFactor(0);
         this.gameElementButton.setDepth(50);
         this.gameElementButton.setVisible(false);
-    
+
         if (this.gameElementType === 'safehouse') {
+            // Example safehouse button
             const btnWidth = 300;
             const btnHeight = 90;
             const btnRadius = 20;
             const btnLineWidth = 6;
-    
+
             const bg = this.scene.add.graphics();
             bg.fillStyle(this.normalColor, 1);
             bg.fillRoundedRect(-btnWidth / 2, -btnHeight / 2, btnWidth, btnHeight, btnRadius);
             bg.lineStyle(btnLineWidth, 0xffffff, 1);
             bg.strokeRoundedRect(-btnWidth / 2, -btnHeight / 2, btnWidth, btnHeight, btnRadius);
-    
+
             const label = this.scene.add.text(0, 0, 'Enter Safehouse', {
                 font: `24px Prompt`,
                 color: '#ffffff'
             });
             label.setOrigin(0.5);
-    
+
             this.gameElementButton.add([bg, label]);
             this.gameElementButton.setSize(btnWidth, btnHeight);
-    
+
             this.gameElementButton.setInteractive(
-                new Phaser.Geom.Rectangle(
-                    0, 
-                    0,
-                    btnWidth,
-                    btnHeight
-                ),
+                new Phaser.Geom.Rectangle(0, 0, btnWidth, btnHeight),
                 Phaser.Geom.Rectangle.Contains
             );
-    
+
             this.gameElementButton.on('pointerover', () => {
                 bg.clear();
                 bg.fillStyle(this.hoverColor, 1);
@@ -269,7 +243,7 @@ export default class InteractionArea {
                 bg.lineStyle(btnLineWidth, 0xffffff, 1);
                 bg.strokeRoundedRect(-btnWidth / 2, -btnHeight / 2, btnWidth, btnHeight, btnRadius);
             });
-    
+
             this.gameElementButton.on('pointerout', () => {
                 bg.clear();
                 bg.fillStyle(this.normalColor, 1);
@@ -277,9 +251,9 @@ export default class InteractionArea {
                 bg.lineStyle(btnLineWidth, 0xffffff, 1);
                 bg.strokeRoundedRect(-btnWidth / 2, -btnHeight / 2, btnWidth, btnHeight, btnRadius);
             });
-    
+
         } else if (this.gameElementType === 'fishing') {
-            // original fishing button logic
+            // Example fishing button
             const bg = this.scene.add.graphics();
             const drawBg = (borderColor: number) => {
                 bg.clear();
@@ -300,68 +274,54 @@ export default class InteractionArea {
                     18
                 );
             };
-    
+
             drawBg(this.normalColor);
             const icon = this.scene.add.image(0, 0, 'fishingRod');
             icon.setDisplaySize(48, 48);
             icon.setOrigin(0.5);
-    
+
             this.gameElementButton.add([bg, icon]);
             this.gameElementButton.setSize(this.geButtonWidth, this.geButtonHeight);
-    
+
             this.gameElementButton.setInteractive(
-                new Phaser.Geom.Rectangle(
-                    0,
-                    0,
-                    this.geButtonWidth,
-                    this.geButtonHeight
-                ),
+                new Phaser.Geom.Rectangle(0, 0, this.geButtonWidth, this.geButtonHeight),
                 Phaser.Geom.Rectangle.Contains
             );
-    
+
             this.gameElementButton.on('pointerover', () => drawBg(this.hoverColor));
             this.gameElementButton.on('pointerout', () => drawBg(this.normalColor));
         }
-    
-        // Fish button click behaviour 
+
+        // Behavior on pointerdown for the "game element" button
         this.gameElementButton.on('pointerdown', () => {
             const blockers = this.activeBlockers;
-        
-            // Depletion
+
             if (blockers.has('depletion')) {
                 const label = this.gameElementType === 'fishing'
                     ? 'Fish'
                     : this.gameElementType === 'treasure'
                         ? 'Treasure'
-                        : 'This resource';
+                        : 'Resource';
                 this.showDepletionPopup(`${label} has been depleted at this island, find another spot.`);
                 return;
             }
-        
-            // Inventory full
+
             if (blockers.has('inventoryFull')) {
-                this.showDepletionPopup(`Inventory full! Sell your items or store them in safehouse.`);
+                this.showDepletionPopup(`Inventory full! Sell or store items first.`);
                 return;
             }
-        
-            // Out of energy
+
             if (blockers.has('noEnergy')) {
-                this.showDepletionPopup(`You are too tired to fish here, go rest at a safehouse.`);
+                this.showDepletionPopup(`You are too tired to fish here; go rest at a safehouse.`);
                 return;
             }
-        
+
             if ((this.scene as any).showGameOverlay) {
                 (this.scene as any).showGameOverlay(this.minigameId);
             }
         });
-        
     }
-    
 
-
-    /**
-     * Draw/Redraw the button background on hover changes.
-     */
     private drawButtonBackground(color: number) {
         this.buttonBg.clear();
         this.buttonBg.fillStyle(color, 1);
@@ -390,9 +350,6 @@ export default class InteractionArea {
         this.drawButtonBackground(this.normalColor);
     };
 
-    /**
-     * Called when the user clicks the button.
-     */
     private handleClick = (_pointer: Phaser.Input.Pointer) => {
         if (this.isPlayerInside && this.interactionButton?.visible && !this.ignoreButtonClick) {
             this.ignoreButtonClick = true;
@@ -400,9 +357,6 @@ export default class InteractionArea {
         }
     };
 
-    /**
-     * If there's text to display above the ellipse, add it with a pulsing animation.
-     */
     private addFloatingText(info: InteractionAreaData['floatingText']) {
         if (!info) return;
         const xPos = this.ellipse.x + info.offset.x;
@@ -428,7 +382,7 @@ export default class InteractionArea {
 
     /**
      * Called by IsometricScene each frame to check if the player is inside the ellipse
-     * and show/hide the button accordingly.
+     * and to show/hide the button accordingly.
      */
     checkPlayerInArea(x: number, y: number): void {
         const wasInside = this.isPlayerInside;
@@ -436,22 +390,21 @@ export default class InteractionArea {
 
         if (this.isPlayerInside !== wasInside) {
             this.interactionButton?.setVisible(this.isPlayerInside);
-
             if (this.gameElementButton) {
                 this.gameElementButton.setVisible(this.isPlayerInside);
             }
-
             this.updateButtonPosition();
         }
     }
 
-
     private updateButtonPosition(): void {
         const camera = this.scene.cameras.main;
 
-        // Main interaction button near bottom-center
-        this.interactionButton?.setPosition(camera.width / 2, camera.height);
-        this.interactionButton?.setScale(1 / camera.zoom);
+        // Main overlay button near bottom-center
+        if (this.interactionButton) {
+            this.interactionButton.setPosition(camera.width / 2, camera.height);
+            this.interactionButton.setScale(1 / camera.zoom);
+        }
 
         let gameElementOffsetX = 0;
         let gameElementOffsetY = 0;
@@ -462,59 +415,50 @@ export default class InteractionArea {
             gameElementOffsetY = -((this.buttonHeight) / camera.zoom + 50);
         }
 
-
         if (this.gameElementButton) {
             if (this.gameElementType === 'safehouse') {
+                // Example: position the safehouse button differently
                 this.gameElementButton.setPosition(camera.width / 2, camera.height - 100);
             } else if (this.gameElementType === 'fishing') {
-                this.gameElementButton.setPosition(camera.width / 2 + gameElementOffsetX, camera.height + gameElementOffsetY);
+                this.gameElementButton.setPosition(
+                    camera.width / 2 + gameElementOffsetX,
+                    camera.height + gameElementOffsetY
+                );
             }
             this.gameElementButton.setScale(1 / camera.zoom);
         }
-        
     }
 
-
-    /**
-     * The main logic for overlay or custom interaction. 
-     */
     handleInteraction(): void {
         if (!this.isPlayerInside) return;
         if (this.resourceBehavior === "static") return;
 
-        console.info(`Player inside area: '${this.displayName}'`);
-
-        // If there's a custom buttonClickHandler, use that
+        // custom buttonClickHandler?
         if (this.buttonClickHandler) {
             this.buttonClickHandler(this.scene);
             this.ignoreButtonClick = false;
             return;
         }
 
-        // Otherwise, show an overlay (the old default)
-        // e.g. (this.scene as any).showOverlay(this.overlayName, this.areaType, this.gameOverlayName)
+        // otherwise show the default overlay
         if ((this.scene as any).showOverlay) {
             (this.scene as any).showOverlay(this.overlayName, this.gameElementType, this.minigameId);
         }
         this.ignoreButtonClick = false;
     }
 
-    /**
-     * Checks if a given point (playerX, playerY) is within the ellipse shape.
-     */
     containsPoint(x: number, y: number, threshold: number = 1): boolean {
         const translatedX = x - this.ellipse.x;
         const translatedY = y - this.ellipse.y;
         const rotatedX = -translatedX;
         const rotatedY = -translatedY;
 
-        return (rotatedX * rotatedX) / (this.ellipse.width * this.ellipse.width / 4) +
-            (rotatedY * rotatedY) / (this.ellipse.height * this.ellipse.height / 4) <= threshold;
+        return (
+            (rotatedX * rotatedX) / (this.ellipse.width * this.ellipse.width / 4) +
+            (rotatedY * rotatedY) / (this.ellipse.height * this.ellipse.height / 4) <= threshold
+        );
     }
 
-    /**
-     * Toggles the visibility of this area (ellipse & floating text).
-     */
     setVisible(visible: boolean): void {
         this.isVisible = visible;
         this.drawEllipse(this.normalColor, this.normalColor);
@@ -523,12 +467,11 @@ export default class InteractionArea {
         }
     }
 
-    /**
-     * Clean up references.
-     */
     destroy(): void {
         this.graphics.destroy();
-        if (this.glowTween) this.glowTween.stop();
+        if (this.glowTween) {
+            this.glowTween.stop();
+        }
         this.glowGraphics?.destroy();
 
         this.interactionButton?.off('pointerover', this.onButtonHover, this);
@@ -542,9 +485,6 @@ export default class InteractionArea {
         this.scene.input.off('pointerdown', this.handleClick, this);
     }
 
-    /**
-     * Returns center of the ellipse for minimap usage, etc.
-     */
     getCenter(): { x: number; y: number } {
         return { x: this.ellipse.x, y: this.ellipse.y };
     }
@@ -553,9 +493,6 @@ export default class InteractionArea {
         return this.displayName;
     }
 
-    /**
-     * The old code used setIgnoreButtonClick() so overlays don't get triggered twice.
-     */
     setIgnoreButtonClick(ignore: boolean): void {
         this.ignoreButtonClick = ignore;
     }
@@ -566,49 +503,63 @@ export default class InteractionArea {
 
     public setMinigameId(minigameId: string): void {
         this.minigameId = minigameId;
-    
-        // If minigame is removed, clean up the button
+
+        // If we remove the minigame, also remove any leftover buttons/cross
         if (!minigameId) {
             if (this.gameElementButton) {
                 this.gameElementButton.destroy(true);
                 this.gameElementButton = undefined;
             }
-    
-            // Also destroy the depletion cross if still lingering
             if (this.depletionCross) {
                 this.depletionCross.destroy();
                 this.depletionCross = undefined;
             }
-    
             return;
         }
-    
-        // If not already created, build it
+
+        // If we do have a minigame assigned now, create or re-init the button
         if (!this.gameElementButton) {
             this.initGameElementButton();
         }
-    }    
+    }
 
+    /**
+     * Let IslandManager set a color for glow usage
+     */
+    public setGlowColor(color?: string): void {
+        this.assignedGlowColor = color;
+    }
+
+    /**
+     * This is called (by IslandManager or the scene) to animate a glow effect.
+     */
     public handleGlowEffect(glowEffectDepth: number): void {
+        // Clear old tween/graphics
         if (this.glowTween) {
             this.glowTween.stop();
             this.glowTween = undefined;
         }
-
         if (this.glowGraphics) {
             this.glowGraphics.clear();
             this.glowGraphics.destroy();
             this.glowGraphics = undefined;
         }
 
-        // only add graphics if assigned a game element
-        if (this.minigameIdGlowColors.hasOwnProperty(this.minigameId) === false) {
-            return
+        // If no minigame is assigned, do nothing
+        if (!this.minigameId) return;
+
+        // Use the band color from IslandManager if assigned, else fallback
+        let glowColor: number;
+        if (this.assignedGlowColor) {
+            glowColor = parseInt(this.assignedGlowColor.replace('#', '0x'), 16);
+        } else {
+            // fallback to old color logic for fishPunch/fishBounce
+            glowColor = this.minigameIdGlowColors[this.minigameId] ?? 0xffffff;
         }
 
         this.glowGraphics = this.scene.add.graphics();
         this.glowGraphics.setDepth(glowEffectDepth);
-        const glowColor: number = this.minigameIdGlowColors[this.minigameId];
+
         this.glowGraphics.lineStyle(30, glowColor, 1);
         this.glowGraphics.strokeEllipseShape(this.ellipse);
 
@@ -626,28 +577,22 @@ export default class InteractionArea {
         return this.activeBlockers;
     }
 
-    /**
-     * Draw a red cross on the button if the resource is depleted OR user inventory full.
-     */
     public updateButtonBlockers(blockers: Set<string>): void {
         this.activeBlockers = blockers;
-    
         const isBlocked = blockers.size > 0;
-    
-        // Early exit if button doesn't exist yet
+
         if (!this.gameElementButton) return;
-    
+
         if (isBlocked && !this.depletionCross) {
-            // Draw cross exactly as before
             const lineThickness = 10;
             const lineColor = 0xff0000;
-            
+
             this.depletionCross = this.scene.add.graphics();
             this.depletionCross.lineStyle(lineThickness, lineColor, 1);
-            
+
             const halfW = this.geButtonWidth / 2;
             const halfH = this.geButtonHeight / 2;
-    
+
             this.depletionCross.beginPath();
             this.depletionCross.moveTo(-halfW, -halfH);
             this.depletionCross.lineTo(halfW, halfH);
@@ -655,19 +600,14 @@ export default class InteractionArea {
             this.depletionCross.lineTo(-halfW, halfH);
             this.depletionCross.strokePath();
             this.depletionCross.closePath();
-    
+
             this.gameElementButton.add(this.depletionCross);
         } else if (!isBlocked && this.depletionCross) {
             this.depletionCross.destroy();
             this.depletionCross = undefined;
         }
     }
-    
 
-    /**
-     * Show a "resource depleted" message in the center of the screen,
-     * fade it out, then destroy the text.
-     */
     public showDepletionPopup(message: string): void {
         const centerX = this.scene.cameras.main.centerX;
         const centerY = this.scene.cameras.main.centerY / 3;
@@ -692,7 +632,7 @@ export default class InteractionArea {
             duration: 300,
             ease: 'Power1',
             onComplete: () => {
-                // Hold for 1.5s, then fade out
+                // hold for 2s, then fade out
                 this.scene.time.delayedCall(2000, () => {
                     this.scene.tweens.add({
                         targets: popupText,
@@ -711,16 +651,19 @@ export default class InteractionArea {
     }
 
     private isInventoryFull(): boolean {
-        const scene = this.scene as any; // cast to access getInventory
+        // cast Scene to any to call getInventory
+        const scene = this.scene as any;
         const inventory = scene.getInventory?.();
-        return inventory.isInventoryFull();
-    }    
+        return inventory?.isInventoryFull() ?? false;
+    }
 
+    /**
+     * Called to check e.g. resource depletion, energy, inventory capacity, etc.
+     */
     public evaluateGameElementBlockers(): void {
         const blockers = new Set<string>();
         const scene = this.scene as any;
-    
-        // Find the assigned game element 
+
         const assignedGameId = this.minigameId;
         const gameElement = scene.islandManager?.getGameElementById?.(assignedGameId);
 
@@ -742,9 +685,6 @@ export default class InteractionArea {
             }
         }
 
-    
         this.updateButtonBlockers(blockers);
     }
-    
-    
 }

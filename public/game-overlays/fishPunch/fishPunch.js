@@ -1,6 +1,8 @@
 import { getRandomFishByCost } from "../../src/ItemData.ts";
 
 let energyCost = 0;
+let minCost = 0;
+let maxCost = 999;
 
 function initFishGame() {
     console.log("Fish punch is starting!");
@@ -83,7 +85,7 @@ function initFishGame() {
 
     function startGame() {
         // Select a fish
-        selectedFish = getRandomFishByCost(0, 19);
+        selectedFish = getRandomFishByCost(minCost, maxCost);
         console.log(`Selected fish: ${selectedFish.id}`);
 
         window.parent.postMessage({
@@ -334,7 +336,9 @@ function initFishGame() {
 window.addEventListener('message', (e) => {
     if (e.data?.type === 'gameSetup') {
         energyCost = e.data.energyCost || 0;
-        console.log("Received energy cost from parent:", energyCost);
+        minCost = e.data.minCost ?? 0;
+        maxCost = e.data.maxCost ?? 999;
+        console.log("[fishPunch] Setup => cost range:", minCost, "-", maxCost, "energyCost:", energyCost);
     }
 });
 

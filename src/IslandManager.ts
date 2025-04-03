@@ -1,6 +1,7 @@
 // IslandManager.ts
 
 import InteractionArea from './InteractionArea';
+
 /**
  * A "game element" that can be randomly assigned (fish, treasure, etc.)
  */
@@ -14,16 +15,31 @@ export interface GameElement {
 }
 
 /**
- * An assignment record for each area:
- * - `gameElementId`: ID of assigned spawn (or null)
- * - `resourceLeft`: how many resources remain
- * - `areaElementType`: e.g. "fishing", "treasure"
+ * Cost ranges for each fishing area (includes color for future glow usage).
+ */
+export const COST_RANGE_BANDS = [
+    { minCost: 0, maxCost: 15, color: "#C2C2C2" },
+    { minCost: 16, maxCost: 25, color: "#7ea6cf" },
+    { minCost: 26, maxCost: 35, color: "#287cd1" },
+    { minCost: 36, maxCost: 45, color: "#4144d9" },
+    { minCost: 46, maxCost: 55, color: "#bf1b80" },
+    { minCost: 56, maxCost: 999, color: "#ff0051" },
+];
+
+/**
+ * Each InteractionArea has an AreaAssignment telling us which game element is assigned,
+ * how many resources remain, plus optional cost band fields for fishing (minCost, maxCost, bandColor).
  */
 interface AreaAssignment {
     id: string;
     gameElementId: string | null;
     resourceLeft: number;
     areaElementType: string | null; // e.g. "fishing", "treasure", or null
+
+    // For fishing area cost intervals:
+    minCost?: number;
+    maxCost?: number;
+    bandColor?: string; // optional color for glow usage
 }
 
 export class IslandManager {
@@ -33,7 +49,6 @@ export class IslandManager {
     private lastAssignmentBlock: number = 0;
 
     private assignments: AreaAssignment[] = [];
-
 
     // All minigames, treasure locations, etc.
     private gameElements: GameElement[] = [
@@ -98,8 +113,7 @@ export class IslandManager {
      */
     public getGameElementById(id: string): GameElement | null {
         return this.gameElements.find(el => el.id === id) || null;
-      }
-      
+    }
 
     /**
      * Ensures each InteractionArea has a corresponding assignment record.
@@ -131,50 +145,90 @@ export class IslandManager {
     }
 
     /**
-     * Main function for assigning game elements to islands -- minigames, treasures, etc.
+     * The main function for assigning game elements to islands.
+     * If the current 5-min block has advanced (or if `forceNow`),
+     * we re-roll the minigames for all fishing areas.
      */
     public assignIslandGameElements(forceNow: boolean): boolean {
         const curr5MinBlock = this.getCurrent5MinBlock();
 
         if (forceNow || curr5MinBlock > this.lastAssignmentBlock) {
+            // Re-build the assignments array from scratch
             this.assignments = Object.values(this.interactionAreas).map(ia => ({
                 id: ia.id,
                 gameElementId: null,
                 resourceLeft: 0,
-                areaElementType: ia.getGameElementType()  // e.g. "fishing", "treasure"
+                areaElementType: ia.getGameElementType()
             }));
 
-            // Actually sync the game elements to each InteractionArea via InteractionArea.minigameId
             this.assignFishingToIslands();
             this.assignSafehousesToIslands();
 
             this.lastAssignmentBlock = curr5MinBlock;
             this.saveToStorage();
-
             this.syncToInteractionAreas();
 
             return true;
         }
-        return false
+        return false;
     }
 
+    /**
+     * Weighted pick for cost band, using 1 / band.maxCost as the "weight".
+     */
+    private getInvertedWeightCostBand(
+        bands: { minCost: number; maxCost: number; color: string; }[]
+    ): { minCost: number; maxCost: number; color: string; } {
+        // 1) Build array of { band, weight: 1 / band.maxCost }
+        const weighted = bands.map(b => {
+            const w = 1 / b.maxCost;
+            return { band: b, weight: w };
+        });
+
+        // 2) Sum the weights
+        const totalWeight = weighted.reduce((sum, x) => sum + x.weight, 0);
+
+        // 3) Weighted random
+        let rnd = Math.random() * totalWeight;
+        for (const obj of weighted) {
+            if (rnd < obj.weight) {
+                return obj.band;
+            }
+            rnd -= obj.weight;
+        }
+
+        // fallback
+        return bands[0];
+    }
 
     /**
-     * The function dedicated to "fishing" areas
+     * Assign fishing minigames + cost ranges to fishing areas.
      */
     private assignFishingToIslands(): void {
         this.assignments.forEach(a => {
             if (a.areaElementType !== 'fishing') return;
 
             if (Math.random() < IslandManager.FISHING_ASSIGN_PROBABILITY) {
-                // Choose a fishing minigame
-                const possible = this.gameElements.filter(g => g.elementType === 'fishing');
-                const chosen = this.getWeightedRandomElement(possible);
+                const fishingGames = this.gameElements.filter(g => g.elementType === 'fishing');
+                const chosenGame = this.getWeightedRandomElement(fishingGames);
+                if (!chosenGame) return;
 
-                if (chosen) {
-                    a.gameElementId = chosen.id;
-                    a.resourceLeft = chosen.maxResource;
-                }
+                a.gameElementId = chosenGame.id;
+                a.resourceLeft = chosenGame.maxResource ?? 0;
+
+                // pick a cost band from COST_RANGE_BANDS
+                const band = this.getInvertedWeightCostBand(COST_RANGE_BANDS);
+                a.minCost = band.minCost;
+                a.maxCost = band.maxCost;
+                a.bandColor = band.color;
+
+            } else {
+                // no fishing game assigned
+                a.gameElementId = null;
+                a.resourceLeft = 0;
+                a.minCost = undefined;
+                a.maxCost = undefined;
+                a.bandColor = undefined;
             }
         });
     }
@@ -190,8 +244,6 @@ export class IslandManager {
             }
         });
     }
-
-
 
     /**
      * Weighted random picking from a list of game elements. 1.0 is the most common.
@@ -211,7 +263,6 @@ export class IslandManager {
             }
             randomPick -= game.rarity;
         }
-
         return null;
     }
 
@@ -219,19 +270,23 @@ export class IslandManager {
      * Sync the final assignment results to each InteractionArea so it knows which minigame to show.
      */
     private syncToInteractionAreas(): void {
-        console.group("Reassigning game elements")
+        console.group("Reassigning game elements");
         this.assignments.forEach(a => {
             const area = this.interactionAreas[a.id];
             if (!area) return;
-            area.setMinigameId(a.gameElementId || '');
 
+            area.setMinigameId(a.gameElementId || '');
+            area.setGlowColor(a.bandColor);
+
+            // If resource is 0, we block user from playing that minigame
             const blockers = new Set<string>();
             if (a.resourceLeft === 0) {
                 blockers.add('depletion');
             }
-                        
             area.updateButtonBlockers(blockers);
-            area.evaluateGameElementBlockers(); // check for other blocks, e.g. inventory full
+
+            // Also check e.g. energy or inventory capacity
+            area.evaluateGameElementBlockers();
 
             console.log("Synced area", area.id, "to game element", a.gameElementId);
         });
@@ -290,14 +345,14 @@ export class IslandManager {
     }
 
     /**
-     * For debugging: returns the entire assignments array
+     * Return the entire assignments array (for debugging).
      */
     public getAssignments(): AreaAssignment[] {
         return this.assignments;
     }
 
     /**
-     * Return ID representing the current 5-min block.
+     * Convert current time to an ID representing the 5-min block
      */
     private getCurrent5MinBlock(): number {
         const now = new Date();

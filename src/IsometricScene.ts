@@ -1150,32 +1150,51 @@ export default class IsometricScene extends Phaser.Scene {
             iframe.style.opacity = '1';
         }, 50);
 
-        if (gameOverlayName === "safehouse") {
-            iframe.addEventListener('load', () => {
-
-                iframe.contentWindow?.postMessage({
-                    type: "safehouseData",
-                    safehouse: this.safehouseInventory.getDetailedStorage(),
-                    inventory: this.inventory?.getDetailedInventory(),
-                    safehouseMax: this.safehouseInventory.getMaxSize(),
-                    inventoryMax: this.inventory?.getCurrentSize()
-                }, "*");
-            });
-
-        }
-
-        const gameElem = this.islandManager.getGameElementById(gameOverlayName);
-        const cost = gameElem ? gameElem.energyCost : 0;
+        // 2) Once the iframe loads, pass minCost & maxCost to the minigame
         iframe.addEventListener('load', () => {
+            // a) Find the interaction area for the player's current position
+            const { x, y } = this.boat.getPosition();
+            const nearArea = Object.values(this.interactionAreas).find(a =>
+                a.containsPoint(x, y, 2)
+            );
+            if (!nearArea) {
+                console.warn("No nearby interaction area found for game overlay.");
+                return;
+            }
+
+            // b) Retrieve the assignment from IslandManager
+            const assignment = this.islandManager
+                .getAssignments()
+                .find(a => a.id === nearArea.id);
+            if (!assignment) {
+                console.warn(`No assignment found for area '${nearArea.id}'.`);
+                return;
+            }
+
+            // c) Determine energy cost from the assigned game element
+            let energyCost = 0;
+            if (assignment.gameElementId) {
+                const gameElem = this.islandManager.getGameElementById(assignment.gameElementId);
+                energyCost = gameElem ? gameElem.energyCost : 0;
+            }
+
+            // d) Use safe defaults if not assigned
+            const minCost = assignment.minCost ?? 0;
+            const maxCost = assignment.maxCost ?? 999;
+
+            // e) Post a "gameSetup" message to the iframe
             iframe.contentWindow?.postMessage({
                 type: "gameSetup",
                 gameId: gameOverlayName,
-                energyCost: cost
+                energyCost: energyCost,
+                minCost: minCost,
+                maxCost: maxCost
             }, "*");
         });
 
         console.groupEnd();
     }
+
 
 
     private destroyGameOverlay(_gameOverlayName: string): void {

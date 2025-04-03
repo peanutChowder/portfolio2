@@ -2,6 +2,9 @@ import { getRandomFishByCost } from "../../src/ItemData.ts";
 
 let energyCost = 0;
 
+let minCost = 0;
+let maxCost = 999;
+
 let selectedFish = null;
 let fishElement = null;    // DOM element for the fish
 let fishX = 0, fishY = 0;
@@ -106,7 +109,7 @@ function startGame() {
     updateHUD();
 
     // Select random fish
-    selectedFish = getRandomFishByCost(15, 34);
+    selectedFish = getRandomFishByCost(minCost, maxCost);
     console.log("Selected fish:", selectedFish);
 
     // Deduct resource & energy
@@ -326,7 +329,9 @@ function endGame(won) {
 window.addEventListener('message', (e) => {
     if (e.data?.type === 'gameSetup') {
         energyCost = e.data.energyCost || 0;
-        console.log("Received energy cost from parent:", energyCost);
+        minCost = e.data.minCost ?? 0;
+        maxCost = e.data.maxCost ?? 999;
+        console.log("[fishPunch] Setup => cost range:", minCost, "-", maxCost, "energyCost:", energyCost);
     }
 });
 
