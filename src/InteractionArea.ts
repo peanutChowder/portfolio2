@@ -165,9 +165,8 @@ export default class InteractionArea {
 
         if (lineColor) {
             this.graphics.lineStyle(10, lineColor, 1);
-            this.graphics.fillStyle(fillColor, 0.4);
         }
-       
+        this.graphics.fillStyle(fillColor, 0.4);
         this.graphics.strokeEllipseShape(this.ellipse);
         this.graphics.fillEllipseShape(this.ellipse);
     }
