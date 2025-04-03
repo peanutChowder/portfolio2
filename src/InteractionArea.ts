@@ -534,6 +534,7 @@ export default class InteractionArea {
      * This is called (by IslandManager or the scene) to animate a glow effect.
      */
     public handleGlowEffect(glowEffectDepth: number): void {
+        if (this.gameElementType !== 'fishing') return;
         // Clear old tween/graphics
         if (this.glowTween) {
             this.glowTween.stop();
