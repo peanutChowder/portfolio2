@@ -18,8 +18,8 @@ export interface GameElement {
  * Cost ranges for each fishing area (includes color for future glow usage).
  */
 export const COST_RANGE_BANDS = [
-    { minCost: 0, maxCost: 15, color: "#C2C2C2" },
-    { minCost: 16, maxCost: 25, color: "#7ea6cf" },
+    { minCost: 0, maxCost: 15, color: "#ffffff" },
+    { minCost: 16, maxCost: 25, color: "#bdfff4" },
     { minCost: 26, maxCost: 35, color: "#287cd1" },
     { minCost: 36, maxCost: 45, color: "#4144d9" },
     { minCost: 46, maxCost: 55, color: "#bf1b80" },

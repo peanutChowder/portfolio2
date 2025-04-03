@@ -1,3 +1,4 @@
+import { COST_RANGE_BANDS } from './IslandManager';
 import { itemData } from './ItemData';
 
 export interface InventoryData {
@@ -7,7 +8,7 @@ export interface InventoryData {
 export class Inventory {
     private inventory: InventoryData = {};
     private playerMoney: number = 0; // Track player's money
-    private inventorySize: number = 10; 
+    private inventorySize: number = 10;
 
     constructor() {
         const savedInventory = localStorage.getItem('inventory');
@@ -95,17 +96,23 @@ export class Inventory {
         return detailedInventory;
     }
 
-        /** Get color based on item cost bin */
+    /** Get color based on item cost bin */
     private getColorForCost(cost: number | null): string {
-        if (cost === null || cost === undefined) return '#C2C2C2';  // default to grey, also for no-cost items.
+        // If no cost, default to grey
+        if (cost == null) {
+            return "#C2C2C2";
+        }
 
-        // color table based on cost, gets more flashy the higher the cost
-        if (cost <= 15) return '#C2C2C2'; // grey
-        else if (cost <= 25) return '#7ea6cf';   
-        else if (cost <= 35) return '#287cd1';   
-        else if (cost <= 45) return "#4144d9";
-        else if (cost <= 55) return '#bf1b80';
-        else return '#ff0051';               
+        // Find which band the cost falls into
+        for (const band of COST_RANGE_BANDS) {
+            if (cost >= band.minCost && cost <= band.maxCost) {
+                return band.color;
+            }
+        }
+
+        // If no band matched, return a fallback color
+        console.warn(`Cost ${cost} didn't match any band. Fallback to #ff0051`);
+        return "#ff0051";
     }
 
 
@@ -118,7 +125,7 @@ export class Inventory {
     public getCurrentSize(): number {
         return this.inventorySize;
     }
-    
+
     public setInventorySize(size: number): void {
         this.inventorySize = size;
         localStorage.setItem('inventorySize', size.toString());
@@ -127,5 +134,5 @@ export class Inventory {
     public isInventoryFull(): boolean {
         const currentCount = Object.values(this.inventory).reduce((sum, qty) => sum + qty, 0);
         return currentCount >= this.inventorySize;
-    }    
+    }
 }
