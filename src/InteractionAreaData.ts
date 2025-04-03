@@ -81,11 +81,11 @@ const projectColor = {
 }
 
 const workExpColor = {
-    areaBaseColor: 0xaa9cff,
+    areaBaseColor: 0xae41f2,
     areaEdgeColor: 0,
     buttonBaseColor: 0xaa9cff,
     buttonHoverColor: 0x9887fa,
-    markerColor: 0x9028f7
+    markerColor: 0xae41f2
 }
 
 export const INTERACTION_AREAS: InteractionAreaData[] = [
