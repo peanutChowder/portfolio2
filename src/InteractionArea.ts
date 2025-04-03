@@ -95,8 +95,8 @@ export default class InteractionArea {
             areaData.height
         );
 
-        // We'll reuse areaBaseColor for line/fill
-        const lineColor = areaData.areaBaseColor;
+
+        const lineColor = areaData.areaEdgeColor;
         const fillColor = areaData.areaBaseColor;
 
         this.graphics = this.scene.add.graphics();
@@ -163,8 +163,11 @@ export default class InteractionArea {
         this.graphics.clear();
         if (!this.isVisible) return;
 
-        this.graphics.lineStyle(10, lineColor, 1);
-        this.graphics.fillStyle(fillColor, 0.4);
+        if (lineColor) {
+            this.graphics.lineStyle(10, lineColor, 1);
+            this.graphics.fillStyle(fillColor, 0.4);
+        }
+       
         this.graphics.strokeEllipseShape(this.ellipse);
         this.graphics.fillEllipseShape(this.ellipse);
     }

@@ -74,7 +74,7 @@ export interface InteractionAreaData {
 
 const projectColor = {
     areaBaseColor: 0x78b0f5,
-    areaEdgeColor: 0x12db81,
+    areaEdgeColor: 0,
     buttonBaseColor: 0x428ae3,
     buttonHoverColor: 0x78b0f5,
     markerColor: 0x78b0f5
@@ -82,7 +82,7 @@ const projectColor = {
 
 const workExpColor = {
     areaBaseColor: 0xaa9cff,
-    areaEdgeColor: 0xc4baff,
+    areaEdgeColor: 0,
     buttonBaseColor: 0xaa9cff,
     buttonHoverColor: 0x9887fa,
     markerColor: 0x9028f7
@@ -197,7 +197,7 @@ export const INTERACTION_AREAS: InteractionAreaData[] = [
         displayName: "Education",
         overlayKey: "educationOverlay",
         areaBaseColor: 0x21570a,
-        areaEdgeColor: 0x688c58,
+        areaEdgeColor: 0,
 
         buttonConfig: {
             text: "Click to see my Education",
@@ -230,7 +230,7 @@ export const INTERACTION_AREAS: InteractionAreaData[] = [
         displayName: "Olympic\nWeightlifting",
         overlayKey: "owOverlay",
         areaBaseColor: 0x145b66,
-        areaEdgeColor: 0x43a6b5,
+        areaEdgeColor: 0,
 
         buttonConfig: {
             text: "Click to see Olympic\nWeightlifting Content",
@@ -429,7 +429,7 @@ export const INTERACTION_AREAS: InteractionAreaData[] = [
         displayName: "Safehouse",
         overlayKey: "safehouseOverlay",
         areaBaseColor: 0x1689f5,
-        areaEdgeColor: 0x34b4eb,
+        areaEdgeColor: 0,
 
         buttonConfig: {
             text: "Enter Safehouse",
@@ -462,7 +462,7 @@ export const INTERACTION_AREAS: InteractionAreaData[] = [
         displayName: "Safehouse",
         overlayKey: "safehouseOverlay",
         areaBaseColor: 0x1689f5,
-        areaEdgeColor: 0x34b4eb,
+        areaEdgeColor: 0,
 
         buttonConfig: {
             text: "Enter Safehouse",
@@ -495,7 +495,7 @@ export const INTERACTION_AREAS: InteractionAreaData[] = [
         displayName: "Safehouse",
         overlayKey: "safehouseOverlay",
         areaBaseColor: 0x1689f5,
-        areaEdgeColor: 0x34b4eb,
+        areaEdgeColor: 0,
 
         buttonConfig: {
             text: "Enter Safehouse",
@@ -528,7 +528,7 @@ export const INTERACTION_AREAS: InteractionAreaData[] = [
         displayName: "",
         overlayKey: "",
         areaBaseColor: 0xa361fa,
-        areaEdgeColor: 0xc89eff,
+        areaEdgeColor: 0,
 
         buttonConfig: {
             text: "Click me!",
