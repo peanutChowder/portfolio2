@@ -66,12 +66,6 @@ export default class InteractionArea {
     private glowGraphics?: Phaser.GameObjects.Graphics;
     private glowTween?: Phaser.Tweens.Tween;
 
-    // If no band color is assigned, fallback to these minigame-based glow colors
-    private minigameIdGlowColors: { [key: string]: number } = {
-        "fishPunch": 0xe8feff,
-        "fishBounce": 0xe8feff
-    };
-
     static preload(scene: Phaser.Scene): void {
         scene.load.image('fishingRod', fishingRod);
     }
@@ -551,14 +545,12 @@ export default class InteractionArea {
         // If no minigame is assigned, do nothing
         if (!this.minigameId) return;
 
-        // Use the band color from IslandManager if assigned, else fallback
+        // Set glow color
         let glowColor: number;
+        glowColor = 0;
         if (this.assignedGlowColor) {
             glowColor = parseInt(this.assignedGlowColor.replace('#', '0x'), 16);
-        } else {
-            // fallback to old color logic for fishPunch/fishBounce
-            glowColor = this.minigameIdGlowColors[this.minigameId] ?? 0xffffff;
-        }
+        } 
 
         this.glowGraphics = this.scene.add.graphics();
         this.glowGraphics.setDepth(glowEffectDepth);
