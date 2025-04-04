@@ -22,7 +22,7 @@ let selectedFish = null;
 // Basic fish structure
 const fishes = [];
 let fishSpawnIntervalId = null;
-const SPAWN_INTERVAL = 1500; // ms
+const SPAWN_INTERVAL = 1000; // ms
 const FISH_BASE_SPEED = 2;   // px/frame baseline
 const MAX_BOUNCES = 2;       // remove fish after n bounces
 const GAME_WIDTH = window.innerWidth;
@@ -39,7 +39,6 @@ let boatSizeDisplay;
 let messageEl;
 let gameMessageEl;
 
-// ########################## INIT ##########################
 function initBoatGrowGame() {
     console.log("[boatGrow] Waiting to start...");
 
@@ -106,7 +105,6 @@ function startGame() {
     requestAnimationFrame(gameLoop);
 }
 
-// ########################## GAME LOOP ##########################
 function gameLoop() {
     if (gameOver) return;
 
@@ -120,7 +118,6 @@ function gameLoop() {
     requestAnimationFrame(gameLoop);
 }
 
-// ########################## BOAT ##########################
 function moveBoat() {
     // Simple linear interpolation
     const dx = pointerX - boatX;
@@ -139,8 +136,8 @@ function updateBoatPosition() {
 
 // Scale boat visually with boatSize
 function updateBoatSizeVisual() {
-    boatEl.style.width = `${boatSize}px`;
-    boatEl.style.height = `${boatSize}px`;
+    boatEl.style.width = `${boatSize * 1.5}px`;
+    boatEl.style.height = `${boatSize * 1.5}px`;
     // Optionally update the background image if selectedFish is available
     if (selectedFish && selectedFish.imgSrc) {
         boatEl.style.backgroundImage = "../../../assets/boat/boatE.png";
@@ -158,22 +155,20 @@ function updateGrowBar() {
     boatSizeBar.style.width = `${pct}%`;
 }
 
-// ########################## FISH SPAWNING ##########################
 function spawnFish() {
     if (gameOver) return;
 
     const fishEl = document.createElement('div');
     fishEl.classList.add('fish');
 
-    // Random size
-    const size = randomInt(5, 60);
-    fishEl.style.width = `${size}px`;
-    fishEl.style.height = `${size}px`;
+    // Random size remains unchanged
+    const size = randomInt(Math.max(1, boatSize - 30), Math.min(boatSize + 30, 100));
+    fishEl.style.width = `${size * 1.5}px`;
+    fishEl.style.height = `${size * 1.5}px`;
     fishEl.dataset.size = size.toString();
 
-    // Random fish sprite from your assets
-    const fishImgIndex = randomInt(1, 5); // e.g. fish1.png ... fish5.png
-    fishEl.style.backgroundImage = `url("../../assets/fish-sprites/fish${fishImgIndex}.png")`;
+    fishEl.style.backgroundImage = `url("../../assets/fish-sprites/${selectedFish.imgSrc}")`;
+
     console.log("spawned fish with sprite:", fishEl.style.backgroundImage);
 
     // Start at the "pipe" on left
@@ -198,7 +193,7 @@ function spawnFish() {
     fishes.push(fishEl);
 }
 
-// ########################## FISH UPDATES ##########################
+
 function updateFishes() {
     for (let i = fishes.length - 1; i >= 0; i--) {
         const fishEl = fishes[i];
@@ -300,7 +295,6 @@ function removeFish(fishEl, index) {
     fishes.splice(index, 1);
 }
 
-// ########################## WIN / LOSE ##########################
 function checkWinCondition() {
     if (boatSize >= boatMaxSize) {
         endGame(true);
@@ -352,7 +346,6 @@ function endGame(won) {
     }, 1500);
 }
 
-// ########################## MESSAGE LISTENERS ##########################
 window.addEventListener('message', (e) => {
     if (e.data?.type === 'gameSetup') {
         energyCost = e.data.energyCost || 0;

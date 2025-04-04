@@ -33,15 +33,14 @@
             /* fish remain hidden until they fully spawn in from the pipe */
         }
 
-        /* A “pipe” on the left side where fish come from */
         #spawn-pipe {
             position: absolute;
             top: 40%;
             left: 0;
             width: 60px;
             height: 200px;
-            background: #333;
-            border-radius: 0 30px 30px 0;
+            background: #676767;
+            border-radius: 0 15px 15px 0;
             z-index: 10;
         }
 
@@ -131,12 +130,11 @@
             position: absolute;
             width: 80px;
             height: 80px;
-            background-size: cover;
+            background-size: contain;
+            background-repeat: no-repeat;
             background-position: center;
-            border-radius: 50%;
             will-change: transform;
             pointer-events: none;
-            background-color: red;
         }
 
         /* Win/Lose message */
