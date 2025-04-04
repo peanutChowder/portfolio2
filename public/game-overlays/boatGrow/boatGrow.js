@@ -81,6 +81,8 @@ function initBoatGrowGame() {
 }
 
 function startGame() {
+    selectedFish = getRandomFishByCost(minCost, maxCost);
+    console.log("Selected fish: ", selectedFish.name);
     console.log("[boatGrow] Game started!");
     gameStatus = "started";
 
@@ -352,9 +354,6 @@ window.addEventListener('message', (e) => {
         minCost = e.data.minCost ?? 0;
         maxCost = e.data.maxCost ?? 999;
         console.log("[boatGrow] Setup => cost range:", minCost, "-", maxCost, "energyCost:", energyCost);
-
-        selectedFish = getRandomFishByCost(minCost, maxCost);
-        console.log("[boatGrow] Selected fish:", selectedFish);
     }
 });
 
