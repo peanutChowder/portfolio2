@@ -65,7 +65,7 @@ export class IslandManager {
             id: 'fishPunch',
             name: 'Fish Punch',
             maxResource: 4,
-            rarity: 0,     
+            rarity: 0.5,     
             elementType: 'fishing',
             energyCost: 15
         },
@@ -73,7 +73,7 @@ export class IslandManager {
             id: 'fishBounce',
             name: 'Fish Bounce',
             maxResource: 4,
-            rarity: 0,     
+            rarity: 0.8,     
             elementType: 'fishing',
             energyCost: 20
         },
@@ -81,7 +81,7 @@ export class IslandManager {
             id: 'boatGrow',
             name: 'Boat Grow',
             maxResource: 4,
-            rarity: 1,     
+            rarity: 0.8,     
             elementType: 'fishing',
             energyCost: 10
         }
