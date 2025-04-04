@@ -10,9 +10,9 @@ function initFishGame() {
     const CROSSHAIR_RADIUS = 50;
     const FISH_WIDTH = 60;
     const FISH_HEIGHT = 40;
-    const FISH_SPAWN_INTERVAL = 1500; // ms
-    const MIN_SPEED = 80;  // px/sec
-    const MAX_SPEED = 220; // px/sec
+    const FISH_SPAWN_INTERVAL = 1000; // ms
+    const MIN_SPEED = 150;  // px/sec
+    const MAX_SPEED = 700; // px/sec
     const MAX_HITS = 4;
     const MAX_MISSES = 3;
 
