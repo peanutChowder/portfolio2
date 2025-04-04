@@ -331,7 +331,7 @@ window.addEventListener('message', (e) => {
         energyCost = e.data.energyCost || 0;
         minCost = e.data.minCost ?? 0;
         maxCost = e.data.maxCost ?? 999;
-        console.log("[fishPunch] Setup => cost range:", minCost, "-", maxCost, "energyCost:", energyCost);
+        console.log("Setup => cost range:", minCost, "-", maxCost, "energyCost:", energyCost);
     }
 });
 
