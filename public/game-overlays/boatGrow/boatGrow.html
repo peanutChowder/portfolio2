@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Boat Grow Minigame</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* Fullscreen container */
+        #sandbox-wrapper {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(0, 128, 255, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            font-family: 'Prompt', Arial, sans-serif;
+            color: #fff;
+        }
+
+        #sandbox-content {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            background: #34c4eb;
+            overflow: hidden;
+            /* fish remain hidden until they fully spawn in from the pipe */
+        }
+
+        /* A “pipe” on the left side where fish come from */
+        #spawn-pipe {
+            position: absolute;
+            top: 40%;
+            left: 0;
+            width: 60px;
+            height: 200px;
+            background: #333;
+            border-radius: 0 30px 30px 0;
+            z-index: 10;
+        }
+
+        #game-message {
+            position: absolute;
+            top: 25%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 1.8rem;
+            font-family: 'Prompt', Arial, sans-serif;
+            color: white;
+            text-align: center;
+            pointer-events: none;
+            opacity: 1;
+            transition: opacity 0.5s ease-in-out;
+            z-index: 999;
+        }
+
+
+        .close-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: #ff5e57;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            z-index: 999;
+            /* always on top */
+        }
+
+        .close-button:hover {
+            background-color: #ff3b3b;
+            transform: scale(1.1);
+        }
+
+        /* The player’s boat */
+        #boat {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            z-index: 99;
+            border-radius: 50%;
+            background-image: url("../../../assets/boat/boatE.png");
+            background-size: cover;
+            background-position: center;
+            will-change: transform;
+            pointer-events: none;
+        }
+
+        /* Health Bar UI */
+        #health-bar-container {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            width: 300px;
+            height: 30px;
+            border: 2px solid #fff;
+            border-radius: 5px;
+            overflow: hidden;
+            z-index: 99;
+        }
+
+        #health-bar-fill {
+            width: 100%;
+            height: 100%;
+            background: red;
+            transition: width 0.2s ease;
+        }
+
+        /* Boat size display */
+        #boat-size-display {
+            position: absolute;
+            top: 60px;
+            left: 20px;
+            z-index: 99;
+            font-size: 1.4rem;
+            color: #fff;
+        }
+
+        /* The fish that spawn in */
+        .fish {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            background-size: cover;
+            background-position: center;
+            border-radius: 50%;
+            will-change: transform;
+            pointer-events: none;
+            background-color: red;
+        }
+
+        /* Win/Lose message */
+        #message {
+            position: absolute;
+            top: 30%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 3rem;
+            text-align: center;
+            display: none;
+            white-space: pre-line;
+            z-index: 2000;
+        }
+
+        /* Example glow effect if fish is smaller/bigger (using drop-shadow) */
+        .can-eat {
+            filter: drop-shadow(0 0 8px #1eff00);
+        }
+
+        .too-big {
+            filter: drop-shadow(0 0 8px #ff0000);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="sandbox-wrapper">
+        <div id="sandbox-content">
+            <div id="game-message">Click to begin. Eat smaller fish to grow. Avoid big ones or you’ll take damage!
+            </div>
+
+            <div id="spawn-pipe"></div>
+            <div id="boat"></div>
+
+            <div id="health-bar-container">
+                <div id="health-bar-fill"></div>
+            </div>
+            <div id="boat-size-display">Size: 10</div>
+
+            <div id="message"></div>
+        </div>
+        <button class="close-button">Close</button>
+    </div>
+
+    <!-- Our script -->
+    <script type="module" src="boatGrow.js"></script>
+</body>
+
+</html>

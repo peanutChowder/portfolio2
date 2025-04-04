@@ -65,7 +65,7 @@ export class IslandManager {
             id: 'fishPunch',
             name: 'Fish Punch',
             maxResource: 4,
-            rarity: 0.8,     
+            rarity: 0,     
             elementType: 'fishing',
             energyCost: 15
         },
@@ -73,10 +73,18 @@ export class IslandManager {
             id: 'fishBounce',
             name: 'Fish Bounce',
             maxResource: 4,
-            rarity: 0.5,     
+            rarity: 0,     
             elementType: 'fishing',
             energyCost: 20
         },
+        {
+            id: 'boatGrow',
+            name: 'Boat Grow',
+            maxResource: 4,
+            rarity: 1,     
+            elementType: 'fishing',
+            energyCost: 10
+        }
 
     ];
 
@@ -106,6 +114,7 @@ export class IslandManager {
         scene.load.html('safehouse', 'safehouseOverlay.html');
         scene.load.html('fishPunch', 'game-overlays/fishPunch.html');
         scene.load.html('fishBounce', 'game-overlays/fishBounce.html');
+        scene.load.html('boatGrow', 'game-overlays/boatGrow/boatGrow.html');
     }
 
     /**
