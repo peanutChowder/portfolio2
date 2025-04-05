@@ -1,5 +1,6 @@
 import { COST_RANGE_BANDS } from './IslandManager';
 import { itemData } from './ItemData';
+import { RodStorage } from './RodStorage';
 
 export interface InventoryData {
     [itemId: string]: number; // item ID -> quantity
@@ -9,6 +10,7 @@ export class Inventory {
     private inventory: InventoryData = {};
     private playerMoney: number = 0; // Track player's money
     private inventorySize: number = 10;
+    private rodStorage: RodStorage;
 
     constructor() {
         const savedInventory = localStorage.getItem('inventory');
@@ -21,6 +23,9 @@ export class Inventory {
         // retrieve user money, default to 0 if first visit
         const savedMoney = localStorage.getItem('playerMoney');
         this.playerMoney = savedMoney ? parseInt(savedMoney, 10) : 0; // Load money, default to 0
+
+        // Load rod storage
+        this.rodStorage = new RodStorage();
     }
 
     /** Save inventory to localStorage */
@@ -135,5 +140,149 @@ export class Inventory {
     public isInventoryFull(): boolean {
         const currentCount = Object.values(this.inventory).reduce((sum, qty) => sum + qty, 0);
         return currentCount >= this.inventorySize;
+    }
+
+    // Add these new methods to the Inventory class
+
+    // Getter for rodStorage
+    public getRodStorage(): RodStorage {
+        return this.rodStorage;
+    }
+
+    // Method to equip a rod from inventory
+    public equipRod(rodId: string): boolean {
+        // Verify it's a rod
+        const item = itemData[rodId];
+        if (!item || item.type !== 'rod') return false;
+
+        // Check if we have it in inventory
+        if (!this.hasItem(rodId)) return false;
+
+        // Try to add to rod storage
+        if (this.rodStorage.addRod(rodId)) {
+            // If successful, remove from inventory
+            this.removeItem(rodId);
+            return true;
+        }
+
+        return false;
+    }
+
+    public isRodItem(itemId: string): boolean {
+        const item = itemData[itemId];
+        return item?.type === 'rod';
+    }
+
+    /**
+     * Check if the inventory contains a specific item
+     * @param itemId the ID of the item to check
+     * @returns true if the item exists in inventory with quantity > 0
+     */
+    public hasItem(itemId: string): boolean {
+        return this.inventory[itemId] > 0;
+    }
+
+    /**
+ * Get the total number of items in the inventory
+ * @returns the sum of all item quantities
+ */
+    public getItemCount(): number {
+        return Object.values(this.inventory).reduce((sum, qty) => sum + qty, 0);
+    }
+
+    /**
+     * Unequip a rod, placing it back in inventory if there is space.
+     * @param rodId the ID of the rod to unequip
+     * @returns true if successful, false if inventory is full
+     */
+    public unequipRod(rodId: string): boolean {
+        // Check if we have space in inventory
+        if (this.getItemCount() >= this.inventorySize) {
+            return false;
+        }
+
+        // Try to remove from rod storage
+        if (this.rodStorage.removeRod(rodId)) {
+            // If successful, add to inventory
+            this.addItem(rodId);
+            return true;
+        }
+
+        return false;
+    }
+
+
+    public canFishInArea(areaClass: number): boolean {
+        const rodClass = this.rodStorage.getActiveRodClass();
+        return rodClass >= areaClass; // Can fish if rod class is >= area class
+    }
+
+    /**
+    * Gets details about the currently active rod for UI display
+    * @returns the active rod details or null if no rod is equipped
+    */
+    public getActiveRodDetails(): any | null {
+        const activeRodId = this.rodStorage.getActiveRodId();
+        if (!activeRodId) return null;
+
+        const rod = itemData[activeRodId];
+        if (!rod) return null;
+
+        return {
+            id: activeRodId,
+            name: rod.name,
+            imgSrc: rod.imgSrc,
+            description: rod.description,
+            class: this.getRodClass(activeRodId),
+            isActive: true
+        };
+    }
+
+
+    /**
+     * Gets an array of rod details for all equipped rods.
+     * Each rod object has the following properties:
+     *  - id: string, the rod's ID
+     *  - name: string, the rod's name
+     *  - imgSrc: string, the rod's image source
+     *  - description: string, the rod's description
+     *  - class: number, the rod's class (used to determine which areas it can fish in)
+     *  - isActive: boolean, whether this rod is the currently active rod
+     * @returns an array of rod details
+     */
+    public getEquippedRodDetails(): any[] {
+        const result = [];
+        const rodIds = this.rodStorage.getAllRodIds();
+        const activeRodId = this.rodStorage.getActiveRodId();
+
+        for (const rodId of rodIds) {
+            const rod = itemData[rodId];
+            if (!rod) continue;
+
+            result.push({
+                id: rodId,
+                name: rod.name,
+                imgSrc: rod.imgSrc,
+                description: rod.description,
+                class: this.getRodClass(rodId),
+                isActive: rodId === activeRodId
+            });
+        }
+
+        return result;
+    }
+
+    /**
+     * Gets the rod class of a given rodId from itemData.
+     * Returns 0 if the rod doesn't exist or has no specialEffect.
+     * @param rodId the id of the rod
+     * @returns the rod class (an integer)
+     */
+    private getRodClass(rodId: string): number {
+        const rod = itemData[rodId];
+        if (!rod || !rod.specialEffect) return 0;
+
+        const classMatch = rod.specialEffect.match(/class(\d+)/);
+        return classMatch ? parseInt(classMatch[1]) : 0;
     }
 }

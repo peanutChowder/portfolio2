@@ -18,12 +18,42 @@ export interface GameElement {
  * Cost ranges for each fishing area (includes color for future glow usage).
  */
 export const COST_RANGE_BANDS = [
-    { minCost: 0, maxCost: 15, color: "#ffffff" },
-    { minCost: 16, maxCost: 25, color: "#bdfff4" },
-    { minCost: 26, maxCost: 35, color: "#287cd1" },
-    { minCost: 36, maxCost: 45, color: "#4144d9" },
-    { minCost: 46, maxCost: 55, color: "#bf1b80" },
-    { minCost: 56, maxCost: 999, color: "#ff0051" },
+    {
+        minCost: 0,
+        maxCost: 15,
+        color: "#ffffff",
+        rodAccess: { requiredClass: 1 }  // Basic areas accessible with class 1+ rods
+    },
+    {
+        minCost: 16,
+        maxCost: 25,
+        color: "#bdfff4",
+        rodAccess: { requiredClass: 2 }
+    },
+    {
+        minCost: 26,
+        maxCost: 35,
+        color: "#287cd1",
+        rodAccess: { requiredClass: 2 }
+    },
+    {
+        minCost: 36,
+        maxCost: 45,
+        color: "#4144d9",
+        rodAccess: { requiredClass: 2 }
+    },
+    {
+        minCost: 46,
+        maxCost: 55,
+        color: "#bf1b80",
+        rodAccess: { requiredClass: 3 }
+    },
+    {
+        minCost: 56,
+        maxCost: 100,
+        color: "#ff0051",
+        rodAccess: { requiredClass: 3 }
+    }
 ];
 
 /**
@@ -40,6 +70,13 @@ interface AreaAssignment {
     minCost?: number;
     maxCost?: number;
     bandColor?: string; // optional color for glow usage
+
+    // For fishing area rod access limiting
+    rodAccess?: {
+        requiredClass?: number;      // For linear class-based access
+        allowedRodIds?: string[];    // For specific rod access list
+        specialAbility?: string;     // For special ability-based access
+    };
 }
 
 export class IslandManager {
@@ -56,7 +93,7 @@ export class IslandManager {
             id: 'safehouse',
             name: 'Safehouse',
             maxResource: 0,     // irrelevant values to safehouse
-            rarity: 1.0,         
+            rarity: 1.0,
             elementType: 'safehouse',
             energyCost: 0
         },
@@ -65,7 +102,7 @@ export class IslandManager {
             id: 'fishPunch',
             name: 'Fish Punch',
             maxResource: 4,
-            rarity: 0.5,     
+            rarity: 0.5,
             elementType: 'fishing',
             energyCost: 15
         },
@@ -73,7 +110,7 @@ export class IslandManager {
             id: 'fishBounce',
             name: 'Fish Bounce',
             maxResource: 4,
-            rarity: 0.8,     
+            rarity: 0.8,
             elementType: 'fishing',
             energyCost: 20
         },
@@ -81,11 +118,10 @@ export class IslandManager {
             id: 'boatGrow',
             name: 'Boat Grow',
             maxResource: 4,
-            rarity: 0.8,     
+            rarity: 0.8,
             elementType: 'fishing',
             energyCost: 10
         }
-
     ];
 
     // Probability that a fishing area will have a minigame
@@ -107,7 +143,6 @@ export class IslandManager {
         this.syncToInteractionAreas();
 
         console.groupEnd();
-
     }
 
     static preload(scene: Phaser.Scene): void {
@@ -135,9 +170,9 @@ export class IslandManager {
             if (!existing) {
                 // All areas that are not none (fishing, safehouses, etc) will have their assignment handled by the island manager
                 const gameElementType = ia.getResourceBehavior() !== 'none'
-                ? ia.getGameElementType()
-                : null;
-            
+                    ? ia.getGameElementType()
+                    : null;
+
                 existing = {
                     id: ia.id,
                     gameElementId: null,
@@ -186,8 +221,8 @@ export class IslandManager {
      * Weighted pick for cost band, using 1 / band.maxCost as the "weight".
      */
     private getInvertedWeightCostBand(
-        bands: { minCost: number; maxCost: number; color: string; }[]
-    ): { minCost: number; maxCost: number; color: string; } {
+        bands: typeof COST_RANGE_BANDS
+    ): typeof COST_RANGE_BANDS[0] {
         // 1) Build array of { band, weight: 1 / band.maxCost }
         const weighted = bands.map(b => {
             const w = 1 / b.maxCost;
@@ -231,6 +266,10 @@ export class IslandManager {
                 a.maxCost = band.maxCost;
                 a.bandColor = band.color;
 
+                // Set the rod access requirements from the band
+                if (band.rodAccess) {
+                    a.rodAccess = { ...band.rodAccess };
+                }
             } else {
                 // no fishing game assigned
                 a.gameElementId = null;
@@ -238,6 +277,7 @@ export class IslandManager {
                 a.minCost = undefined;
                 a.maxCost = undefined;
                 a.bandColor = undefined;
+                a.rodAccess = undefined;
             }
         });
     }
@@ -249,7 +289,7 @@ export class IslandManager {
         this.assignments.forEach(a => {
             if (a.areaElementType === 'safehouse') {
                 a.gameElementId = 'safehouse';
-                a.resourceLeft = 0; 
+                a.resourceLeft = 0;
             }
         });
     }
@@ -286,6 +326,11 @@ export class IslandManager {
 
             area.setMinigameId(a.gameElementId || '');
             area.setGlowColor(a.bandColor);
+
+            // Update to use the new rodAccess setting
+            if (a.rodAccess) {
+                area.setRodAccess(a.rodAccess);
+            }
 
             // If resource is 0, we block user from playing that minigame
             const blockers = new Set<string>();

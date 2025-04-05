@@ -17,6 +17,7 @@ import { FireworkManager } from './Fireworks';
 import { MapSystem } from './MapSystem';
 import { Inventory } from './gamification/Inventory';
 import { SafehouseInventory } from './gamification/SafehouseInventory';
+import { itemData } from './gamification/ItemData';
 
 const fontSize = "80px";
 const fontColor = "#ffffff"
@@ -499,10 +500,22 @@ export default class IsometricScene extends Phaser.Scene {
                     // transferring items in safehouse between safehouse storage <-> inventory
                     case 'transferItem': {
                         const { itemId, direction } = event.data;
+                        const isRod = itemId.startsWith('rod_');
+
                         if (direction === 'toSafehouse') {
-                            this.safehouseInventory.addItem(itemId);
-                            this.inventory?.removeItem(itemId);
+                            if (isRod && this.inventory?.getRodStorage().getActiveRodId() === itemId) {
+                                // This is an equipped rod, unequip it first
+                                const removed = this.inventory?.getRodStorage().removeRod(itemId);
+                                if (removed) {
+                                    this.safehouseInventory.addItem(itemId);
+                                }
+                            } else {
+                                // Regular transfer
+                                this.safehouseInventory.addItem(itemId);
+                                this.inventory?.removeItem(itemId);
+                            }
                         } else {
+                            // From safehouse to inventory
                             this.inventory?.addItem(itemId);
                             this.safehouseInventory.removeItem(itemId);
                         }
@@ -519,6 +532,39 @@ export default class IsometricScene extends Phaser.Scene {
                         let overlayName = event.data?.overlayName;
                         console.log(`Received destroyGameOverlay event for overlay: ${overlayName}`);
                         this.destroyGameOverlay(overlayName);
+                        break;
+                    }
+
+                    // ---------- FISHING ROD MANAGEMENT ----------
+                    case 'equipRod': {
+                        const { rodId } = event.data;
+                        if (this.inventory?.equipRod(rodId)) {
+                            console.log(`Equipped rod: ${rodId}`);
+                        }
+                        break;
+                    }
+
+                    case 'unequipRod': {
+                        const { rodId } = event.data;
+                        if (this.inventory?.unequipRod(rodId)) {
+                            console.log(`Unequipped rod: ${rodId}`);
+                        }
+                        break;
+                    }
+
+                    case 'equipRodFromSafehouse': {
+                        const { rodId } = event.data;
+                        const rod = itemData[rodId];
+                        if (!rod) break;
+
+                        // Check if we have rod storage space
+                        if (this.inventory?.getRodStorage().hasSpace()) {
+                            // Remove from safehouse first
+                            this.safehouseInventory.removeItem(rodId);
+
+                            // Add to rod storage
+                            this.inventory.getRodStorage().addRod(rodId);
+                        }
                         break;
                     }
                 }
@@ -1123,9 +1169,9 @@ export default class IsometricScene extends Phaser.Scene {
             this.destroyGameOverlay(gameOverlayName);
             return;
         }
-    
+
         console.group(`Creating game overlay: ${gameOverlayName}`);
-    
+
         // 1) Create an iframe
         const iframe = document.createElement('iframe');
         iframe.id = 'game-overlay-iframe';
@@ -1138,31 +1184,32 @@ export default class IsometricScene extends Phaser.Scene {
         iframe.style.height = '100vh';
         iframe.style.zIndex = '9999';
         iframe.style.border = 'none';
-    
+
         // 2) Append to DOM
         document.body.appendChild(iframe);
         this.gameOverlayElement = iframe; // so we can remove it later
-    
+
         // 3) Optional fade-in
         iframe.style.opacity = '0';
         iframe.style.transition = 'opacity 0.5s ease-in-out';
         setTimeout(() => {
             iframe.style.opacity = '1';
         }, 50);
-    
+
         // 4) On load, post safehouse data (if safehouse) AND minigame setup data
         iframe.addEventListener('load', () => {
             // If it's a safehouse overlay, send safehouse inventory data
             if (gameOverlayName === "safehouse") {
+                // In IsometricScene.ts showInventoryOverlay method
                 iframe.contentWindow?.postMessage({
-                    type: "safehouseData",
-                    safehouse: this.safehouseInventory.getDetailedStorage(),
-                    inventory: this.inventory?.getDetailedInventory(),
-                    safehouseMax: this.safehouseInventory.getMaxSize(),
-                    inventoryMax: this.inventory?.getCurrentSize()
+                    type: "inventoryData",
+                    items: this.inventory?.getDetailedInventory(),
+                    money: this.inventory?.getMoney(),
+                    inventoryMax: this.inventory?.getCurrentSize(),
+                    equippedRod: this.inventory?.getActiveRodDetails()
                 }, "*");
             }
-    
+
             // For minigames: figure out cost range & energy cost
             // a) Find the interaction area for the player's current position
             const { x, y } = this.boat.getPosition();
@@ -1189,11 +1236,11 @@ export default class IsometricScene extends Phaser.Scene {
                 const gameElem = this.islandManager.getGameElementById(assignment.gameElementId);
                 energyCost = gameElem ? gameElem.energyCost : 0;
             }
-    
+
             // d) Safe defaults
             const minCost = assignment.minCost ?? 0;
             const maxCost = assignment.maxCost ?? 999;
-    
+
             // e) Post a "gameSetup" message for minigame usage
             iframe.contentWindow?.postMessage({
                 type: "gameSetup",
@@ -1203,10 +1250,10 @@ export default class IsometricScene extends Phaser.Scene {
                 maxCost: maxCost
             }, "*");
         });
-    
+
         console.groupEnd();
     }
-    
+
 
 
 
@@ -1263,12 +1310,12 @@ export default class IsometricScene extends Phaser.Scene {
 
         // Send inventory data when the iframe loads
         iframe.addEventListener('load', () => {
-            console.log('Sending items from Scene to Inventory');
             iframe.contentWindow?.postMessage({
                 type: "inventoryData",
-                items: this.inventory?.getDetailedInventory(), // Sends full inventory details
+                items: this.inventory?.getDetailedInventory(),
                 money: this.inventory?.getMoney(),
-                inventoryMax: this.inventory?.getCurrentSize()
+                inventoryMax: this.inventory?.getCurrentSize(),
+                equippedRod: this.inventory?.getEquippedRodDetails()
             }, "*");
         });
 

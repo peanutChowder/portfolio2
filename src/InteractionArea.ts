@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { InteractionAreaData, ResourceBehavior } from './gamification/InteractionAreaData';
 import fishingRod from '../assets/fishing/rod.jpg';
+import { itemData } from './gamification/ItemData';
 
 /**
  * Manages a single "InteractionArea" on the map – could be
@@ -65,6 +66,14 @@ export default class InteractionArea {
     private assignedGlowColor: string | undefined;
     private glowGraphics?: Phaser.GameObjects.Graphics;
     private glowTween?: Phaser.Tweens.Tween;
+
+
+    // Handling for which rods allowed + special rod effects
+    private rodAccess: {
+        requiredClass?: number;       // For linear class-based access 
+        allowedRodIds?: string[];     // For specific rod access list 
+        specialAbility?: string;      // For special ability modifiers
+    } = {};
 
     static preload(scene: Phaser.Scene): void {
         scene.load.image('fishingRod', fishingRod);
@@ -292,6 +301,29 @@ export default class InteractionArea {
         this.gameElementButton.on('pointerdown', () => {
             const blockers = this.activeBlockers;
 
+            // Inside your button click handler
+            if (blockers.has('insufficientRod')) {
+                const inventory = (this.scene as any).getInventory?.();
+                const activeRodId = inventory?.getRodStorage().getActiveRodId();
+                const rodInfo = activeRodId ? itemData[activeRodId] : null;
+                const rodName = rodInfo ? rodInfo.name : "No rod";
+
+                let message = `Your ${rodName} cannot fish in this area.`;
+
+                // Add more specific information based on the access requirements
+                if (this.rodAccess.requiredClass !== undefined) {
+                    message += ` You need a Class ${this.rodAccess.requiredClass} or better rod.`;
+                } else if (this.rodAccess.specialAbility) {
+                    message += ` You need a rod with the ${this.rodAccess.specialAbility} ability.`;
+                } else if (this.rodAccess.allowedRodIds && this.rodAccess.allowedRodIds.length > 0) {
+                    // Just indicate a special rod is needed without listing all allowed rods
+                    message += ` This area requires a special type of rod.`;
+                }
+
+                this.showDepletionPopup(message);
+                return;
+            }
+
             if (blockers.has('depletion')) {
                 const label = this.gameElementType === 'fishing'
                     ? 'Fish'
@@ -497,6 +529,29 @@ export default class InteractionArea {
         return this.gameElementType;
     }
 
+    /**
+     * Set the rod access requirements for this area
+     * @param access An object defining which rods can access this area
+     */
+    public setRodAccess(access: {
+        requiredClass?: number;
+        allowedRodIds?: string[];
+        specialAbility?: string;
+    }): void {
+        this.rodAccess = { ...access };
+    }
+
+    /**
+     * Get the rod access requirements for this area
+     */
+    public getRodAccess(): {
+        requiredClass?: number;
+        allowedRodIds?: string[];
+        specialAbility?: string;
+    } {
+        return { ...this.rodAccess };
+    }
+
     public setMinigameId(minigameId: string): void {
         this.minigameId = minigameId;
 
@@ -550,7 +605,7 @@ export default class InteractionArea {
         glowColor = 0;
         if (this.assignedGlowColor) {
             glowColor = parseInt(this.assignedGlowColor.replace('#', '0x'), 16);
-        } 
+        }
 
         this.glowGraphics = this.scene.add.graphics();
         this.glowGraphics.setDepth(glowEffectDepth);
@@ -680,6 +735,53 @@ export default class InteractionArea {
             }
         }
 
+        if (this.gameElementType === 'fishing' && Object.keys(this.rodAccess).length > 0) {
+            const inventory = scene.getInventory?.();
+            if (!inventory) {
+                blockers.add('insufficientRod');
+            } else {
+                const hasAccess = this.checkRodAccess(inventory);
+                if (!hasAccess) {
+                    blockers.add('insufficientRod');
+                }
+            }
+        }
+
         this.updateButtonBlockers(blockers);
+    }
+
+    /**
+   * Check if the player's rod meets the access requirements for this area
+   * @param inventory The player's inventory containing rod storage
+   * @returns true if the rod meets requirements, false otherwise
+   */
+    private checkRodAccess(inventory: any): boolean {
+        // Get the active rod
+        const rodStorage = inventory.getRodStorage();
+        const activeRodId = rodStorage.getActiveRodId();
+
+        if (!activeRodId) return false; // No rod equipped
+
+        const rodItem = itemData[activeRodId];
+        if (!rodItem) return false; // Rod data not found
+
+        // Check if this rod is explicitly allowed
+        if (this.rodAccess.allowedRodIds && this.rodAccess.allowedRodIds.includes(activeRodId)) {
+            return true;
+        }
+
+        // Check class-based access (if no specific rod list is provided or if it's empty)
+        if (this.rodAccess.requiredClass !== undefined) {
+            const rodClass = rodStorage.getActiveRodClass();
+            return rodClass >= this.rodAccess.requiredClass;
+        }
+
+        // Check special ability requirements
+        if (this.rodAccess.specialAbility && rodItem.specialEffect) {
+            return rodItem.specialEffect.includes(this.rodAccess.specialAbility);
+        }
+
+        // If no access rules defined, default to allowing access
+        return Object.keys(this.rodAccess).length === 0;
     }
 }

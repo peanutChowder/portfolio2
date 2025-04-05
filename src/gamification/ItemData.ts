@@ -243,6 +243,27 @@ const itemData: Record<string, ItemData> = {
         imgSrc: "29.png", 
         description: "Not quite as golden, not quite as lucky, but always swimming just a little behind.", 
         cost: 15 
+    },
+    // ----------------------- FISHING RODS -----------------------
+    "rod1": {
+        id: "rod1",
+        name: "Old rod",
+        type: "rod",
+        imgSrc: "old_rod.png",
+        description: "The plainest fishing rod mankind has ever seen.",
+        cost: 0,
+        durability: 100,
+        specialEffect: "class_1"
+    },
+    "rod3": {
+        id: "rod3",
+        name: "Advanced rod",
+        type: "rod",
+        imgSrc: "advanced_rod.png",
+        description: "The aliens might have built this instead of the pyramids.",
+        cost: 70,
+        durability: 100,
+        specialEffect: "class_3"
     }
 
 };

@@ -335,6 +335,13 @@
 
 
                 function showInspectOverlay(item, source) {
+                    const isRod = item.type === 'rod';
+                    if (isRod) {
+                        showRodInspection(item);
+                        return;
+                    }
+
+                    // handle non-rod items below
                     const overlay = document.getElementById('inspect-overlay');
                     overlay.innerHTML = ''; // Clear previous content
                     overlay.style.display = 'flex';
@@ -458,11 +465,181 @@
                 function closeInspectOverlay() {
                     document.getElementById('inspect-overlay').style.display = 'none';
                 }
-
-
-
                 return div;
             }
+
+            function showRodInspection(item, source) {
+                const overlay = document.getElementById('inspect-overlay');
+                overlay.innerHTML = ''; // Clear previous content
+                overlay.style.display = 'flex';
+
+                const container = document.createElement('div');
+                container.style.background = '#FFF8EE';
+                container.style.padding = '30px';
+                container.style.borderRadius = '12px';
+                container.style.border = '2px solid #E6D9C2';
+                container.style.boxShadow = '0 12px 24px rgba(0, 0, 0, 0.3)';
+                container.style.textAlign = 'center';
+                container.style.color = '#7E6D5A';
+                container.style.maxWidth = '500px';
+                container.style.width = '100%';
+
+                // Rod image and basic info
+                const title = document.createElement('h2');
+                title.textContent = item.name;
+                container.appendChild(title);
+
+                const img = document.createElement('img');
+                img.src = `../../assets/fishing/${item.imgSrc}`;
+                img.style.maxWidth = '200px';
+                img.style.marginBottom = '15px';
+                container.appendChild(img);
+
+                const desc = document.createElement('p');
+                desc.textContent = item.description || 'No description.';
+                container.appendChild(desc);
+
+                // Extract class from specialEffect
+                const rodClass = item.specialEffect?.match(/class(\d+)/)?.[1] || 1;
+                const classText = document.createElement('p');
+                classText.textContent = `Class ${rodClass} Rod`;
+                classText.style.fontWeight = 'bold';
+                container.appendChild(classText);
+
+                const quantity = document.createElement('p');
+                quantity.textContent = `Quantity: x${item.quantity}`;
+                container.appendChild(quantity);
+
+                // Transfer/equip buttons based on source
+                if (source === 'inventory') {
+                    // This is a rod in regular inventory (not equipped)
+                    addInventoryToSafehouseButton(container, item);
+                }
+                else if (source === 'safehouse') {
+                    // This is a rod in safehouse
+                    addEquipFromSafehouseButton(container, item);
+                    addSafehouseToInventoryButton(container, item);
+                }
+
+                // Add throw away button
+                addThrowButton(container, item, source);
+
+                // Close button
+                const closeBtn = document.createElement('button');
+                closeBtn.textContent = 'Close';
+                closeBtn.className = 'inspect-button';
+                closeBtn.style.marginTop = '15px';
+                closeBtn.onclick = closeInspectOverlay;
+                container.appendChild(closeBtn);
+
+                overlay.appendChild(container);
+            }
+
+            // Helper functions for rod inspection
+            function addInventoryToSafehouseButton(container, item) {
+                const transferBtn = document.createElement('button');
+                transferBtn.textContent = 'Store in Safehouse';
+                transferBtn.className = 'inspect-button success';
+                transferBtn.onclick = () => {
+                    parent.postMessage({
+                        type: "transferItem",
+                        itemId: item.id,
+                        direction: 'toSafehouse'
+                    }, "*");
+
+                    // Update UI
+                    closeInspectOverlay();
+                    updateUI();
+                };
+
+                container.appendChild(transferBtn);
+            }
+
+            function addEquipFromSafehouseButton(container, item) {
+                const equipBtn = document.createElement('button');
+                equipBtn.textContent = 'Equip Rod';
+                equipBtn.className = 'inspect-button success';
+
+                // Check if we can equip (using data passed from parent)
+                if (rodSlotsAvailable) {
+                    equipBtn.onclick = () => {
+                        parent.postMessage({
+                            type: "equipRodFromSafehouse",
+                            rodId: item.id
+                        }, "*");
+
+                        // Remove from safehouse display
+                        safehouseItems = safehouseItems.filter(it => it.id !== item.id);
+                        closeInspectOverlay();
+                        updateUI();
+                    };
+                } else {
+                    equipBtn.disabled = true;
+                    equipBtn.style.opacity = '0.5';
+                    equipBtn.style.cursor = 'not-allowed';
+
+                    const warnText = document.createElement('p');
+                    warnText.textContent = 'No rod slots available. Unequip a rod first.';
+                    warnText.style.color = '#c97855';
+                    container.appendChild(warnText);
+                }
+
+                container.appendChild(equipBtn);
+            }
+
+            function addSafehouseToInventoryButton(container, item) {
+                const transferBtn = document.createElement('button');
+                transferBtn.textContent = 'Move to Inventory';
+                transferBtn.className = 'inspect-button';
+                transferBtn.style.marginTop = '10px';
+
+                if (inventoryFull) {
+                    transferBtn.disabled = true;
+                    transferBtn.style.opacity = '0.5';
+                    transferBtn.style.cursor = 'not-allowed';
+
+                    const warnText = document.createElement('p');
+                    warnText.textContent = 'Inventory full!';
+                    warnText.style.color = '#c97855';
+                    container.appendChild(warnText);
+                } else {
+                    transferBtn.onclick = () => {
+                        parent.postMessage({
+                            type: "transferItem",
+                            itemId: item.id,
+                            direction: 'toInventory'
+                        }, "*");
+
+                        // Remove from safehouse display
+                        safehouseItems = safehouseItems.filter(it => it.id !== item.id);
+                        closeInspectOverlay();
+                        updateUI();
+                    };
+                }
+
+                container.appendChild(transferBtn);
+            }
+
+            function addThrowButton(container, item, source) {
+                const throwBtn = document.createElement('button');
+                throwBtn.textContent = 'Throw away';
+                throwBtn.className = 'inspect-button danger';
+                throwBtn.style.marginTop = '15px';
+                throwBtn.onclick = () => {
+                    parent.postMessage({ type: "dumpItem", itemId: item.id, source }, "*");
+
+                    // Update UI
+                    if (source === 'inventory') {
+                        inventoryItems = inventoryItems.filter(it => it.id !== item.id);
+                    } else {
+                        safehouseItems = safehouseItems.filter(it => it.id !== item.id);
+                    }
+                    closeInspectOverlay();
+                    updateUI();
+                };
+                container.appendChild(throwBtn);
+            }
+
 
             window.addEventListener('message', (event) => {
                 if (event.data?.type === 'safehouseData') {

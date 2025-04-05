@@ -229,6 +229,74 @@
             background-color: #C19A82;
         }
 
+        /* ============== ROD STYLING ============== */
+        #rod-container {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #F6F0E0;
+            border: 2px solid #D0B49F;
+            border-radius: 10px;
+        }
+
+        .rod-slot {
+            width: 80%;
+            height: 120px;
+            margin: 0 auto;
+            padding: 10px;
+            background-color: #F0E6D2;
+            border: 3px solid #D0B49F;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .rod-slot img {
+            max-width: 64px;
+            max-height: 64px;
+            margin-bottom: 10px;
+        }
+
+        .rod-details {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .rod-name {
+            font-weight: bold;
+            color: #7E6D5A;
+            margin-bottom: 5px;
+        }
+
+        .rod-class {
+            font-size: 14px;
+            color: #7E6D5A;
+        }
+
+        .empty-rod-slot {
+            color: #aaa;
+            font-style: italic;
+            text-align: center;
+        }
+
+        .rod-button {
+            background-color: #c97855;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 5px;
+            font-family: 'Prompt', sans-serif;
+        }
+
+        .rod-button:hover {
+            background-color: #cf511b;
+        }
+
         /* ============== RESPONSIVE BEHAVIOR ============== */
         @media only screen and (max-width: 768px) {
             #inventory-grid {
@@ -256,6 +324,13 @@
                     <span id="money-amount">0</span>
                 </div>
 
+                <!-- Rod Slot -->
+                <div id="rod-container">
+                    <h3>Fishing Rod</h3>
+                    <div id="rod-slot" class="rod-slot">
+                    </div>
+                </div>
+
                 <!-- Overlay for the item inspection detail -->
                 <div id="inspect-overlay">
                     <div id="inspect-content">
@@ -276,11 +351,12 @@
     <script>
         let items = [];
         let selectedItem = null;
+        let equippedRod = null;
 
         let inventoryMax = 0; // inventory capacity
 
         const inspectOverlay = document.getElementById('inspect-overlay');
-        const grid = document.getElementById('inventory-grid');
+        let grid = document.getElementById('inventory-grid');
 
         // Buttons
         const closeButton = document.querySelector('.close-button');
@@ -304,6 +380,7 @@
         window.addEventListener('message', event => {
             if (event.data?.type === 'inventoryData') {
                 items = event.data.items || [];
+                equippedRod = event.data.equippedRod || null;
 
                 if (event.data.inventoryMax !== undefined) {
                     inventoryMax = event.data.inventoryMax;
@@ -315,14 +392,65 @@
                     document.getElementById('money-amount').textContent = event.data.money;
                 }
             }
-
         });
 
 
         // ============ 3) Build Grid with Items  ============
         function buildInventoryGrid(itemsArray) {
-            const grid = document.getElementById('inventory-grid');
-            grid.innerHTML = ''; // Clear old content
+
+            // First handle the rod slot
+            const rodSlot = document.getElementById('rod-slot');
+            rodSlot.innerHTML = '';
+
+            if (equippedRod) {
+                const rodItem = document.createElement('div');
+                rodItem.className = 'rod-item';
+                rodItem.style.display = 'flex';
+                rodItem.style.flexDirection = 'column';
+                rodItem.style.alignItems = 'center';
+
+                const img = document.createElement('img');
+                img.src = `../../assets/fishing/${equippedRod.imgSrc}`;
+                rodItem.appendChild(img);
+
+                const details = document.createElement('div');
+                details.className = 'rod-details';
+
+                const name = document.createElement('div');
+                name.className = 'rod-name';
+                name.textContent = equippedRod.name;
+                details.appendChild(name);
+
+                const rodClass = document.createElement('div');
+                rodClass.className = 'rod-class';
+                rodClass.textContent = `Class ${equippedRod.class}`;
+                details.appendChild(rodClass);
+
+                rodItem.appendChild(details);
+
+                // Add unequip button
+                const unequipBtn = document.createElement('button');
+                unequipBtn.className = 'rod-button';
+                unequipBtn.textContent = 'Unequip';
+                unequipBtn.onclick = () => {
+                    parent.postMessage({ type: "unequipRod", rodId: equippedRod.id }, "*");
+                };
+
+                rodItem.appendChild(unequipBtn);
+
+                // Make the rod clickable to show details
+                rodItem.style.cursor = 'pointer';
+                rodItem.addEventListener('click', () => {
+                    showRodDetails(equippedRod);
+                });
+
+                rodSlot.appendChild(rodItem);
+            } else {
+                const emptySlot = document.createElement('div');
+                emptySlot.className = 'empty-rod-slot';
+                emptySlot.textContent = "No Rod Equipped";
+                rodSlot.appendChild(emptySlot);
+            }
 
             // Handle empty inventory
             if (itemsArray.length === 0) {
@@ -390,6 +518,104 @@
 
         // ============ 6) Show the Inspect Overlay  ============
         function showInspectOverlay(item) {
+            // Check if it's a rod
+            if (isRodItem(item)) {
+                showRodInspection(item);
+
+            // handle non-rod items
+            } else {
+                const contentInner = document.querySelector('.content-inner');
+                contentInner.innerHTML = '';
+
+                const inspectContainer = document.createElement('div');
+                inspectContainer.id = 'inspect-container';
+                inspectContainer.style.display = 'flex';
+                inspectContainer.style.flexDirection = 'column';
+                inspectContainer.style.alignItems = 'center';
+                inspectContainer.style.justifyContent = 'center';
+                inspectContainer.style.width = '100%';
+                inspectContainer.style.height = '100%';
+
+                const title = document.createElement('h2');
+                title.textContent = item.name;
+                inspectContainer.appendChild(title);
+
+                const img = document.createElement('img');
+                img.src = `../../assets/fish-sprites/${item.imgSrc}`;
+                img.onload = () => {
+                    img.style.width = `${img.naturalWidth * 1.5}px`;
+                };
+                img.style.margin = '10px 0';
+                inspectContainer.appendChild(img);
+
+                const desc = document.createElement('p');
+                desc.textContent = item.description;
+                inspectContainer.appendChild(desc);
+
+                const quantityText = document.createElement('p');
+                quantityText.textContent = `Quantity: x${item.quantity}`;
+                quantityText.style.fontWeight = 'bold';
+                quantityText.style.marginTop = '10px';
+                inspectContainer.appendChild(quantityText);
+
+                const costText = document.createElement('p');
+                costText.textContent = `Value: ${item.cost} coins`;
+                costText.style.marginTop = '5px';
+                inspectContainer.appendChild(costText);
+
+                const throwBtn = document.createElement('button');
+                throwBtn.textContent = 'Throw away one';
+                throwBtn.style.backgroundColor = '#c97855';
+                throwBtn.style.color = 'white';
+                throwBtn.style.marginTop = '15px';
+                throwBtn.style.padding = '10px 20px';
+                throwBtn.style.borderRadius = '5px';
+                throwBtn.style.border = 'none';
+                throwBtn.style.fontSize = '16px';
+                throwBtn.style.cursor = 'pointer';
+                throwBtn.style.fontFamily = "'Prompt', sans-serif";
+
+                throwBtn.addEventListener('mouseover', () => throwBtn.style.backgroundColor = '#cf511b');
+                throwBtn.addEventListener('mouseout', () => throwBtn.style.backgroundColor = '#c97855');
+
+                throwBtn.addEventListener('click', () => {
+                    parent.postMessage({ type: "dumpItem", itemId: item.id, source: "inventory" }, "*");
+
+                    item.quantity--;
+                    if (item.quantity <= 0) {
+                        items = items.filter(it => it.id !== item.id);
+                        restoreInventory();
+                    } else {
+                        showInspectOverlay(item);
+                    }
+                });
+                inspectContainer.appendChild(throwBtn);
+
+                const closeBtn = document.createElement('button');
+                closeBtn.textContent = 'Back to Inventory';
+                closeBtn.style.backgroundColor = '#D0B49F';
+                closeBtn.style.color = 'white';
+                closeBtn.style.border = 'none';
+                closeBtn.style.padding = '10px 20px';
+                closeBtn.style.borderRadius = '5px';
+                closeBtn.style.cursor = 'pointer';
+                closeBtn.style.fontSize = '16px';
+                closeBtn.style.marginTop = '20px';
+                closeBtn.style.fontFamily = "'Prompt', sans-serif";
+
+                closeBtn.addEventListener('mouseover', () => closeBtn.style.backgroundColor = '#C19A82');
+                closeBtn.addEventListener('mouseout', () => closeBtn.style.backgroundColor = '#D0B49F');
+
+                closeBtn.addEventListener('click', () => {
+                    restoreInventory();
+                });
+
+                inspectContainer.appendChild(closeBtn);
+                contentInner.appendChild(inspectContainer);
+            }
+        }
+
+        function showRodInspection(item) {
             const contentInner = document.querySelector('.content-inner');
             contentInner.innerHTML = '';
 
@@ -402,82 +628,200 @@
             inspectContainer.style.width = '100%';
             inspectContainer.style.height = '100%';
 
+            // Back button
+            const backBtn = document.createElement('button');
+            backBtn.textContent = '←';
+            backBtn.style.alignSelf = 'flex-end';
+            backBtn.style.background = '#D0B49F';
+            backBtn.style.border = 'none';
+            backBtn.style.borderRadius = '50%';
+            backBtn.style.width = '40px';
+            backBtn.style.height = '40px';
+            backBtn.style.marginBottom = '20px';
+            backBtn.style.color = 'white';
+            backBtn.style.fontSize = '20px';
+            backBtn.style.cursor = 'pointer';
+            backBtn.onclick = restoreInventory;
+            inspectContainer.appendChild(backBtn);
+
+            // Rod image and basic info
             const title = document.createElement('h2');
             title.textContent = item.name;
             inspectContainer.appendChild(title);
 
             const img = document.createElement('img');
-            img.src = `../../assets/fish-sprites/${item.imgSrc}`;
-            img.onload = () => {
-                img.style.width = `${img.naturalWidth * 1.5}px`;
-            };
-            img.style.margin = '10px 0';
+            img.src = `../../assets/fishing/${item.imgSrc}`;
+            img.style.width = '150px';
+            img.style.marginBottom = '20px';
             inspectContainer.appendChild(img);
 
             const desc = document.createElement('p');
             desc.textContent = item.description;
             inspectContainer.appendChild(desc);
 
+            // Extract class from specialEffect
+            const rodClass = item.specialEffect?.match(/class(\d+)/)?.[1] || 1;
+            const classText = document.createElement('p');
+            classText.textContent = `Class ${rodClass} Rod`;
+            classText.style.fontWeight = 'bold';
+            inspectContainer.appendChild(classText);
+
             const quantityText = document.createElement('p');
             quantityText.textContent = `Quantity: x${item.quantity}`;
-            quantityText.style.fontWeight = 'bold';
             quantityText.style.marginTop = '10px';
             inspectContainer.appendChild(quantityText);
 
-            const costText = document.createElement('p');
-            costText.textContent = `Value: ${item.cost} coins`;
-            costText.style.marginTop = '5px';
-            inspectContainer.appendChild(costText);
+            // Equip button
+            const equipBtn = document.createElement('button');
+            equipBtn.textContent = 'Equip Rod';
+            equipBtn.style.marginTop = '20px';
+            equipBtn.style.padding = '10px 20px';
+            equipBtn.style.backgroundColor = '#7AA47A';
+            equipBtn.style.color = 'white';
+            equipBtn.style.border = 'none';
+            equipBtn.style.borderRadius = '5px';
+            equipBtn.style.cursor = 'pointer';
 
+            // Only enable if we have rod slot space
+            if (equippedRod) {
+                equipBtn.style.backgroundColor = '#cccccc';
+                equipBtn.style.cursor = 'not-allowed';
+                equipBtn.title = 'You already have a rod equipped. Unequip it first.';
+
+                const warnText = document.createElement('p');
+                warnText.textContent = 'You already have a rod equipped. Unequip it first.';
+                warnText.style.color = '#c97855';
+                warnText.style.fontSize = '14px';
+                warnText.style.margin = '5px 0';
+                inspectContainer.appendChild(warnText);
+            } else {
+                equipBtn.onclick = () => {
+                    parent.postMessage({ type: "equipRod", rodId: item.id }, "*");
+
+                    // Remove from inventory
+                    item.quantity--;
+                    if (item.quantity <= 0) {
+                        items = items.filter(it => it.id !== item.id);
+                    }
+
+                    restoreInventory();
+                };
+            }
+
+            inspectContainer.appendChild(equipBtn);
+
+            // Throw away button
             const throwBtn = document.createElement('button');
             throwBtn.textContent = 'Throw away one';
+            throwBtn.style.marginTop = '10px';
+            throwBtn.style.padding = '8px 16px';
             throwBtn.style.backgroundColor = '#c97855';
             throwBtn.style.color = 'white';
-            throwBtn.style.marginTop = '15px';
-            throwBtn.style.padding = '10px 20px';
-            throwBtn.style.borderRadius = '5px';
             throwBtn.style.border = 'none';
-            throwBtn.style.fontSize = '16px';
+            throwBtn.style.borderRadius = '5px';
             throwBtn.style.cursor = 'pointer';
-            throwBtn.style.fontFamily = "'Prompt', sans-serif";
 
-            throwBtn.addEventListener('mouseover', () => throwBtn.style.backgroundColor = '#cf511b');
-            throwBtn.addEventListener('mouseout', () => throwBtn.style.backgroundColor = '#c97855');
-
-            throwBtn.addEventListener('click', () => {
+            throwBtn.onclick = () => {
                 parent.postMessage({ type: "dumpItem", itemId: item.id, source: "inventory" }, "*");
 
+                // Update local data
                 item.quantity--;
                 if (item.quantity <= 0) {
                     items = items.filter(it => it.id !== item.id);
                     restoreInventory();
                 } else {
-                    showInspectOverlay(item);
+                    showRodInspection(item);
                 }
-            });
+            };
+
             inspectContainer.appendChild(throwBtn);
 
-            const closeBtn = document.createElement('button');
-            closeBtn.textContent = 'Back to Inventory';
-            closeBtn.style.backgroundColor = '#D0B49F';
-            closeBtn.style.color = 'white';
-            closeBtn.style.border = 'none';
-            closeBtn.style.padding = '10px 20px';
-            closeBtn.style.borderRadius = '5px';
-            closeBtn.style.cursor = 'pointer';
-            closeBtn.style.fontSize = '16px';
-            closeBtn.style.marginTop = '20px';
-            closeBtn.style.fontFamily = "'Prompt', sans-serif";
+            // Back button
+            const backToInventoryBtn = document.createElement('button');
+            backToInventoryBtn.textContent = 'Back to Inventory';
+            backToInventoryBtn.style.marginTop = '20px';
+            backToInventoryBtn.style.padding = '8px 16px';
+            backToInventoryBtn.style.backgroundColor = '#D0B49F';
+            backToInventoryBtn.style.color = 'white';
+            backToInventoryBtn.style.border = 'none';
+            backToInventoryBtn.style.borderRadius = '5px';
+            backToInventoryBtn.style.cursor = 'pointer';
 
-            closeBtn.addEventListener('mouseover', () => closeBtn.style.backgroundColor = '#C19A82');
-            closeBtn.addEventListener('mouseout', () => closeBtn.style.backgroundColor = '#D0B49F');
+            backToInventoryBtn.onclick = restoreInventory;
+            inspectContainer.appendChild(backToInventoryBtn);
 
-            closeBtn.addEventListener('click', () => {
-                restoreInventory();
-            });
-
-            inspectContainer.appendChild(closeBtn);
             contentInner.appendChild(inspectContainer);
+        }
+
+        function showRodDetails(rod) {
+            const contentInner = document.querySelector('.content-inner');
+            contentInner.innerHTML = '';
+
+            const inspectContainer = document.createElement('div');
+            inspectContainer.style.display = 'flex';
+            inspectContainer.style.flexDirection = 'column';
+            inspectContainer.style.alignItems = 'center';
+            inspectContainer.style.padding = '20px';
+
+            // Add back button
+            const backBtn = document.createElement('button');
+            backBtn.style.alignSelf = 'flex-end';
+            backBtn.style.background = '#D0B49F';
+            backBtn.style.border = 'none';
+            backBtn.style.borderRadius = '50%';
+            backBtn.style.width = '40px';
+            backBtn.style.height = '40px';
+            backBtn.style.color = 'white';
+            backBtn.style.fontSize = '20px';
+            backBtn.style.cursor = 'pointer';
+            backBtn.textContent = '←';
+            backBtn.onclick = restoreInventory;
+            inspectContainer.appendChild(backBtn);
+
+            // Rod image and details
+            const img = document.createElement('img');
+            img.src = `../../assets/fishing/${rod.imgSrc}`;
+            img.style.width = '150px';
+            img.style.marginBottom = '20px';
+            inspectContainer.appendChild(img);
+
+            const title = document.createElement('h2');
+            title.textContent = rod.name;
+            inspectContainer.appendChild(title);
+
+            const classText = document.createElement('h3');
+            classText.textContent = `Class ${rod.class} Rod`;
+            inspectContainer.appendChild(classText);
+
+            const desc = document.createElement('p');
+            desc.textContent = rod.description;
+            desc.style.textAlign = 'center';
+            desc.style.margin = '15px 0';
+            inspectContainer.appendChild(desc);
+
+            // Add unequip button
+            const unequipBtn = document.createElement('button');
+            unequipBtn.textContent = 'Unequip Rod';
+            unequipBtn.style.padding = '10px 20px';
+            unequipBtn.style.background = '#c97855';
+            unequipBtn.style.color = 'white';
+            unequipBtn.style.border = 'none';
+            unequipBtn.style.borderRadius = '5px';
+            unequipBtn.style.cursor = 'pointer';
+            unequipBtn.style.margin = '10px 0';
+
+            unequipBtn.onclick = () => {
+                parent.postMessage({ type: "unequipRod", rodId: rod.id }, "*");
+                restoreInventory();
+            };
+
+            inspectContainer.appendChild(unequipBtn);
+
+            contentInner.appendChild(inspectContainer);
+        }
+
+        function isRodItem(item) {
+            return item.type === 'rod';
         }
 
 
@@ -520,10 +864,26 @@
                 <span id="money-amount">${moneyValue}</span>`;
             contentInner.appendChild(moneyContainer);
 
+            // 3.5 Re-add Rod UI
+            const rodContainer = document.createElement('div');
+            rodContainer.id = 'rod-container';
+
+            const rodHeader = document.createElement('h3');
+            rodHeader.textContent = 'Fishing Rod';
+            rodContainer.appendChild(rodHeader);
+
+            const rodSlot = document.createElement('div');
+            rodSlot.id = 'rod-slot';
+            rodSlot.className = 'rod-slot';
+            rodContainer.appendChild(rodSlot);
+
+            contentInner.appendChild(rodContainer);
+
             // 4. Re-add Inventory Grid container
             const newGrid = document.createElement('div');
             newGrid.id = "inventory-grid";
             contentInner.appendChild(newGrid);
+            grid = newGrid;
 
             // 5. Rebuild the grid items
             buildInventoryGrid(items);
