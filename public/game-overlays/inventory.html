@@ -791,9 +791,14 @@
             title.textContent = rod.name;
             inspectContainer.appendChild(title);
 
+            // rod class info
             const classText = document.createElement('h3');
             classText.textContent = `Class ${rod.class} Rod`;
+            classText.style.color = '#7E6D5A'; 
+            classText.style.fontSize = '18px'; 
+            classText.style.margin = '5px 0';
             inspectContainer.appendChild(classText);
+
 
             const desc = document.createElement('p');
             desc.textContent = rod.description;
