@@ -428,16 +428,6 @@
 
                 rodItem.appendChild(details);
 
-                // Add unequip button
-                const unequipBtn = document.createElement('button');
-                unequipBtn.className = 'rod-button';
-                unequipBtn.textContent = 'Unequip';
-                unequipBtn.onclick = () => {
-                    parent.postMessage({ type: "unequipRod", rodId: equippedRod.id }, "*");
-                };
-
-                rodItem.appendChild(unequipBtn);
-
                 // Make the rod clickable to show details
                 rodItem.style.cursor = 'pointer';
                 rodItem.addEventListener('click', () => {
