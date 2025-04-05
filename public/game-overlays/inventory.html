@@ -474,7 +474,13 @@
 
                     // Item image
                     const img = document.createElement('img');
-                    img.src = `../../assets/fish-sprites/${item.imgSrc}`;
+
+                    if (item.type === "fish") {
+                        img.src = `../../assets/fish-sprites/${item.imgSrc}`;
+                    } else if (item.type === "rod") {
+                        img.src = `../../assets/fishing/${item.imgSrc}`;
+                    }
+                    
                     itemDiv.appendChild(img);
 
                     // Item name
