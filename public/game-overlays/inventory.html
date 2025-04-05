@@ -729,13 +729,19 @@
             // Throw away button
             const throwBtn = document.createElement('button');
             throwBtn.textContent = 'Throw away one';
-            throwBtn.style.marginTop = '10px';
-            throwBtn.style.padding = '8px 16px';
             throwBtn.style.backgroundColor = '#c97855';
             throwBtn.style.color = 'white';
-            throwBtn.style.border = 'none';
+            throwBtn.style.marginTop = '15px';
+            throwBtn.style.padding = '10px 20px';
             throwBtn.style.borderRadius = '5px';
+            throwBtn.style.border = 'none';
+            throwBtn.style.fontSize = '16px';
             throwBtn.style.cursor = 'pointer';
+            throwBtn.style.fontFamily = "'Prompt', sans-serif";
+
+            throwBtn.addEventListener('mouseover', () => throwBtn.style.backgroundColor = '#cf511b');
+            throwBtn.addEventListener('mouseout', () => throwBtn.style.backgroundColor = '#c97855');
+
 
             throwBtn.onclick = () => {
                 parent.postMessage({ type: "dumpItem", itemId: item.id, source: "inventory" }, "*");
@@ -756,12 +762,17 @@
             const backToInventoryBtn = document.createElement('button');
             backToInventoryBtn.textContent = 'Back to Inventory';
             backToInventoryBtn.style.marginTop = '20px';
-            backToInventoryBtn.style.padding = '8px 16px';
+            backToInventoryBtn.style.padding = '10px 20px';
             backToInventoryBtn.style.backgroundColor = '#D0B49F';
             backToInventoryBtn.style.color = 'white';
             backToInventoryBtn.style.border = 'none';
             backToInventoryBtn.style.borderRadius = '5px';
             backToInventoryBtn.style.cursor = 'pointer';
+            backToInventoryBtn.style.fontSize = '16px';
+            backToInventoryBtn.style.fontFamily = "'Prompt', sans-serif";
+            backToInventoryBtn.addEventListener('mouseover', () => backToInventoryBtn.style.backgroundColor = '#C19A82');
+            backToInventoryBtn.addEventListener('mouseout', () => backToInventoryBtn.style.backgroundColor = '#D0B49F');
+
 
             backToInventoryBtn.onclick = restoreInventory;
             inspectContainer.appendChild(backToInventoryBtn);
