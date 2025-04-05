@@ -769,21 +769,6 @@
             inspectContainer.style.alignItems = 'center';
             inspectContainer.style.padding = '20px';
 
-            // Add back button
-            const backBtn = document.createElement('button');
-            backBtn.style.alignSelf = 'flex-end';
-            backBtn.style.background = '#D0B49F';
-            backBtn.style.border = 'none';
-            backBtn.style.borderRadius = '50%';
-            backBtn.style.width = '40px';
-            backBtn.style.height = '40px';
-            backBtn.style.color = 'white';
-            backBtn.style.fontSize = '20px';
-            backBtn.style.cursor = 'pointer';
-            backBtn.textContent = '←';
-            backBtn.onclick = restoreInventory;
-            inspectContainer.appendChild(backBtn);
-
             // Rod image and details
             const img = document.createElement('img');
             img.src = `../../assets/fishing/${rod.imgSrc}`;
@@ -815,6 +800,23 @@
             unequipBtn.style.borderRadius = '5px';
             unequipBtn.style.cursor = 'pointer';
             unequipBtn.style.margin = '10px 0';
+
+            // add back button
+            const closeBtn = document.createElement('button');
+            closeBtn.textContent = 'Back to Inventory';
+            closeBtn.style.backgroundColor = '#D0B49F';
+            closeBtn.style.color = 'white';
+            closeBtn.style.border = 'none';
+            closeBtn.style.padding = '10px 20px';
+            closeBtn.style.borderRadius = '5px';
+            closeBtn.style.cursor = 'pointer';
+            closeBtn.style.fontSize = '16px';
+            closeBtn.style.marginTop = '20px';
+            closeBtn.style.fontFamily = "'Prompt', sans-serif";
+            closeBtn.addEventListener('mouseover', () => closeBtn.style.backgroundColor = '#C19A82');
+            closeBtn.addEventListener('mouseout', () => closeBtn.style.backgroundColor = '#D0B49F');
+            closeBtn.addEventListener('click', restoreInventory);
+            inspectContainer.appendChild(closeBtn);
 
             unequipBtn.onclick = () => {
                 parent.postMessage({ type: "unequipRod", rodId: rod.id }, "*");
