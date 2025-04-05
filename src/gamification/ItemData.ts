@@ -11,6 +11,7 @@ interface ItemData {
 }
 
 const itemData: Record<string, ItemData> = {
+    // ----------------------- FISH -----------------------
     "fish1": { 
         id: "fish1", 
         name: "Little Golden", 
@@ -200,7 +201,7 @@ const itemData: Record<string, ItemData> = {
         name: "Annoying Orange", 
         type: "fish", 
         imgSrc: "24.png", 
-        description: "It's loud. It's orange. And somehow, it keeps getting caught on your hook.", 
+        description: "It pierces your eyes with its vibrant hues.", 
         cost: 25 
     },
     "fish25": { 
@@ -208,7 +209,7 @@ const itemData: Record<string, ItemData> = {
         name: "Sleek Fella", 
         type: "fish", 
         imgSrc: "25.png", 
-        description: "A smooth, stylish fish that glides through the water like a shadow.", 
+        description: "What an incredibly smooth fella. You yearn to be his friend.", 
         cost: 40 
     },
     "fish26": { 
@@ -216,7 +217,7 @@ const itemData: Record<string, ItemData> = {
         name: "Itchy Fish", 
         type: "fish", 
         imgSrc: "26.png", 
-        description: "Forever wriggling, forever scratching. It swims as if trying to shake off an unseen itch.", 
+        description: "AHHH I can't stop itching!!!", 
         cost: 52 
     },
     "fish27": { 
@@ -232,7 +233,7 @@ const itemData: Record<string, ItemData> = {
         name: "Big Confusion", 
         type: "fish", 
         imgSrc: "28.png", 
-        description: "This fish never seems to know where it's going, but somehow, it always ends up on your line.", 
+        description: "What?", 
         cost: 55 
     },
     "fish29": { 
