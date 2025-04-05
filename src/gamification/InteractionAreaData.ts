@@ -1,4 +1,4 @@
-import IsometricScene from "./IsometricScene";
+import IsometricScene from "../IsometricScene";
 
 /**
  * A configuration object for the clickable button text in an interaction area.

@@ -1,6 +1,6 @@
 // IslandManager.ts
 
-import InteractionArea from './InteractionArea';
+import InteractionArea from '../InteractionArea';
 
 /**
  * A "game element" that can be randomly assigned (fish, treasure, etc.)

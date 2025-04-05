@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { InteractionAreaData, ResourceBehavior } from './InteractionAreaData';
+import { InteractionAreaData, ResourceBehavior } from './gamification/InteractionAreaData';
 import fishingRod from '../assets/fishing/rod.jpg';
 
 /**

@@ -8,15 +8,15 @@ import tileset256x192Tiles from '../assets/world2/256x192 Tiles.png'
 import tileset256x512Trees from '../assets/world2/256x512 Trees.png'
 import tileset256x128TileOverlays from '../assets/world2/256x128 Tile Overlays.png'
 
-import { INTERACTION_AREAS } from './InteractionAreaData';
+import { INTERACTION_AREAS } from './gamification/InteractionAreaData';
 import InteractionArea from './InteractionArea';
-import { IslandManager } from './IslandManager';
+import { IslandManager } from './gamification/IslandManager';
 import { ArrowIndicator } from './ArrowIndicator';
 import { VirtualJoystick } from './VirtualJoystick';
 import { FireworkManager } from './Fireworks';
 import { MapSystem } from './MapSystem';
-import { Inventory } from './Inventory';
-import { SafehouseInventory } from './SafehouseInventory';
+import { Inventory } from './gamification/Inventory';
+import { SafehouseInventory } from './gamification/SafehouseInventory';
 
 const fontSize = "80px";
 const fontColor = "#ffffff"

@@ -89,7 +89,8 @@ export class Inventory {
                     outlineColor: this.getColorForCost(itemInfo.cost ?? null)
                 });
             } else {
-                console.warn(`Warning: Item with ID '${id}' not found in itemData.`);
+                console.warn(`Warning: Deleted item with ID '${id}', was not found in itemData.`);
+                delete this.inventory[id];
             }
         }
 
