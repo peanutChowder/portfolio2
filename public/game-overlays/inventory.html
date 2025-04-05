@@ -680,13 +680,23 @@
             // Equip button
             const equipBtn = document.createElement('button');
             equipBtn.textContent = 'Equip Rod';
-            equipBtn.style.marginTop = '20px';
+            equipBtn.style.marginTop = '15px';
             equipBtn.style.padding = '10px 20px';
             equipBtn.style.backgroundColor = '#7AA47A';
             equipBtn.style.color = 'white';
             equipBtn.style.border = 'none';
             equipBtn.style.borderRadius = '5px';
             equipBtn.style.cursor = 'pointer';
+            equipBtn.style.fontSize = '16px';
+            equipBtn.style.fontFamily = "'Prompt', sans-serif";
+
+            equipBtn.addEventListener('mouseover', () => {
+                if (!equippedRod) equipBtn.style.backgroundColor = '#6a946a';
+            });
+            equipBtn.addEventListener('mouseout', () => {
+                if (!equippedRod) equipBtn.style.backgroundColor = '#7AA47A';
+            });
+
 
             // Only enable if we have rod slot space
             if (equippedRod) {
@@ -793,13 +803,19 @@
             // Add unequip button
             const unequipBtn = document.createElement('button');
             unequipBtn.textContent = 'Unequip Rod';
-            unequipBtn.style.padding = '10px 20px';
-            unequipBtn.style.background = '#c97855';
+            unequipBtn.style.backgroundColor = '#c97855';
             unequipBtn.style.color = 'white';
-            unequipBtn.style.border = 'none';
+            unequipBtn.style.marginTop = '15px';
+            unequipBtn.style.padding = '10px 20px';
             unequipBtn.style.borderRadius = '5px';
+            unequipBtn.style.border = 'none';
+            unequipBtn.style.fontSize = '16px';
             unequipBtn.style.cursor = 'pointer';
-            unequipBtn.style.margin = '10px 0';
+            unequipBtn.style.fontFamily = "'Prompt', sans-serif";
+            unequipBtn.addEventListener('mouseover', () => unequipBtn.style.backgroundColor = '#cf511b');
+            unequipBtn.addEventListener('mouseout', () => unequipBtn.style.backgroundColor = '#c97855');
+            inspectContainer.appendChild(unequipBtn);
+
 
             // add back button
             const closeBtn = document.createElement('button');
@@ -822,8 +838,6 @@
                 parent.postMessage({ type: "unequipRod", rodId: rod.id }, "*");
                 restoreInventory();
             };
-
-            inspectContainer.appendChild(unequipBtn);
 
             contentInner.appendChild(inspectContainer);
         }
