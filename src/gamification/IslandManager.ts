@@ -28,7 +28,7 @@ export const COST_RANGE_BANDS = [
         minCost: 16,
         maxCost: 25,
         color: "#bdfff4",
-        rodAccess: { requiredClass: 2 }
+        rodAccess: { requiredClass: 1 }
     },
     {
         minCost: 26,

@@ -1,4 +1,4 @@
-interface ItemData {
+export interface ItemData {
     id: string;
     name: string;
     type: "fish" | "rod" | "sellable" | "non-sellable";
@@ -253,7 +253,7 @@ const itemData: Record<string, ItemData> = {
         description: "The plainest fishing rod mankind has ever seen.",
         cost: 0,
         durability: 100,
-        specialEffect: "class_1"
+        specialEffect: "class1"
     },
     "rod3": {
         id: "rod3",
@@ -263,7 +263,7 @@ const itemData: Record<string, ItemData> = {
         description: "The aliens might have built this instead of the pyramids.",
         cost: 70,
         durability: 100,
-        specialEffect: "class_3"
+        specialEffect: "class3"
     }
 
 };
