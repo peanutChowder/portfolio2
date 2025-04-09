@@ -23,7 +23,7 @@ export class RodStorage {
                 try {
                     const inventoryData = JSON.parse(inventory);
                     // Check if any rod items exist
-                    hasAnyRods = Object.keys(inventoryData).some(id => id.startsWith('rod_'));
+                    hasAnyRods = Object.keys(inventoryData).some(id => id.startsWith('rod'));
                 } catch (e) {
                     console.error("Error parsing inventory data", e);
                 }
@@ -34,7 +34,7 @@ export class RodStorage {
                 try {
                     const safehouseData = JSON.parse(safehouse);
                     // Check if any rod items exist
-                    hasAnyRods = Object.keys(safehouseData).some(id => id.startsWith('rod_'));
+                    hasAnyRods = Object.keys(safehouseData).some(id => id.startsWith('rod'));
                 } catch (e) {
                     console.error("Error parsing safehouse data", e);
                 }
