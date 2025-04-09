@@ -1200,13 +1200,12 @@ export default class IsometricScene extends Phaser.Scene {
         iframe.addEventListener('load', () => {
             // If it's a safehouse overlay, send safehouse inventory data
             if (gameOverlayName === "safehouse") {
-                // In IsometricScene.ts showInventoryOverlay method
                 iframe.contentWindow?.postMessage({
-                    type: "inventoryData",
-                    items: this.inventory?.getDetailedInventory(),
-                    money: this.inventory?.getMoney(),
-                    inventoryMax: this.inventory?.getCurrentSize(),
-                    equippedRod: this.inventory?.getActiveRodDetails()
+                    type: "safehouseData",
+                    safehouse: this.safehouseInventory.getDetailedStorage(),
+                    inventory: this.inventory?.getDetailedInventory(),
+                    safehouseMax: this.safehouseInventory.getMaxSize(),
+                    inventoryMax: this.inventory?.getCurrentSize()
                 }, "*");
             }
 
