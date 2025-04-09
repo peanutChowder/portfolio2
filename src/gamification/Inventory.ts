@@ -107,7 +107,7 @@ export class Inventory {
         if (item.type === 'rod') {
             const match = item.specialEffect?.match(/class(\d+)/);
             const rodClass = match ? parseInt(match[1]) : 0;
-        
+
             // Find the highest band this rod can access
             let bestBand = null;
 
@@ -120,27 +120,27 @@ export class Inventory {
                         bestBand = band;
                     }
                 }
-            }            
-        
+            }
+
             if (bestBand) {
                 return bestBand.color;
             }
-        
+
             console.log("FALLBACK");
             return "#E6D9C2"; // fallback for rods that can't access anything
         }
-        
-    
+
+
         // Non-rods: use cost
         const cost = item.cost;
         if (cost == null) return "#C2C2C2";
-    
+
         for (const band of COST_RANGE_BANDS) {
             if (cost >= band.minCost && cost <= band.maxCost) {
                 return band.color;
             }
         }
-    
+
         console.warn(`Cost ${cost} didn't match any band. Fallback color used.`);
         return "#ff0051";
     }
@@ -258,7 +258,8 @@ export class Inventory {
             imgSrc: rod.imgSrc,
             description: rod.description,
             class: this.getRodClass(activeRodId),
-            isActive: true
+            isActive: true,
+            outlineColor: this.getColorForCost(rod) 
         };
     }
 
@@ -289,7 +290,7 @@ export class Inventory {
                 imgSrc: rod.imgSrc,
                 description: rod.description,
                 class: this.getRodClass(rodId),
-                isActive: rodId === activeRodId
+                isActive: rodId === activeRodId,
             });
         }
 

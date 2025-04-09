@@ -403,6 +403,7 @@
             rodSlot.innerHTML = '';
 
             if (equippedRod) {
+                rodSlot.style.border = `3px solid ${equippedRod.outlineColor || '#E6D9C2'}`;
                 const rodItem = document.createElement('div');
                 rodItem.className = 'rod-item';
                 rodItem.style.display = 'flex';
@@ -411,6 +412,8 @@
 
                 const img = document.createElement('img');
                 img.src = `../../assets/fishing/${equippedRod.imgSrc}`;
+                img.style.maxWidth = '64px';
+                img.style.maxHeight = '64px';
                 rodItem.appendChild(img);
 
                 const details = document.createElement('div');
