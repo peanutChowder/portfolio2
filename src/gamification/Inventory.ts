@@ -230,6 +230,8 @@ export class Inventory {
             // If successful, add to inventory
             this.addItem(rodId);
             return true;
+        } else {
+            console.warn(`Failed to remove rod ${rodId} from rod storage.`);
         }
 
         return false;
