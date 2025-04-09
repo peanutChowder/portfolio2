@@ -746,6 +746,16 @@
                 equipBtn.onclick = () => {
                     parent.postMessage({ type: "equipRod", rodId: item.id }, "*");
 
+                    // Update local state
+                    equippedRod = {
+                        id: item.id,
+                        name: item.name,
+                        imgSrc: item.imgSrc,
+                        description: item.description,
+                        class: item.specialEffect?.match(/class(\d+)/)?.[1] || 1,
+                        outlineColor: item.outlineColor
+                    };
+
                     // Remove from inventory
                     item.quantity--;
                     if (item.quantity <= 0) {
@@ -882,7 +892,6 @@
             closeBtn.addEventListener('click', restoreInventory);
             inspectContainer.appendChild(closeBtn);
 
-
             unequipBtn.onclick = () => {
                 // Check if we have space in inventory
                 const currentCount = items.reduce((sum, it) => sum + it.quantity, 0);
@@ -892,9 +901,33 @@
                     return;
                 }
 
-                // If we have space, send message to parent and update UI
+                // Create a copy of the rod item for the inventory
+                const rodForInventory = {
+                    id: rod.id,
+                    name: rod.name,
+                    type: 'rod',
+                    imgSrc: rod.imgSrc,
+                    description: rod.description,
+                    class: rod.class,
+                    outlineColor: rod.outlineColor || '#E6D9C2',
+                    quantity: 1
+                };
+
+                // Add rod to inventory items
+                const existingRod = items.find(item => item.id === rod.id);
+                if (existingRod) {
+                    existingRod.quantity++;
+                } else {
+                    items.push(rodForInventory);
+                }
+
+                // Send message to parent
                 parent.postMessage({ type: "unequipRod", rodId: rod.id }, "*");
-                equippedRod = null; // Update local state
+
+                // Update local state
+                equippedRod = null;
+
+                // Rebuild UI
                 restoreInventory();
             };
 
