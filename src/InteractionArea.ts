@@ -308,17 +308,25 @@ export default class InteractionArea {
                 const rodInfo = activeRodId ? itemData[activeRodId] : null;
                 const rodName = rodInfo ? rodInfo.name : "No rod";
 
-                let message = `Your ${rodName} cannot fish in this area.`;
-
-                // Add more specific information based on the access requirements
-                if (this.rodAccess.requiredClass !== undefined) {
-                    message += ` You need a Class ${this.rodAccess.requiredClass} or better rod.`;
-                } else if (this.rodAccess.specialAbility) {
-                    message += ` You need a rod with the ${this.rodAccess.specialAbility} ability.`;
-                } else if (this.rodAccess.allowedRodIds && this.rodAccess.allowedRodIds.length > 0) {
-                    // Just indicate a special rod is needed without listing all allowed rods
-                    message += ` This area requires a special type of rod.`;
+                let message;
+                if (!rodInfo) {
+                    message = `No rod equipped. Equip a rod to fish!`;
+                } else {
+                    message = `Your ${rodName} cannot fish in this area.`;
                 }
+
+                // Add more specific information based on the access requirements (only if user has rod equipped)
+                if (rodInfo) {
+                    if (this.rodAccess.requiredClass !== undefined) {
+                        message += ` You need a Class ${this.rodAccess.requiredClass} or better rod.`;
+                    } else if (this.rodAccess.specialAbility) {
+                        message += ` You need a rod with the ${this.rodAccess.specialAbility} ability.`;
+                    } else if (this.rodAccess.allowedRodIds && this.rodAccess.allowedRodIds.length > 0) {
+                        // Just indicate a special rod is needed without listing all allowed rods
+                        message += ` This area requires a special type of rod.`;
+                    }
+                }
+
 
                 this.showDepletionPopup(message);
                 return;
