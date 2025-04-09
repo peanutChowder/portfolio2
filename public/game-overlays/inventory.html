@@ -477,7 +477,7 @@
                     } else if (item.type === "rod") {
                         img.src = `../../assets/fishing/${item.imgSrc}`;
                     }
-                    
+
                     itemDiv.appendChild(img);
 
                     // Item name
@@ -525,7 +525,7 @@
             if (isRodItem(item)) {
                 showRodInspection(item);
 
-            // handle non-rod items
+                // handle non-rod items
             } else {
                 const contentInner = document.querySelector('.content-inner');
                 contentInner.innerHTML = '';
@@ -617,6 +617,41 @@
                 contentInner.appendChild(inspectContainer);
             }
         }
+
+        function showTemporaryMessage(message) {
+            // First, check if the message element exists, if not create it
+            let messageBox = document.getElementById('temporary-message');
+            if (!messageBox) {
+                messageBox = document.createElement('div');
+                messageBox.id = 'temporary-message';
+                messageBox.style.position = 'fixed';
+                messageBox.style.bottom = '40px';
+                messageBox.style.left = '50%';
+                messageBox.style.transform = 'translateX(-50%)';
+                messageBox.style.background = '#7E6D5A';
+                messageBox.style.color = 'white';
+                messageBox.style.padding = '12px 24px';
+                messageBox.style.borderRadius = '10px';
+                messageBox.style.fontSize = '16px';
+                messageBox.style.fontFamily = "'Prompt', sans-serif";
+                messageBox.style.zIndex = '2000';
+                messageBox.style.boxShadow = '0 4px 12px rgba(0,0,0,0.2)';
+                document.body.appendChild(messageBox);
+            }
+
+            messageBox.textContent = message;
+            messageBox.style.display = 'block';
+            messageBox.style.opacity = '1';
+
+            setTimeout(() => {
+                messageBox.style.transition = 'opacity 0.5s ease';
+                messageBox.style.opacity = '0';
+                setTimeout(() => {
+                    messageBox.style.display = 'none';
+                }, 500);
+            }, 2000); // Visible for 2s
+        }
+
 
         function showRodInspection(item) {
             const contentInner = document.querySelector('.content-inner');
@@ -801,8 +836,8 @@
             // rod class info
             const classText = document.createElement('h3');
             classText.textContent = `Class ${rod.class} Rod`;
-            classText.style.color = '#7E6D5A'; 
-            classText.style.fontSize = '18px'; 
+            classText.style.color = '#7E6D5A';
+            classText.style.fontSize = '18px';
             classText.style.margin = '5px 0';
             inspectContainer.appendChild(classText);
 
@@ -847,8 +882,19 @@
             closeBtn.addEventListener('click', restoreInventory);
             inspectContainer.appendChild(closeBtn);
 
+
             unequipBtn.onclick = () => {
+                // Check if we have space in inventory
+                const currentCount = items.reduce((sum, it) => sum + it.quantity, 0);
+
+                if (currentCount >= inventoryMax) {
+                    showTemporaryMessage("Inventory is full! Cannot unequip rod.");
+                    return;
+                }
+
+                // If we have space, send message to parent and update UI
                 parent.postMessage({ type: "unequipRod", rodId: rod.id }, "*");
+                equippedRod = null; // Update local state
                 restoreInventory();
             };
 
