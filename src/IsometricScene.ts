@@ -1205,7 +1205,9 @@ export default class IsometricScene extends Phaser.Scene {
                     safehouse: this.safehouseInventory.getDetailedStorage(),
                     inventory: this.inventory?.getDetailedInventory(),
                     safehouseMax: this.safehouseInventory.getMaxSize(),
-                    inventoryMax: this.inventory?.getCurrentSize()
+                    inventoryMax: this.inventory?.getCurrentSize(),
+                    equippedRods: this.inventory?.getEquippedRodDetails() || [],
+                    rodSlotsMax: this.inventory?.getRodStorage().getMaxRodSlots() || 1
                 }, "*");
             }
 

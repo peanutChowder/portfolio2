@@ -321,6 +321,21 @@
                 document.querySelector('#inventory-title').textContent = `Inventory: ${inventoryCount}/${inventoryMax}`;
             }
 
+            function showTemporaryMessage(message) {
+                const messageBox = document.getElementById('temporary-message');
+                messageBox.textContent = message;
+                messageBox.style.display = 'block';
+                messageBox.style.opacity = '1';
+
+                setTimeout(() => {
+                    messageBox.style.transition = 'opacity 0.5s ease';
+                    messageBox.style.opacity = '0';
+                    setTimeout(() => {
+                        messageBox.style.display = 'none';
+                    }, 500);
+                }, 2000); // Visible for 2s
+            }
+
             function createItemCard(item, source) {
                 const div = document.createElement('div');
                 div.className = 'inventory-item';
@@ -345,21 +360,6 @@
                     selectedSource = source;
                     showInspectOverlay(item, source);
                 });
-
-                function showTemporaryMessage(message) {
-                    const messageBox = document.getElementById('temporary-message');
-                    messageBox.textContent = message;
-                    messageBox.style.display = 'block';
-                    messageBox.style.opacity = '1';
-
-                    setTimeout(() => {
-                        messageBox.style.transition = 'opacity 0.5s ease';
-                        messageBox.style.opacity = '0';
-                        setTimeout(() => {
-                            messageBox.style.display = 'none';
-                        }, 500);
-                    }, 2000); // Visible for 2s
-                }
 
 
                 function showInspectOverlay(item, source) {
@@ -583,7 +583,7 @@
                         equipBtn.style.cursor = 'not-allowed';
 
                         const warnText = document.createElement('p');
-                        warnText.textContent = 'No rod slots available. Unequip a rod first.';
+                        warnText.textContent = 'You already have a rod equipped. Unequip it first.';
                         warnText.style.color = '#c97855';
                         container.appendChild(warnText);
                     }
@@ -751,7 +751,17 @@
                 const transferBtn = document.createElement('button');
                 transferBtn.textContent = 'Send one to safehouse';
                 transferBtn.className = 'inspect-button success';
+
                 transferBtn.onclick = () => {
+                    // Calculate current safehouse usage
+                    const safehouseCount = safehouseItems.reduce((sum, i) => sum + i.quantity, 0);
+                    const safehouseFull = safehouseCount >= safehouseMax;
+
+                    if (safehouseFull) {
+                        showTemporaryMessage('Safehouse storage is full!');
+                        return;
+                    }
+
                     parent.postMessage({
                         type: "transferItem",
                         itemId: item.id,
@@ -834,53 +844,47 @@
             function addSafehouseToInventoryButton(container, item) {
                 const transferBtn = document.createElement('button');
                 transferBtn.textContent = 'Send one to Inventory';
-                transferBtn.className = 'inspect-button';
+                transferBtn.className = 'inspect-button success';  // Changed to success class
                 transferBtn.style.marginTop = '10px';
 
-                // Define inventoryFull here
-                const inventoryCount = inventoryItems.reduce((sum, i) => sum + i.quantity, 0);
-                const inventoryFull = inventoryCount >= inventoryMax;
+                transferBtn.onclick = () => {
+                    // Check inventory capacity
+                    const inventoryCount = inventoryItems.reduce((sum, i) => sum + i.quantity, 0);
+                    const inventoryFull = inventoryCount >= inventoryMax;
 
-                if (inventoryFull) {
-                    transferBtn.disabled = true;
-                    transferBtn.style.opacity = '0.5';
-                    transferBtn.style.cursor = 'not-allowed';
+                    if (inventoryFull) {
+                        showTemporaryMessage('Inventory is full!');
+                        return;
+                    }
 
-                    const warnText = document.createElement('p');
-                    warnText.textContent = 'Inventory full!';
-                    warnText.style.color = '#c97855';
-                    container.appendChild(warnText);
-                } else {
-                    transferBtn.onclick = () => {
-                        parent.postMessage({
-                            type: "transferItem",
-                            itemId: item.id,
-                            direction: 'toInventory'
-                        }, "*");
+                    parent.postMessage({
+                        type: "transferItem",
+                        itemId: item.id,
+                        direction: 'toInventory'
+                    }, "*");
 
-                        // Decrease quantity in safehouse
-                        item.quantity--;
+                    // Decrease quantity in safehouse
+                    item.quantity--;
 
-                        // Add to inventory
-                        const existingInInventory = inventoryItems.find(it => it.id === item.id);
-                        if (existingInInventory) {
-                            existingInInventory.quantity++;
-                        } else {
-                            inventoryItems.push({ ...item, quantity: 1 });
-                        }
+                    // Add to inventory
+                    const existingInInventory = inventoryItems.find(it => it.id === item.id);
+                    if (existingInInventory) {
+                        existingInInventory.quantity++;
+                    } else {
+                        inventoryItems.push({ ...item, quantity: 1 });
+                    }
 
-                        // Only close overlay if quantity is now 0
-                        if (item.quantity <= 0) {
-                            safehouseItems = safehouseItems.filter(it => it.id !== item.id);
-                            closeInspectOverlay();
-                        } else {
-                            // If we still have some left, just refresh the current overlay
-                            showRodInspection(item, 'safehouse');
-                        }
+                    // Only close overlay if quantity is now 0
+                    if (item.quantity <= 0) {
+                        safehouseItems = safehouseItems.filter(it => it.id !== item.id);
+                        closeInspectOverlay();
+                    } else {
+                        // If we still have some left, just refresh the current overlay
+                        showRodInspection(item, 'safehouse');
+                    }
 
-                        updateUI();
-                    };
-                }
+                    updateUI();
+                };
 
                 container.appendChild(transferBtn);
             }
