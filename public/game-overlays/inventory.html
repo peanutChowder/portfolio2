@@ -460,8 +460,15 @@
                 emptyMessage.style.marginTop = "20px";
                 grid.appendChild(emptyMessage);
             } else {
-                // Build items
-                itemsArray.forEach(item => {
+                // Build items -- show rods first
+                const sortedItems = [...itemsArray].sort((a, b) => {
+                    const aIsRod = a.id?.toLowerCase().startsWith('rod') || a.type === 'rod';
+                    const bIsRod = b.id?.toLowerCase().startsWith('rod') || b.type === 'rod';
+                    if (aIsRod && !bIsRod) return -1;
+                    if (!aIsRod && bIsRod) return 1;
+                    return 0;
+                });
+                sortedItems.forEach(item => {
                     const itemDiv = document.createElement('div');
                     itemDiv.classList.add('inventory-item');
                     itemDiv.dataset.id = item.id;

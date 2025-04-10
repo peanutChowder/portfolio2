@@ -302,12 +302,32 @@
                     equippedRodsGrid.appendChild(div);
                 }
 
-                safehouseItems.forEach(item => {
+                // Ensure rods show first
+                const sortedSafehouse = [...safehouseItems].sort((a, b) => {
+                    const aIsRod = a.id.toLowerCase().startsWith('rod') || a.type === 'rod';
+                    const bIsRod = b.id.toLowerCase().startsWith('rod') || b.type === 'rod';
+
+                    if (aIsRod && !bIsRod) return -1;
+                    if (!aIsRod && bIsRod) return 1;
+                    return 0;
+                });
+
+                sortedSafehouse.forEach(item => {
                     const div = createItemCard(item, 'safehouse');
                     safehouseGrid.appendChild(div);
                 });
 
-                inventoryItems.forEach(item => {
+
+                const sortedInventory = [...inventoryItems].sort((a, b) => {
+                    const aIsRod = a.id.toLowerCase().startsWith('rod') || a.type === 'rod';
+                    const bIsRod = b.id.toLowerCase().startsWith('rod') || b.type === 'rod';
+
+                    if (aIsRod && !bIsRod) return -1;
+                    if (!aIsRod && bIsRod) return 1;
+                    return 0;
+                });
+
+                sortedInventory.forEach(item => {
                     const div = createItemCard(item, 'inventory');
                     inventoryGrid.appendChild(div);
                 });
@@ -472,7 +492,7 @@
                         destination.push({
                             ...item,
                             quantity: 1,
-                            outlineColor: item.outlineColor || '#E6D9C2' 
+                            outlineColor: item.outlineColor || '#E6D9C2'
                         });
                     }
 
