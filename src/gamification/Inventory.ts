@@ -1,4 +1,4 @@
-import { COST_RANGE_BANDS } from './IslandManager';
+import { COST_RANGE_BANDS, IslandManager } from './IslandManager';
 import { itemData, ItemData } from './ItemData';
 import { RodStorage } from './RodStorage';
 
@@ -91,7 +91,7 @@ export class Inventory {
                     description: itemInfo.description,
                     cost: itemInfo.cost ?? null, // Cost applies to sellable items
                     quantity: quantity, // Add stored quantity
-                    outlineColor: this.getColorForCost(itemInfo)
+                    outlineColor: IslandManager.getColorForCost(itemInfo)
                 });
             } else {
                 console.warn(`Warning: Deleted item with ID '${id}', was not found in itemData.`);
@@ -101,50 +101,6 @@ export class Inventory {
 
         return detailedInventory;
     }
-
-    /** Get color based on item cost bin */
-    private getColorForCost(item: ItemData): string {
-        if (item.type === 'rod') {
-            const match = item.specialEffect?.match(/class(\d+)/);
-            const rodClass = match ? parseInt(match[1]) : 0;
-
-            // Find the highest band this rod can access
-            let bestBand = null;
-
-            for (const band of COST_RANGE_BANDS) {
-                if (
-                    band.rodAccess?.requiredClass !== undefined &&
-                    rodClass >= band.rodAccess.requiredClass
-                ) {
-                    if (!bestBand || band.maxCost > bestBand.maxCost) {
-                        bestBand = band;
-                    }
-                }
-            }
-
-            if (bestBand) {
-                return bestBand.color;
-            }
-
-            console.log("FALLBACK");
-            return "#E6D9C2"; // fallback for rods that can't access anything
-        }
-
-
-        // Non-rods: use cost
-        const cost = item.cost;
-        if (cost == null) return "#C2C2C2";
-
-        for (const band of COST_RANGE_BANDS) {
-            if (cost >= band.minCost && cost <= band.maxCost) {
-                return band.color;
-            }
-        }
-
-        console.warn(`Cost ${cost} didn't match any band. Fallback color used.`);
-        return "#ff0051";
-    }
-
 
     /** Reset inventory (for debugging or resetting game state) */
     public clearInventory(): void {
@@ -261,7 +217,7 @@ export class Inventory {
             description: rod.description,
             class: this.getRodClass(activeRodId),
             isActive: true,
-            outlineColor: this.getColorForCost(rod) 
+            outlineColor: IslandManager.getColorForCost(rod) 
         };
     }
 
