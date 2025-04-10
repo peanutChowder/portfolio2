@@ -28,32 +28,32 @@ export const COST_RANGE_BANDS = [
     {
         minCost: 16,
         maxCost: 25,
-        color: "#bdfff4",
-        rodAccess: { requiredClass: 1 }
+        color: "#6e9aba",
+        rodAccess: { requiredClass: 2 }
     },
     {
         minCost: 26,
         maxCost: 35,
-        color: "#287cd1",
-        rodAccess: { requiredClass: 2 }
+        color: "#0f74d9",
+        rodAccess: { requiredClass: 3 }
     },
     {
         minCost: 36,
         maxCost: 45,
-        color: "#4144d9",
-        rodAccess: { requiredClass: 2 }
+        color: "#1519eb",
+        rodAccess: { requiredClass: 4 }
     },
     {
         minCost: 46,
         maxCost: 55,
-        color: "#bf1b80",
-        rodAccess: { requiredClass: 3 }
+        color: "#de1490",
+        rodAccess: { requiredClass: 5 }
     },
     {
         minCost: 56,
         maxCost: 100,
-        color: "#ff0051",
-        rodAccess: { requiredClass: 3 }
+        color: "#ff00fb",
+        rodAccess: { requiredClass: 6 }
     }
 ];
 
@@ -386,7 +386,7 @@ export class IslandManager {
             // Also check e.g. energy or inventory capacity
             area.evaluateGameElementBlockers();
 
-            console.log("Synced area", area.id, "to game element", a.gameElementId);
+            console.log("Synced area", area.id, "to game element", a.gameElementId, "with class", a.rodAccess?.requiredClass);
         });
         console.groupEnd();
     }
