@@ -521,8 +521,8 @@ export const INTERACTION_AREAS: InteractionAreaData[] = [
     },
     {
         id: "fireworks",
-        positionX: -7159,
-        positionY: 19045,
+        positionX: -12152,
+        positionY: 18805,
         width: 3000,
         height: 1500,
         displayName: "",
@@ -550,7 +550,7 @@ export const INTERACTION_AREAS: InteractionAreaData[] = [
             }
 
             // Trigger Fireworks
-            fireworkManager.createFireworkDisplay(-7159, 19045, 1000);
+            fireworkManager.createFireworkDisplay(-12152, 18805, 1000);
             console.log("Fireworks triggered!");
         }
     }
