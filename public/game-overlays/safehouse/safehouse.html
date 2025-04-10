@@ -342,7 +342,13 @@
                 div.style.border = `2px solid ${item.outlineColor}`;
 
                 const img = document.createElement('img');
-                img.src = `../../assets/fish-sprites/${item.imgSrc}`;
+                // Use correct path for class of item
+                if (item.type === "fish") {
+                    img.src = `../../assets/fish-sprites/${item.imgSrc}`;
+                } else if (item.type === "rod") {
+                    img.src = `../../assets/fishing/${item.imgSrc}`;
+                }
+
                 div.appendChild(img);
 
                 const quantity = document.createElement('div');
@@ -619,7 +625,7 @@
                 div.style.border = `2px solid ${rod.outlineColor || '#E6D9C2'}`;
 
                 const img = document.createElement('img');
-                img.src = `../../assets/fishing/${rod.imgSrc}`;
+                img.src = `../../assets/fishing/${rod.imgSrc}`; // Fixed path for rod images
                 img.style.maxWidth = '48px';
                 img.style.maxHeight = '48px';
                 div.appendChild(img);
