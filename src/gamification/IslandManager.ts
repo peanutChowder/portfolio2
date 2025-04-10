@@ -98,6 +98,14 @@ export class IslandManager {
             elementType: 'safehouse',
             energyCost: 0
         },
+        {
+            id: 'fisherShop',
+            name: 'Fisher Shop',
+            maxResource: 0,     // irrelevant values to shop
+            rarity: 1.0,
+            elementType: 'shop',
+            energyCost: 0
+        },
         // higher rarity value is more common!!
         {
             id: 'fishPunch',
@@ -191,6 +199,7 @@ export class IslandManager {
 
     static preload(scene: Phaser.Scene): void {
         scene.load.html('safehouse', 'safehouseOverlay.html');
+        scene.load.html('fisherShop', 'shopOverlay/fisherShop.html');
         scene.load.html('fishPunch', 'game-overlays/fishPunch.html');
         scene.load.html('fishBounce', 'game-overlays/fishBounce.html');
         scene.load.html('boatGrow', 'game-overlays/boatGrow/boatGrow.html');
@@ -251,6 +260,7 @@ export class IslandManager {
 
             this.assignFishingToIslands();
             this.assignSafehousesToIslands();
+            this.assignShopsToIslands();
 
             this.lastAssignmentBlock = curr5MinBlock;
             this.saveToStorage();
@@ -334,6 +344,18 @@ export class IslandManager {
             if (a.areaElementType === 'safehouse') {
                 a.gameElementId = 'safehouse';
                 a.resourceLeft = 0;
+            }
+        });
+    }
+
+    /**
+     * Assigns the 'fisherShop' game element to all shop areas
+     */
+    private assignShopsToIslands(): void {
+        this.assignments.forEach(a => {
+            if (a.areaElementType === 'shop') {
+                a.gameElementId = 'fisherShop';
+                a.resourceLeft = 0;  // irrelevant to shops
             }
         });
     }

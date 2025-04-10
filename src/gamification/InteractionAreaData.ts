@@ -520,6 +520,39 @@ export const INTERACTION_AREAS: InteractionAreaData[] = [
         resourceBehavior: "static"
     },
     {
+        id: "shop1",
+        positionX: -4435,
+        positionY: 20736,
+        width: 4100,
+        height: 2300,
+        displayName: "Fisher Shop",
+        overlayKey: "fisherShop",
+        areaBaseColor: 0x19e683,
+        areaEdgeColor: 0,
+
+        buttonConfig: {
+            text: "Enter Shop",
+            font: "Arial",
+            fontColor: "#ffffff",
+            baseColor: 0x23945e,
+            hoverColor: 0x32c780
+        },
+        floatingText: {
+            text: "Fisher Shop",
+            color: "#23945e",
+            font: "Arial",
+            fontSize: "130px",
+            offset: { x: 0, y: -1000 }
+        },
+        markerInfo: {
+            baseColor: 0x000000,
+            radius: -1,
+            locationType: "Shop"
+        },
+        gameElementType: "shop",
+        resourceBehavior: "static"
+    },
+    {
         id: "fireworks",
         positionX: -12152,
         positionY: 18805,

@@ -214,8 +214,7 @@ export default class InteractionArea {
         this.gameElementButton.setDepth(50);
         this.gameElementButton.setVisible(false);
 
-        if (this.gameElementType === 'safehouse') {
-            // Example safehouse button
+        if (this.gameElementType === 'safehouse' || this.gameElementType === 'shop') {
             const btnWidth = 300;
             const btnHeight = 90;
             const btnRadius = 20;
@@ -226,8 +225,10 @@ export default class InteractionArea {
             bg.fillRoundedRect(-btnWidth / 2, -btnHeight / 2, btnWidth, btnHeight, btnRadius);
             bg.lineStyle(btnLineWidth, 0xffffff, 1);
             bg.strokeRoundedRect(-btnWidth / 2, -btnHeight / 2, btnWidth, btnHeight, btnRadius);
-
-            const label = this.scene.add.text(0, 0, 'Enter Safehouse', {
+        
+            const labelText = this.gameElementType === 'shop' ? 'Enter Shop' : 'Enter Safehouse';
+        
+            const label = this.scene.add.text(0, 0, labelText, {
                 font: `24px Prompt`,
                 color: '#ffffff'
             });
@@ -256,8 +257,8 @@ export default class InteractionArea {
                 bg.lineStyle(btnLineWidth, 0xffffff, 1);
                 bg.strokeRoundedRect(-btnWidth / 2, -btnHeight / 2, btnWidth, btnHeight, btnRadius);
             });
-
-        } else if (this.gameElementType === 'fishing') {
+        }
+        else if (this.gameElementType === 'fishing') {
             // Example fishing button
             const bg = this.scene.add.graphics();
             const drawBg = (borderColor: number) => {
@@ -452,7 +453,7 @@ export default class InteractionArea {
         }
 
         if (this.gameElementButton) {
-            if (this.gameElementType === 'safehouse') {
+            if (this.gameElementType === 'safehouse' || this.gameElementType === 'shop') {
                 // Example: position the safehouse button differently
                 this.gameElementButton.setPosition(camera.width / 2, camera.height - 100);
             } else if (this.gameElementType === 'fishing') {
