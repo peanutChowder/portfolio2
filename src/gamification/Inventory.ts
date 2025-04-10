@@ -265,40 +265,6 @@ export class Inventory {
         };
     }
 
-
-    /**
-     * Gets an array of rod details for all equipped rods.
-     * Each rod object has the following properties:
-     *  - id: string, the rod's ID
-     *  - name: string, the rod's name
-     *  - imgSrc: string, the rod's image source
-     *  - description: string, the rod's description
-     *  - class: number, the rod's class (used to determine which areas it can fish in)
-     *  - isActive: boolean, whether this rod is the currently active rod
-     * @returns an array of rod details
-     */
-    public getEquippedRodDetails(): any[] {
-        const result = [];
-        const rodIds = this.rodStorage.getAllRodIds();
-        const activeRodId = this.rodStorage.getActiveRodId();
-
-        for (const rodId of rodIds) {
-            const rod = itemData[rodId];
-            if (!rod) continue;
-
-            result.push({
-                id: rodId,
-                name: rod.name,
-                imgSrc: rod.imgSrc,
-                description: rod.description,
-                class: this.getRodClass(rodId),
-                isActive: rodId === activeRodId,
-            });
-        }
-
-        return result;
-    }
-
     /**
      * Gets the rod class of a given rodId from itemData.
      * Returns 0 if the rod doesn't exist or has no specialEffect.
