@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;700&display=swap" rel="stylesheet">
+    <title>Fisher Shop</title>
+    <style>
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            font-family: 'Prompt', sans-serif;
+        }
+
+        #overlay-wrapper {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            pointer-events: none;
+        }
+
+        #simple-overlay {
+            width: 90%;
+            max-width: 600px;
+            height: 90%;
+            max-height: 800px;
+            background-color: rgba(255, 253, 240, 0.95);
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+            border-radius: 15px;
+            pointer-events: auto;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border: 2px solid #F0E6D2;
+        }
+
+        .content-inner {
+            height: 100%;
+            overflow-y: auto;
+            padding: 20px;
+            position: relative;
+        }
+
+        .close-button {
+            position: sticky;
+            top: 20px;
+            margin-left: auto;
+            background-color: #F0E6D2;
+            border: none;
+            color: #7E6D5A;
+            font-size: 24px;
+            cursor: pointer;
+            z-index: 2;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.3s ease;
+        }
+
+        .close-button:hover {
+            transform: rotate(90deg);
+            background-color: #E6D9C2;
+        }
+
+        h2 {
+            text-align: center;
+            color: #7E6D5A;
+            margin-bottom: 30px;
+        }
+
+        .main-buttons {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            gap: 30px;
+            height: 80%;
+            padding: 30px;
+            box-sizing: border-box;
+        }
+
+        .shop-button {
+            flex: 1;
+            height: 80%;
+            background-color: #D0B49F;
+            border: none;
+            color: white;
+            font-size: 28px;
+            font-weight: bold;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+            max-width: 300px;
+        }
+
+        .shop-button:hover {
+            background-color: #C19A82;
+        }
+
+
+
+        .panel {
+            display: none;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .full-panel {
+            background-color: rgba(255, 253, 240, 0.98);
+            padding: 20px;
+            border-radius: 12px;
+            overflow-y: auto;
+            height: 100%;
+        }
+
+        .panel h3 {
+            text-align: center;
+            color: #7E6D5A;
+            margin-top: 0;
+        }
+
+        /* Placeholder item card style for buy panel */
+        .buy-item-card {
+            background-color: #F0E6D2;
+            border: 2px solid #E6D9C2;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        #temporary-message {
+            display: none;
+            position: fixed;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #7E6D5A;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-family: 'Prompt', sans-serif;
+            z-index: 2000;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+</head>
+
+<body>
+    <div id="overlay-wrapper">
+        <div id="simple-overlay">
+            <div class="content-inner">
+                <button class="close-button">X</button>
+                <h2>FISHER SHOP</h2>
+
+                <!-- === MAIN BUTTONS VIEW === -->
+                <div id="main-menu" class="main-buttons">
+                    <button class="shop-button" id="open-buy">BUY</button>
+                    <button class="shop-button" id="open-sell">SELL</button>
+                </div>
+
+                <!-- === BUY PANEL === -->
+                <div id="buy-panel" class="panel">
+                    <div class="full-panel">
+                        <h3>Available Items</h3>
+                        <div id="buy-item-list">
+                            <!-- Items will be inserted here -->
+                        </div>
+                        <button class="shop-button" id="back-from-buy">Back</button>
+                    </div>
+                </div>
+
+                <!-- === SELL PANEL === -->
+                <div id="sell-panel" class="panel">
+                    <div class="full-panel">
+                        <h3>Your Inventory</h3>
+                        <button class="shop-button" id="sell-all-fish">Sell All Fish</button>
+                        <div id="sell-item-list">
+                            <!-- Inventory items will be inserted here -->
+                        </div>
+                        <button class="shop-button" id="back-from-sell">Back</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="temporary-message"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const mainMenu = document.getElementById('main-menu');
+            const buyPanel = document.getElementById('buy-panel');
+            const sellPanel = document.getElementById('sell-panel');
+
+            document.querySelector('.close-button').addEventListener('click', () => {
+                parent.postMessage({ type: "destroyGameOverlay", overlayName: "fisherShop" }, "*");
+            });
+
+            document.getElementById('open-buy').addEventListener('click', () => {
+                mainMenu.style.display = 'none';
+                buyPanel.style.display = 'flex';
+            });
+
+            document.getElementById('open-sell').addEventListener('click', () => {
+                mainMenu.style.display = 'none';
+                sellPanel.style.display = 'flex';
+            });
+
+            document.getElementById('back-from-buy').addEventListener('click', () => {
+                buyPanel.style.display = 'none';
+                mainMenu.style.display = 'flex';
+            });
+
+            document.getElementById('back-from-sell').addEventListener('click', () => {
+                sellPanel.style.display = 'none';
+                mainMenu.style.display = 'flex';
+            });
+        });
+    </script>
+</body>
+
+</html>
