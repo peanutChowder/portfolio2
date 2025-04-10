@@ -815,10 +815,12 @@
                             rodId: item.id
                         }, "*");
 
-                        // Remove from safehouse display
-                        safehouseItems = safehouseItems.filter(it => it.id !== item.id);
+                        // Decrease quantity by 1
+                        item.quantity--;
+                        if (item.quantity <= 0) {
+                            safehouseItems = safehouseItems.filter(it => it.id !== item.id);
+                        }
 
-                        // Set equipped rod for immediate UI update
                         equippedRod = {
                             id: item.id,
                             name: item.name,
@@ -831,6 +833,7 @@
                         closeInspectOverlay();
                         updateUI();
                     };
+
                 } else {
                     equipBtn.disabled = true;
                     equipBtn.style.opacity = '0.5';
@@ -922,6 +925,8 @@
                     safehouseItems = event.data.safehouse || [];
                     inventoryItems = event.data.inventory || [];
                     equippedRod = event.data.equippedRod || null;
+
+                    console.log(safehouseItems)
 
                     safehouseMax = event.data.safehouseMax ?? safehouseMax;
                     inventoryMax = event.data.inventoryMax ?? inventoryMax;
