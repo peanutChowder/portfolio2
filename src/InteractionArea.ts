@@ -667,37 +667,89 @@ export default class InteractionArea {
     }
 
     public showDepletionPopup(message: string): void {
-        const centerX = this.scene.cameras.main.centerX;
-        const centerY = this.scene.cameras.main.centerY / 3;
+        const camera = this.scene.cameras.main;
+        const zoomScale = 1 / camera.zoom;
 
-        const popupText = this.scene.add.text(centerX, centerY, message, {
+        const fontSize = 32 * zoomScale;
+        const padding = 30 * zoomScale;
+        const maxWidth = camera.width * 0.8 * zoomScale;
+
+        // Create a temporary hidden text object to measure size
+        const tempText = this.scene.add.text(0, 0, message, {
             fontFamily: 'Prompt, Arial, sans-serif',
-            fontSize: '170px',
+            fontSize: `${fontSize}px`,
             color: '#ffffff',
             align: 'center',
-            wordWrap: { width: this.scene.cameras.main.width }
-        });
+            wordWrap: { width: maxWidth }
+        }).setVisible(false);
 
+        const bounds = tempText.getBounds();
+        const textWidth = Math.min(bounds.width, maxWidth);
+        const textHeight = bounds.height;
+
+        const bgWidth = textWidth + padding * 2;
+        const bgHeight = textHeight + padding * 2;
+
+        const centerX = camera.centerX;
+        const centerY = camera.centerY / 3;
+        const borderRadius = 20 * zoomScale;
+        const borderThickness = 4 * zoomScale;
+
+        // Background rectangle
+        const bg = this.scene.add.graphics();
+        bg.fillStyle(0xD0B49F, 0.95);
+        bg.lineStyle(borderThickness, 0xffffff, 1);
+        bg.fillRoundedRect(
+            centerX - bgWidth / 2,
+            centerY - bgHeight / 2,
+            bgWidth,
+            bgHeight,
+            borderRadius
+        );
+        bg.strokeRoundedRect(
+            centerX - bgWidth / 2,
+            centerY - bgHeight / 2,
+            bgWidth,
+            bgHeight,
+            borderRadius
+        );
+        bg.setScrollFactor(0);
+        bg.setDepth(89);
+        bg.setAlpha(0);
+
+        // Final visible text
+        const popupText = this.scene.add.text(centerX, centerY, message, {
+            fontFamily: 'Prompt, Arial, sans-serif',
+            fontSize: `${fontSize}px`,
+            color: '#ffffff',
+            align: 'center',
+            wordWrap: { width: maxWidth }
+        });
         popupText.setOrigin(0.5);
         popupText.setScrollFactor(0);
         popupText.setDepth(90);
         popupText.setAlpha(0);
 
-        // Fade in
+        // Destroy temporary measurement text
+        tempText.destroy();
+
+        // Fade in both
         this.scene.tweens.add({
-            targets: popupText,
+            targets: [popupText, bg],
             alpha: 1,
             duration: 300,
             ease: 'Power1',
             onComplete: () => {
-                // hold for 2s, then fade out
                 this.scene.time.delayedCall(2000, () => {
                     this.scene.tweens.add({
-                        targets: popupText,
+                        targets: [popupText, bg],
                         alpha: 0,
                         duration: 500,
                         ease: 'Power1',
-                        onComplete: () => popupText.destroy()
+                        onComplete: () => {
+                            popupText.destroy();
+                            bg.destroy();
+                        }
                     });
                 });
             }
