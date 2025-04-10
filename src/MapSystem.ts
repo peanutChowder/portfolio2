@@ -60,7 +60,7 @@ export class MapSystem extends Phaser.GameObjects.Container {
             this.scene.cameras.main.centerY - (cameraHeight / (2 * cameraZoom)) + (this.mapSize / 1.9)
         );
         this.mapContainer.setScrollFactor(0);
-        this.mapContainer.setDepth(1000);
+        this.mapContainer.setDepth(99);
 
         const backgroundSize = this.mapSize;
         this.mapBackground = this.scene.add.graphics();
@@ -95,6 +95,11 @@ export class MapSystem extends Phaser.GameObjects.Container {
         
 
         scene.add.existing(this);
+    }
+
+    static preload(scene: IsometricScene): void {
+        scene.load.image('minimapHouse', '../assets/minimap/house.png');
+
     }
 
     private drawMap(): void {
@@ -151,26 +156,41 @@ export class MapSystem extends Phaser.GameObjects.Container {
         Object.values(this.interactionAreas).forEach(area => {
             const markerInfo = area.markerInfo;
             if (!markerInfo) return;
-
-            const marker = this.scene.add.graphics();
-            marker.clear();
-            marker.lineStyle(1, 0xffffff);
-            marker.fillStyle(markerInfo.color);
-            marker.beginPath();
-            marker.arc(0, 0, markerInfo.radius * 0.5, 0, Math.PI * 2);
-            marker.closePath();
-            marker.fillPath();
-            marker.strokePath();
-
+    
             const { x, y } = area.getCenter();
             const mapX = x * this.mapScale + this.graphicOffsetX;
             const mapY = y * this.mapScale + this.graphicOffsetY;
+    
+            let marker: Phaser.GameObjects.Image | Phaser.GameObjects.Graphics;
+    
 
-            marker.setPosition(mapX, mapY);
-
+            // We handle custom markers first, then default to the circle
+            // marker using their set colour
+            if (markerInfo.locationType === "Safehouse") {
+                marker = this.scene.add.image(mapX, mapY, 'minimapHouse');
+                marker.setScale(0.15);  
+            } else {
+                // Default circle marker
+                marker = this.scene.add.graphics();
+                marker.clear();
+                marker.lineStyle(1, 0xffffff);
+                marker.fillStyle(markerInfo.color);
+                marker.beginPath();
+                marker.arc(0, 0, markerInfo.radius * 0.5, 0, Math.PI * 2);
+                marker.closePath();
+                marker.fillPath();
+                marker.strokePath();
+                
+                marker.setPosition(mapX, mapY);
+            }
+    
             this.mapContainer.add(marker);
-            this.interactionMarkers.push(marker);
+            this.interactionMarkers.push(marker as Phaser.GameObjects.Graphics);
         });
+    }
+
+    public getMinimapWidth(): number {
+        return this.mapSize;
     }
 
     private drawBoatMarker(): void {
@@ -186,6 +206,21 @@ export class MapSystem extends Phaser.GameObjects.Container {
         this.boatMarker.closePath();
         this.boatMarker.fillPath();
     }
+
+    /**
+     * Get the bottom right position of the map container in world coordinates.
+     * Hacky implementation used to position the energy bar relative to the map.
+     * @returns The bottom right position of the map container
+     */
+    public getMapBottomRight(): { x: number; y: number } {
+        const halfSize = this.mapSize / 2;
+    
+        const bottomRightX = this.mapContainer.x + halfSize;
+        const bottomRightY = this.mapContainer.y + halfSize;
+    
+        return { x: bottomRightX, y: bottomRightY };
+    }
+    
     
     public updateBoatMarker(worldX: number, worldY: number, orientation: string): void {
         const mapX = worldX * this.mapScale + this.graphicOffsetX;

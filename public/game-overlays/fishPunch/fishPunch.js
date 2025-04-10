@@ -1,15 +1,19 @@
-import { getRandomFishByCost } from "../fishData.ts";
+import { getRandomFishByCost } from "../../src/gamification/ItemData.ts";
+
+let energyCost = 0;
+let minCost = 0;
+let maxCost = 999;
 
 function initFishGame() {
     console.log("Fish punch is starting!");
 
-    const CROSSHAIR_RADIUS = 50; 
+    const CROSSHAIR_RADIUS = 50;
     const FISH_WIDTH = 60;
     const FISH_HEIGHT = 40;
-    const FISH_SPAWN_INTERVAL = 1500; // ms
-    const MIN_SPEED = 80;  // px/sec
-    const MAX_SPEED = 220; // px/sec
-    const MAX_HITS = 5;
+    const FISH_SPAWN_INTERVAL = 1000; // ms
+    const MIN_SPEED = 150;  // px/sec
+    const MAX_SPEED = 700; // px/sec
+    const MAX_HITS = 4;
     const MAX_MISSES = 3;
 
     let hits = 0;
@@ -23,6 +27,7 @@ function initFishGame() {
     const hudHits = document.getElementById('hits');
     const hudMisses = document.getElementById('misses');
     const message = document.getElementById('message');
+    const crosshair = document.getElementById('crosshair');
 
     let selectedFish = null;
 
@@ -30,32 +35,27 @@ function initFishGame() {
         console.error("sandbox-content not found! JavaScript may be executing before DOM is loaded.");
         return;
     }
+    crosshair.style.display = "none";
 
     // Random int between [min, max]
     function randInt(min, max) {
         return Math.floor(Math.random() * (max - min + 1)) + min;
     }
-    
+
     // Create the fishing rod element
     const fishingRod = document.createElement('img');
     fishingRod.id = "fishing-rod";
     fishingRod.src = "../../assets/fishing/rod_ingame.png";
     sandboxContent.appendChild(fishingRod);
 
-    // Select a fish
-    selectedFish = getRandomFishByCost();
-    console.log(`Selected fish: ${selectedFish.id}`);
-
-    console.log(selectedFish);
-
     // Create game message element for instructions & status updates
     const gameMessage = document.createElement("div");
     gameMessage.id = "game-message";
     gameMessage.style.position = "absolute";
-    gameMessage.style.top = "30%";
+    gameMessage.style.top = isMobile() ? "45%" : "25%"; // Lower placement on mobile
     gameMessage.style.left = "50%";
     gameMessage.style.transform = "translate(-50%, -50%)";
-    gameMessage.style.fontSize = "2rem";
+    gameMessage.style.fontSize = isMobile() ? "1.5rem" : "1.8rem"; // Smaller text for mobile
     gameMessage.style.fontFamily = "'Prompt', Arial, sans-serif";
     gameMessage.style.color = "white";
     gameMessage.style.textAlign = "center";
@@ -78,12 +78,32 @@ function initFishGame() {
     // Listen for first click to start the game
     sandboxContent.addEventListener('pointerdown', startGame, { once: true });
 
+    function isMobile() {
+        return window.innerWidth <= 768;
+    }
+
+
     function startGame() {
+        // Select a fish
+        selectedFish = getRandomFishByCost(minCost, maxCost);
+        console.log(`Selected fish: ${selectedFish.id}`);
+
+        window.parent.postMessage({
+            type: "reduceFish",
+        }, "*");
+
         gameStarted = true;
+        crosshair.style.display = "block";
         console.log("Game started!");
 
         // Hide the instruction message
         gameMessage.style.opacity = "0";
+
+        // Send message to reduce energy
+        window.parent.postMessage({
+            type: "reduceEnergy",
+            amount: energyCost
+        }, "*");
 
         // Start spawning fish
         spawnIntervalId = setInterval(spawnFish, FISH_SPAWN_INTERVAL);
@@ -94,20 +114,20 @@ function initFishGame() {
 
     function onPointerDown(e) {
         if (!gameStarted || gameOver) return; // Ignore clicks before game starts or after it ends
-    
+
         // Set to casting state
         fishingRod.classList.add("casting");
-    
+
         // Restore to resting state after animation
         setTimeout(() => {
             fishingRod.classList.remove("casting");
         }, 400);
-    
+
         let hitSomething = false;
         const rect = sandboxContent.getBoundingClientRect();
         const crosshairCenterX = rect.width / 2;
         const crosshairCenterY = rect.height / 2;
-    
+
         document.querySelectorAll(".fish").forEach(fishEl => {
             const fishRect = fishEl.getBoundingClientRect();
             const fishCenterX = fishRect.left - rect.left + fishRect.width / 2;
@@ -115,17 +135,17 @@ function initFishGame() {
             const dx = fishCenterX - crosshairCenterX;
             const dy = fishCenterY - crosshairCenterY;
             const dist = Math.sqrt(dx * dx + dy * dy);
-    
+
             if (dist < CROSSHAIR_RADIUS) {
                 hitSomething = true;
                 hits++;
                 updateHUD();
-    
+
                 // Create a CSS-based splash effect at the fish position
                 createSplashEffect(fishCenterX, fishCenterY);
-    
+
                 fishEl.remove();
-    
+
                 if (hits >= MAX_HITS) {
                     showEndMessage(true);
                 } else {
@@ -133,14 +153,14 @@ function initFishGame() {
                 }
             }
         });
-    
+
         if (!hitSomething) {
             misses++;
             updateHUD();
-    
+
             // Show red "X" miss animation
             createMissEffect(crosshairCenterX, crosshairCenterY);
-    
+
             if (misses >= MAX_MISSES) {
                 showEndMessage(false);
             } else {
@@ -160,9 +180,9 @@ function initFishGame() {
         missX.style.color = "red";
         missX.style.opacity = "1";
         missX.style.transition = "opacity 0.6s ease-out, transform 0.6s ease-out";
-    
+
         sandboxContent.appendChild(missX);
-    
+
         // Animate (fade out and scale)
         setTimeout(() => {
             missX.style.opacity = "0";
@@ -176,9 +196,9 @@ function initFishGame() {
         splash.classList.add("splash-effect");
         splash.style.left = `${x}px`;
         splash.style.top = `${y}px`;
-    
+
         sandboxContent.appendChild(splash);
-    
+
         // Remove after animation
         setTimeout(() => splash.remove(), 600);
     }
@@ -193,26 +213,27 @@ function initFishGame() {
         gameOver = true;
         message.style.display = 'block';
         message.textContent = won ? 'FISH ACQUIRED!' : 'THE FISH WERE SPOOKED AWAY!';
+        message.style.top = '20%';
         gameStatus = won ? "won" : "lost";
         clearInterval(spawnIntervalId);
-        
+
         const crosshair = document.getElementById('crosshair');
         if (crosshair) {
             crosshair.style.display = 'none'
         }
         document.querySelectorAll('.fish').forEach(el => el.remove());
-    
-        if (won) {    
+
+        if (won) {
             // Create and display the caught fish image
             const caughtFish = document.createElement("img");
-            caughtFish.src = `../../assets/fish-sprites/${selectedFish.id}.png`;
+            caughtFish.src = `../../assets/fish-sprites/${selectedFish.imgSrc}`;
             caughtFish.style.position = "absolute";
-            caughtFish.style.top = "65%"; 
+            caughtFish.style.top = "45%";
             caughtFish.style.left = "50%";
             caughtFish.style.transform = "translate(-50%, -50%)";
-            caughtFish.style.width = "150px"; 
+            caughtFish.style.width = "150px";
             caughtFish.style.height = "auto";
-    
+
             // Create text below the fish image
             const fishText = document.createElement("div");
             fishText.textContent = `You have caught ${selectedFish.name}!`;
@@ -224,13 +245,19 @@ function initFishGame() {
             fishText.style.fontFamily = "'Prompt', Arial, sans-serif";
             fishText.style.color = "white";
             fishText.style.textAlign = "center";
-    
+
             // Append both elements to the sandbox content
             sandboxContent.appendChild(caughtFish);
             sandboxContent.appendChild(fishText);
+
+            window.parent.postMessage({
+                type: "addItemToInventory",
+                itemId: selectedFish.id
+            }, "*");
         }
     }
-    
+
+
 
     function spawnFish() {
         if (gameOver || !gameStarted) return;
@@ -240,45 +267,45 @@ function initFishGame() {
         const rect = sandboxContent.getBoundingClientRect();
         const containerWidth = rect.width;
         const containerHeight = rect.height;
-    
+
         const fishEl = document.createElement("img");
         fishEl.classList.add("fish");
-        fishEl.src = `../../assets/fish-sprites/${selectedFish.id}.png`; 
-    
+        fishEl.src = `../../assets/fish-sprites/${selectedFish.imgSrc}`;
+
         const direction = Math.random() < 0.5 ? 0 : 1;
         const randomY = randInt((containerHeight / 2 - 200), (containerHeight / 2 + 200));
         let startX = direction === 0 ? -FISH_WIDTH : containerWidth;
         let endX = direction === 0 ? containerWidth : -FISH_WIDTH;
-    
+
         fishEl.style.top = randomY + "px";
         fishEl.style.left = startX + "px";
-    
+
         // Flip the fish when moving right
         if (direction === 1) {
             fishEl.style.transform = "scale(2)";
         } else {
             fishEl.style.transform = "scale(-2, 2)";
         }
-    
+
         sandboxContent.appendChild(fishEl);
-    
+
         const speed = randInt(MIN_SPEED, MAX_SPEED);
-        const oscillationRate = randInt(2, 6); 
+        const oscillationRate = randInt(2, 6);
         const oscillationAmplitude = randInt(5, 20); // Vertical movement range (px)
         let startTime = null;
-    
+
         function animateFish(timestamp) {
             if (!startTime) startTime = timestamp;
             const elapsed = (timestamp - startTime) / 1000;
             const dist = speed * elapsed;
-    
+
             let fraction;
             if (direction === 0) {
                 fraction = dist / (endX - startX);
             } else {
                 fraction = dist / (startX - endX);
             }
-    
+
             if (fraction >= 1) {
                 fishEl.remove();
             } else {
@@ -288,7 +315,7 @@ function initFishGame() {
                 } else {
                     newX = startX - (startX - endX) * fraction;
                 }
-    
+
                 // Unique oscillation per fish
                 const verticalOffset = Math.sin(elapsed * oscillationRate) * oscillationAmplitude;
                 fishEl.style.top = (randomY + verticalOffset) + "px";
@@ -296,15 +323,24 @@ function initFishGame() {
                 requestAnimationFrame(animateFish);
             }
         }
-    
+
         requestAnimationFrame(animateFish);
     }
-    
+
     // Close button sends message to phaser
     document.querySelector('.close-button')?.addEventListener('click', () => {
-        window.parent.postMessage({ type: "destroyGameOverlay", overlayName: "fishPunch", result: gameStatus}, "*");
-    });    
+        window.parent.postMessage({ type: "destroyGameOverlay", overlayName: "fishPunch", result: gameStatus }, "*");
+    });
 }
+
+window.addEventListener('message', (e) => {
+    if (e.data?.type === 'gameSetup') {
+        energyCost = e.data.energyCost || 0;
+        minCost = e.data.minCost ?? 0;
+        maxCost = e.data.maxCost ?? 999;
+        console.log("[fishPunch] Setup => cost range:", minCost, "-", maxCost, "energyCost:", energyCost);
+    }
+});
 
 // Run `initFishGame()` immediately if DOM is ready
 if (document.readyState === "loading") {

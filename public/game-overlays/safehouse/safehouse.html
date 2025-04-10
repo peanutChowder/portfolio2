@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;700&display=swap" rel="stylesheet">
+    <title>Safehouse</title>
+    <style>
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            font-family: 'Prompt', sans-serif;
+        }
+
+        #overlay-wrapper {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            pointer-events: none;
+        }
+
+        #simple-overlay {
+            width: 90%;
+            max-width: 600px;
+            height: 90%;
+            max-height: 800px;
+            background-color: rgba(255, 253, 240, 0.95);
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+            border-radius: 15px;
+            pointer-events: auto;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border: 2px solid #F0E6D2;
+        }
+
+        .content-inner {
+            height: 100%;
+            overflow-y: auto;
+            padding: 20px;
+            position: relative;
+        }
+
+        h2,
+        h3 {
+            color: #7E6D5A;
+            text-align: center;
+        }
+
+        .section-block {
+            background-color: #FBF5E5;
+            border-radius: 12px;
+            padding: 2px;
+            margin-bottom: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .close-button {
+            position: sticky;
+            top: 20px;
+            margin-left: auto;
+            background-color: #F0E6D2;
+            border: none;
+            color: #7E6D5A;
+            font-size: 24px;
+            cursor: pointer;
+            z-index: 2;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.3s ease;
+        }
+
+        .close-button:hover {
+            transform: rotate(90deg);
+            background-color: #E6D9C2;
+        }
+
+
+
+        .item-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            padding: 10px 0;
+        }
+
+        .vertical-divider {
+            width: 1px;
+            background-color: #E6D9C2;
+            margin: 0 10px;
+        }
+
+        .inventory-item {
+            width: 100px;
+            height: 120px;
+            background-color: #F0E6D2;
+            border: 2px solid #E6D9C2;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            padding: 5px;
+        }
+
+        .inventory-item:hover {
+            transform: scale(1.05);
+        }
+
+        .inventory-item img {
+            max-width: 48px;
+            max-height: 48px;
+            margin-bottom: 5px;
+        }
+
+        .item-label {
+            font-size: 12px;
+            color: #7E6D5A;
+            text-align: center;
+            margin-top: 2px;
+        }
+
+        .rest-button {
+            background-color: #D0B49F;
+            border: none;
+            padding: 12px 24px;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 80%;
+            max-width: 300px;
+            margin: 5px auto
+        }
+
+        .rest-button:hover {
+            background-color: #C19A82;
+        }
+
+        .section-title {
+            font-weight: bold;
+            color: #7E6D5A;
+            margin-bottom: 10px;
+        }
+
+        #inspect-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.3);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .inspect-button {
+            display: block;
+            width: 60%;
+            margin: 12px auto;
+            background-color: #D0B49F;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-family: 'Prompt', sans-serif;
+            transition: background-color 0.2s ease;
+            box-sizing: border-box;
+        }
+
+        .inspect-button:hover {
+            background-color: #C19A82;
+        }
+
+        .inspect-button.danger {
+            background-color: #c97855;
+        }
+
+        .inspect-button.danger:hover {
+            background-color: #cf511b;
+        }
+
+        .inspect-button.success {
+            background-color: #7AA47A;
+        }
+
+        .inspect-button.success:hover {
+            background-color: #6A936A;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="overlay-wrapper">
+        <div id="simple-overlay">
+            <div class="content-inner">
+                <button class="close-button">X</button>
+                <!-- Description Section -->
+                <h2>SAFEHOUSE</h2>
+                <p>Welcome to your safehouse. You can store items here and take a rest to regain energy.</p>
+
+                <!-- Rest Button Section -->
+                <div class="section-block" style="text-align: center;">
+                    <button class="rest-button">Rest</button>
+                </div>
+
+
+                <!-- Inventory Sections -->
+                <div class="section-block">
+                    <!-- Full-width equipped rods section -->
+                    <div>
+                        <h3>Equipped Rods</h3>
+                        <div id="equipped-rods-grid" class="item-grid"></div>
+                    </div>
+
+                    <!-- Horizontal divider -->
+                    <div style="height: 1px; background-color: #E6D9C2; margin: 15px 0;"></div>
+
+                    <!-- Left/right split for inventory/safehouse items -->
+                    <div style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;">
+                        <!-- Safehouse items (left) -->
+                        <div style="flex: 1; min-width: 200px;">
+                            <h3 id="safehouse-title">Safehouse Storage</h3>
+                            <div id="safehouse-grid" class="item-grid"></div>
+                        </div>
+
+                        <div class="vertical-divider"></div>
+
+                        <!-- Inventory items (right) -->
+                        <div style="flex: 1; min-width: 200px;">
+                            <h3 id="inventory-title">Inventory</h3>
+                            <div id="inventory-grid" class="item-grid"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Inspect View -->
+    <div id="inspect-overlay">
+    </div>
+
+    <!-- Temporary Message -->
+    <div id="temporary-message"
+        style="display:none; position:fixed; bottom:40px; left:50%; transform:translateX(-50%); background:#7E6D5A; color:white; padding:12px 24px; border-radius:10px; font-size:16px; font-family:'Prompt', sans-serif; z-index:2000; box-shadow:0 4px 12px rgba(0,0,0,0.2);">
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelector('.close-button').addEventListener('click', () => {
+                parent.postMessage({ type: "destroyGameOverlay", overlayName: "safehouse" }, "*");
+            });
+
+            document.querySelector('.rest-button').addEventListener('click', () => {
+                parent.postMessage({ type: "rest" }, "*");
+            });
+
+            let equippedRod = null;
+            let inventoryItems = [];
+            let safehouseItems = [];
+            let inventoryMax = 10;
+            let safehouseMax = 20;
+            let selectedItem = null;
+            let selectedSource = null;
+
+            function updateUI() {
+                const safehouseGrid = document.getElementById('safehouse-grid');
+                const inventoryGrid = document.getElementById('inventory-grid');
+                const equippedRodsGrid = document.getElementById('equipped-rods-grid');
+
+                safehouseGrid.innerHTML = '';
+                inventoryGrid.innerHTML = '';
+                equippedRodsGrid.innerHTML = '';
+
+                // Display equipped rod
+                if (!equippedRod) {
+                    const emptyMessage = document.createElement('p');
+                    emptyMessage.textContent = "No Rod Equipped";
+                    emptyMessage.style.color = "#A79B8E";
+                    emptyMessage.style.fontStyle = "italic";
+                    emptyMessage.style.textAlign = "center";
+                    equippedRodsGrid.appendChild(emptyMessage);
+                } else {
+                    const div = createRodCard(equippedRod, 'equipped');
+                    equippedRodsGrid.appendChild(div);
+                }
+
+                // Ensure rods show first
+                const sortedSafehouse = [...safehouseItems].sort((a, b) => {
+                    const aIsRod = a.id.toLowerCase().startsWith('rod') || a.type === 'rod';
+                    const bIsRod = b.id.toLowerCase().startsWith('rod') || b.type === 'rod';
+
+                    if (aIsRod && !bIsRod) return -1;
+                    if (!aIsRod && bIsRod) return 1;
+                    return 0;
+                });
+
+                sortedSafehouse.forEach(item => {
+                    const div = createItemCard(item, 'safehouse');
+                    safehouseGrid.appendChild(div);
+                });
+
+
+                const sortedInventory = [...inventoryItems].sort((a, b) => {
+                    const aIsRod = a.id.toLowerCase().startsWith('rod') || a.type === 'rod';
+                    const bIsRod = b.id.toLowerCase().startsWith('rod') || b.type === 'rod';
+
+                    if (aIsRod && !bIsRod) return -1;
+                    if (!aIsRod && bIsRod) return 1;
+                    return 0;
+                });
+
+                sortedInventory.forEach(item => {
+                    const div = createItemCard(item, 'inventory');
+                    inventoryGrid.appendChild(div);
+                });
+
+                const safehouseCount = safehouseItems.reduce((sum, i) => sum + i.quantity, 0);
+                const inventoryCount = inventoryItems.reduce((sum, i) => sum + i.quantity, 0);
+
+                document.querySelector('#safehouse-title').textContent = `Safehouse Storage: ${safehouseCount}/${safehouseMax}`;
+                document.querySelector('#inventory-title').textContent = `Inventory: ${inventoryCount}/${inventoryMax}`;
+            }
+
+            function showTemporaryMessage(message) {
+                const messageBox = document.getElementById('temporary-message');
+                messageBox.textContent = message;
+                messageBox.style.display = 'block';
+                messageBox.style.opacity = '1';
+
+                setTimeout(() => {
+                    messageBox.style.transition = 'opacity 0.5s ease';
+                    messageBox.style.opacity = '0';
+                    setTimeout(() => {
+                        messageBox.style.display = 'none';
+                    }, 500);
+                }, 2000); // Visible for 2s
+            }
+
+            function createItemCard(item, source) {
+                const div = document.createElement('div');
+                div.className = 'inventory-item';
+                div.style.border = `2px solid ${item.outlineColor || '#E6D9C2'}`;
+
+                const img = document.createElement('img');
+                // Use correct path for class of item
+                if (item.type === "fish") {
+                    img.src = `../../assets/fish-sprites/${item.imgSrc}`;
+                } else if (item.type === "rod") {
+                    img.src = `../../assets/fishing/${item.imgSrc}`;
+                }
+
+                div.appendChild(img);
+
+                const quantity = document.createElement('div');
+                quantity.className = 'item-label';
+                quantity.textContent = `x${item.quantity}`;
+                div.appendChild(quantity);
+
+                const name = document.createElement('div');
+                name.className = 'item-label';
+                name.textContent = item.name;
+                div.appendChild(name);
+
+                div.addEventListener('click', () => {
+                    selectedItem = item;
+                    selectedSource = source;
+                    showInspectOverlay(item, source);
+                });
+
+                return div;
+            }
+
+            function closeInspectOverlay() {
+                document.getElementById('inspect-overlay').style.display = 'none';
+            }
+
+            function showInspectOverlay(item, source) {
+                const isRod = item.type === 'rod';
+                if (isRod) {
+                    showRodInspection(item, source);
+                    return;
+                }
+
+                // handle non-rod items below
+                const overlay = document.getElementById('inspect-overlay');
+                overlay.innerHTML = ''; // Clear previous content
+                overlay.style.display = 'flex';
+
+                const container = document.createElement('div');
+                container.style.background = '#FFF8EE';
+                container.style.padding = '30px';
+                container.style.borderRadius = '12px';
+                container.style.border = '2px solid #E6D9C2';
+                container.style.boxShadow = '0 12px 24px rgba(0, 0, 0, 0.3)';
+                container.style.textAlign = 'center';
+                container.style.color = '#7E6D5A';
+                container.style.maxWidth = '500px';
+                container.style.width = '100%';
+
+                const title = document.createElement('h2');
+                title.textContent = item.name;
+                container.appendChild(title);
+
+                const img = document.createElement('img');
+                img.src = `../../assets/fish-sprites/${item.imgSrc}`;
+                img.style.maxWidth = '200px';
+                img.style.marginBottom = '15px';
+                container.appendChild(img);
+
+                const desc = document.createElement('p');
+                desc.textContent = item.description || 'No description.';
+                container.appendChild(desc);
+
+                const quantity = document.createElement('p');
+                quantity.textContent = `Quantity: x${item.quantity}`;
+                container.appendChild(quantity);
+
+                const value = document.createElement('p');
+                value.textContent = `Value: ${item.cost || 0} coins`;
+                container.appendChild(value);
+
+                // === Throw Button ===
+                const throwBtn = document.createElement('button');
+                throwBtn.textContent = 'Throw away one';
+                throwBtn.className = 'inspect-button danger';
+                throwBtn.onclick = () => {
+                    parent.postMessage({ type: "dumpItem", itemId: item.id, source }, "*");
+
+                    item.quantity--;
+                    if (item.quantity <= 0) {
+                        if (source === 'inventory') {
+                            inventoryItems = inventoryItems.filter(it => it.id !== item.id);
+                        } else {
+                            safehouseItems = safehouseItems.filter(it => it.id !== item.id);
+                        }
+                        closeInspectOverlay();
+                    } else {
+                        showInspectOverlay(item, source);
+                    }
+
+                    updateUI();
+                };
+                container.appendChild(throwBtn);
+
+                // === Transfer Button ===
+                const transferBtn = document.createElement('button');
+                transferBtn.textContent = source === 'inventory' ? 'Send one to Safehouse' : 'Send one to Inventory';
+                transferBtn.className = 'inspect-button success';
+                transferBtn.onclick = () => {
+                    const destination = source === 'inventory' ? safehouseItems : inventoryItems;
+                    const destMax = source === 'inventory' ? safehouseMax : inventoryMax;
+                    const destCount = destination.reduce((sum, i) => sum + i.quantity, 0);
+
+                    if (destCount >= destMax) {
+                        showTemporaryMessage(`${source === 'inventory' ? 'Safehouse' : 'Inventory'} is full.`);
+                        return;
+                    }
+
+                    // Remove one from source
+                    item.quantity--;
+                    if (item.quantity <= 0) {
+                        if (source === 'inventory') {
+                            inventoryItems = inventoryItems.filter(it => it.id !== item.id);
+                        } else {
+                            safehouseItems = safehouseItems.filter(it => it.id !== item.id);
+                        }
+                    }
+
+                    // Add to destination
+                    const existing = destination.find(it => it.id === item.id);
+                    if (existing) {
+                        existing.quantity++;
+                    } else {
+                        destination.push({
+                            ...item,
+                            quantity: 1,
+                            outlineColor: item.outlineColor || '#E6D9C2'
+                        });
+                    }
+
+                    parent.postMessage({
+                        type: "transferItem",
+                        itemId: item.id,
+                        direction: source === 'inventory' ? 'toSafehouse' : 'toInventory'
+                    }, "*");
+
+                    updateUI();
+
+                    if (item.quantity <= 0) {
+                        closeInspectOverlay();
+                    } else {
+                        showInspectOverlay(item, source);
+                    }
+                };
+
+                container.appendChild(transferBtn);
+
+                // === Back Button ===
+                const backBtn = document.createElement('button');
+                backBtn.textContent = 'Back';
+                backBtn.className = 'inspect-button';
+                backBtn.onclick = closeInspectOverlay;
+                container.appendChild(backBtn);
+
+                overlay.appendChild(container);
+            }
+
+            function showRodInspection(item, source) {
+                const overlay = document.getElementById('inspect-overlay');
+                overlay.innerHTML = ''; // Clear previous content
+                overlay.style.display = 'flex';
+
+                const container = document.createElement('div');
+                container.style.background = '#FFF8EE';
+                container.style.padding = '30px';
+                container.style.borderRadius = '12px';
+                container.style.border = '2px solid #E6D9C2';
+                container.style.boxShadow = '0 12px 24px rgba(0, 0, 0, 0.3)';
+                container.style.textAlign = 'center';
+                container.style.color = '#7E6D5A';
+                container.style.maxWidth = '500px';
+                container.style.width = '100%';
+
+                // Rod image and basic info
+                const title = document.createElement('h2');
+                title.textContent = item.name;
+                container.appendChild(title);
+
+                const img = document.createElement('img');
+                img.src = `../../assets/fishing/${item.imgSrc}`;
+                img.style.maxWidth = '200px';
+                img.style.marginBottom = '15px';
+                container.appendChild(img);
+
+                const desc = document.createElement('p');
+                desc.textContent = item.description || 'No description.';
+                container.appendChild(desc);
+
+                // Extract class from specialEffect
+                const rodClass = item.specialEffect?.match(/class(\d+)/)?.[1] || 1;
+                const classText = document.createElement('p');
+                classText.textContent = `Class ${rodClass} Rod`;
+                classText.style.fontWeight = 'bold';
+                container.appendChild(classText);
+
+                const quantity = document.createElement('p');
+                quantity.textContent = `Quantity: x${item.quantity}`;
+                container.appendChild(quantity);
+
+                // Transfer/equip buttons based on source
+                if (source === 'inventory') {
+                    // Add equip button
+                    const equipBtn = document.createElement('button');
+                    equipBtn.textContent = 'Equip Rod';
+                    equipBtn.className = 'inspect-button success';
+
+                    // Check if rod slot is available
+                    const hasSpace = !equippedRod;
+
+                    if (hasSpace) {
+                        equipBtn.onclick = () => {
+                            parent.postMessage({
+                                type: "equipRod",
+                                rodId: item.id
+                            }, "*");
+
+                            // Remove from inventory 
+                            item.quantity--;
+                            if (item.quantity <= 0) {
+                                inventoryItems = inventoryItems.filter(it => it.id !== item.id);
+                            }
+
+                            // Update equipped rod
+                            equippedRod = {
+                                id: item.id,
+                                name: item.name,
+                                imgSrc: item.imgSrc,
+                                description: item.description,
+                                class: parseInt(item.specialEffect?.match(/class(\d+)/)?.[1] || 1),
+                                outlineColor: item.outlineColor || '#E6D9C2'
+                            };
+
+                            closeInspectOverlay();
+                            updateUI();
+                        };
+                    } else {
+                        equipBtn.disabled = true;
+                        equipBtn.style.opacity = '0.5';
+                        equipBtn.style.cursor = 'not-allowed';
+
+                        const warnText = document.createElement('p');
+                        warnText.textContent = 'You already have a rod equipped. Unequip it first.';
+                        warnText.style.color = '#c97855';
+                        container.appendChild(warnText);
+                    }
+
+                    container.appendChild(equipBtn);
+
+                    // Then add the safehouse button as before
+                    addInventoryToSafehouseButton(container, item);
+                }
+                else if (source === 'safehouse') {
+                    // This is a rod in safehouse
+                    addEquipFromSafehouseButton(container, item);
+                    addSafehouseToInventoryButton(container, item);
+                }
+
+                // Add throw away button
+                addThrowButton(container, item, source);
+
+                // Close button
+                const closeBtn = document.createElement('button');
+                closeBtn.textContent = 'Close';
+                closeBtn.className = 'inspect-button';
+                closeBtn.style.marginTop = '15px';
+                closeBtn.onclick = closeInspectOverlay;
+                container.appendChild(closeBtn);
+
+                overlay.appendChild(container);
+            }
+
+            function createRodCard(rod, source) {
+                const div = document.createElement('div');
+                div.className = 'inventory-item';
+                div.style.border = `2px solid ${rod.outlineColor || '#E6D9C2'}`;
+
+                const img = document.createElement('img');
+                img.src = `../../assets/fishing/${rod.imgSrc}`; // Fixed path for rod images
+                img.style.maxWidth = '48px';
+                img.style.maxHeight = '48px';
+                div.appendChild(img);
+
+                const name = document.createElement('div');
+                name.className = 'item-label';
+                name.textContent = rod.name;
+                div.appendChild(name);
+
+                const classLabel = document.createElement('div');
+                classLabel.className = 'item-label';
+                classLabel.textContent = `Class ${rod.class}`;
+                classLabel.style.color = '#757474';
+                div.appendChild(classLabel);
+
+                div.addEventListener('click', () => {
+                    showRodDetails(rod, source);
+                });
+
+                return div;
+            }
+
+            function showRodDetails(rod, source) {
+                const overlay = document.getElementById('inspect-overlay');
+                overlay.innerHTML = '';
+                overlay.style.display = 'flex';
+
+                const container = document.createElement('div');
+                // Container styling (same as existing inspection)
+                container.style.background = '#FFF8EE';
+                container.style.padding = '30px';
+                container.style.borderRadius = '12px';
+                container.style.border = '2px solid #E6D9C2';
+                container.style.boxShadow = '0 12px 24px rgba(0, 0, 0, 0.3)';
+                container.style.textAlign = 'center';
+                container.style.color = '#7E6D5A';
+                container.style.maxWidth = '500px';
+                container.style.width = '100%';
+
+                // Rod details
+                const title = document.createElement('h2');
+                title.textContent = rod.name;
+                container.appendChild(title);
+
+                const img = document.createElement('img');
+                img.src = `../../assets/fishing/${rod.imgSrc}`;
+                img.style.maxWidth = '200px';
+                img.style.marginBottom = '15px';
+                container.appendChild(img);
+
+                const classText = document.createElement('p');
+                classText.textContent = `Class ${rod.class} Rod`;
+                classText.style.fontWeight = 'bold';
+                container.appendChild(classText);
+
+                const desc = document.createElement('p');
+                desc.textContent = rod.description || 'No description.';
+                container.appendChild(desc);
+
+                // Action buttons
+                if (source === 'equipped') {
+                    // Unequip button
+                    const unequipBtn = document.createElement('button');
+                    unequipBtn.textContent = 'Unequip Rod';
+                    unequipBtn.className = 'inspect-button danger';
+
+                    // Check if inventory has space
+                    const inventoryCount = inventoryItems.reduce((sum, i) => sum + i.quantity, 0);
+                    if (inventoryCount >= inventoryMax) {
+                        unequipBtn.disabled = true;
+                        unequipBtn.style.opacity = '0.5';
+                        unequipBtn.style.cursor = 'not-allowed';
+
+                        const warnText = document.createElement('p');
+                        warnText.textContent = 'Inventory is full! Cannot unequip rod.';
+                        warnText.style.color = '#c97855';
+                        container.appendChild(warnText);
+                    } else {
+                        unequipBtn.onclick = () => {
+                            parent.postMessage({
+                                type: "unequipRod",
+                                rodId: rod.id
+                            }, "*");
+
+                            // Update local state - clear equipped rod
+                            equippedRod = null;
+
+                            // Add rod to inventory items
+                            const rodForInventory = {
+                                id: rod.id,
+                                name: rod.name,
+                                imgSrc: rod.imgSrc,
+                                description: rod.description,
+                                type: 'rod',
+                                specialEffect: `class${rod.class}`, // Recreate the specialEffect for class extraction
+                                quantity: 1,
+                                outlineColor: rod.outlineColor || '#E6D9C2'
+                            };
+
+                            // Add to inventory items
+                            const existingRod = inventoryItems.find(item => item.id === rod.id);
+                            if (existingRod) {
+                                existingRod.quantity++;
+                            } else {
+                                inventoryItems.push(rodForInventory);
+                            }
+
+                            closeInspectOverlay();
+                            updateUI();
+                        };
+                    }
+                    container.appendChild(unequipBtn);
+                }
+
+                // Back button
+                const closeBtn = document.createElement('button');
+                closeBtn.textContent = 'Close';
+                closeBtn.className = 'inspect-button';
+                closeBtn.style.marginTop = '15px';
+                closeBtn.onclick = closeInspectOverlay;
+                container.appendChild(closeBtn);
+
+                overlay.appendChild(container);
+            }
+
+            function addInventoryToSafehouseButton(container, item) {
+                const transferBtn = document.createElement('button');
+                transferBtn.textContent = 'Send one to safehouse';
+                transferBtn.className = 'inspect-button success';
+
+                transferBtn.onclick = () => {
+                    // Calculate current safehouse usage
+                    const safehouseCount = safehouseItems.reduce((sum, i) => sum + i.quantity, 0);
+                    const safehouseFull = safehouseCount >= safehouseMax;
+
+                    if (safehouseFull) {
+                        showTemporaryMessage('Safehouse storage is full!');
+                        return;
+                    }
+
+                    parent.postMessage({
+                        type: "transferItem",
+                        itemId: item.id,
+                        direction: 'toSafehouse'
+                    }, "*");
+
+                    // Decrease quantity in inventory
+                    item.quantity--;
+
+                    // Add to safehouse
+                    const existingInSafehouse = safehouseItems.find(it => it.id === item.id);
+                    if (existingInSafehouse) {
+                        existingInSafehouse.quantity++;
+                    } else {
+                        safehouseItems.push({
+                            ...item,
+                            quantity: 1,
+                            outlineColor: item.outlineColor || '#E6D9C2' // Explicitly preserve color
+                        });
+                    }
+
+                    // Only close overlay if quantity is now 0
+                    if (item.quantity <= 0) {
+                        inventoryItems = inventoryItems.filter(it => it.id !== item.id);
+                        closeInspectOverlay();
+                    } else {
+                        // If we still have some left, just refresh the current overlay
+                        showRodInspection(item, 'inventory');
+                    }
+
+                    updateUI();
+                };
+
+                container.appendChild(transferBtn);
+            }
+
+            function addEquipFromSafehouseButton(container, item) {
+                const equipBtn = document.createElement('button');
+                equipBtn.textContent = 'Equip Rod';
+                equipBtn.className = 'inspect-button success';
+
+                // Check if rod slot is available
+                const rodSlotsAvailable = !equippedRod;
+
+                if (rodSlotsAvailable) {
+                    equipBtn.onclick = () => {
+                        parent.postMessage({
+                            type: "equipRodFromSafehouse",
+                            rodId: item.id
+                        }, "*");
+
+                        // Decrease quantity by 1
+                        item.quantity--;
+                        if (item.quantity <= 0) {
+                            safehouseItems = safehouseItems.filter(it => it.id !== item.id);
+                        }
+
+                        equippedRod = {
+                            id: item.id,
+                            name: item.name,
+                            imgSrc: item.imgSrc,
+                            description: item.description,
+                            class: parseInt(item.specialEffect?.match(/class(\d+)/)?.[1] || 1),
+                            outlineColor: item.outlineColor || '#E6D9C2'
+                        };
+
+                        closeInspectOverlay();
+                        updateUI();
+                    };
+
+                } else {
+                    equipBtn.disabled = true;
+                    equipBtn.style.opacity = '0.5';
+                    equipBtn.style.cursor = 'not-allowed';
+
+                    const warnText = document.createElement('p');
+                    warnText.textContent = 'You already have a rod equipped. Unequip it first.';
+                    warnText.style.color = '#c97855';
+                    container.appendChild(warnText);
+                }
+
+                container.appendChild(equipBtn);
+            }
+
+            function addSafehouseToInventoryButton(container, item) {
+                const transferBtn = document.createElement('button');
+                transferBtn.textContent = 'Send one to Inventory';
+                transferBtn.className = 'inspect-button success';  // Changed to success class
+                transferBtn.style.marginTop = '10px';
+
+                transferBtn.onclick = () => {
+                    // Check inventory capacity
+                    const inventoryCount = inventoryItems.reduce((sum, i) => sum + i.quantity, 0);
+                    const inventoryFull = inventoryCount >= inventoryMax;
+
+                    if (inventoryFull) {
+                        showTemporaryMessage('Inventory is full!');
+                        return;
+                    }
+
+                    parent.postMessage({
+                        type: "transferItem",
+                        itemId: item.id,
+                        direction: 'toInventory'
+                    }, "*");
+
+                    // Decrease quantity in safehouse
+                    item.quantity--;
+
+                    // Add to inventory
+                    const existingInInventory = inventoryItems.find(it => it.id === item.id);
+                    if (existingInInventory) {
+                        existingInInventory.quantity++;
+                    } else {
+                        inventoryItems.push({
+                            ...item,
+                            quantity: 1,
+                            outlineColor: item.outlineColor || '#E6D9C2' // Explicitly preserve color
+                        });
+                    }
+
+                    // Only close overlay if quantity is now 0
+                    if (item.quantity <= 0) {
+                        safehouseItems = safehouseItems.filter(it => it.id !== item.id);
+                        closeInspectOverlay();
+                    } else {
+                        // If we still have some left, just refresh the current overlay
+                        showRodInspection(item, 'safehouse');
+                    }
+
+                    updateUI();
+                };
+
+                container.appendChild(transferBtn);
+            }
+
+            function addThrowButton(container, item, source) {
+                const throwBtn = document.createElement('button');
+                throwBtn.textContent = 'Throw away';
+                throwBtn.className = 'inspect-button danger';
+                throwBtn.style.marginTop = '15px';
+                throwBtn.onclick = () => {
+                    parent.postMessage({ type: "dumpItem", itemId: item.id, source }, "*");
+
+                    // Update UI
+                    if (source === 'inventory') {
+                        inventoryItems = inventoryItems.filter(it => it.id !== item.id);
+                    } else {
+                        safehouseItems = safehouseItems.filter(it => it.id !== item.id);
+                    }
+                    closeInspectOverlay();
+                    updateUI();
+                };
+                container.appendChild(throwBtn);
+            }
+
+            window.addEventListener('message', (event) => {
+                if (event.data?.type === 'safehouseData') {
+                    safehouseItems = event.data.safehouse || [];
+                    inventoryItems = event.data.inventory || [];
+                    equippedRod = event.data.equippedRod || null;
+
+                    console.log(safehouseItems)
+
+                    safehouseMax = event.data.safehouseMax ?? safehouseMax;
+                    inventoryMax = event.data.inventoryMax ?? inventoryMax;
+
+                    updateUI();
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

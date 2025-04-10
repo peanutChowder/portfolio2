@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Ping Pong Fish</title>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* Full-screen overlay */
+        #sandbox-wrapper {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            font-family: 'Prompt', Arial, sans-serif;
+            color: white;
+            overflow: hidden;
+        }
+
+        #sandbox-content {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            background-color: #64e9de;
+            overflow: hidden;
+        }
+
+        .close-button {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background-color: #ff5e57;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            z-index: 999;
+        }
+
+        .close-button:hover {
+            background-color: #ff3b3b;
+            transform: scale(1.1);
+        }
+
+        .arrow-btn {
+            background: #D0B49F; /* Playful beige */
+            color: #000;
+            border: none;
+            border-radius: 10px;
+            padding: 12px 20px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s ease-in-out;
+            z-index: 10;
+            position: absolute;
+            bottom: 20px;
+
+            /* Prevent accidental text selection */
+            user-select: none;
+            -webkit-user-select: none; /* For Safari */
+            -webkit-touch-callout: none; /* iOS long press menu */
+            touch-action: manipulation; 
+        }
+
+        .arrow-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .arrow-btn:active {
+            transform: scale(0.95);
+        }
+
+        #left-btn {
+            left: 20px;
+        }
+
+        #right-btn {
+            right: 20px;
+        }
+
+        #hud {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 1.3rem;
+            z-index: 999;
+        }
+
+        #hud span {
+            margin-right: 1rem;
+        }
+
+        #game-message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 1.5rem;
+            color: #fff;
+            text-align: center;
+            width: 80%;
+            padding: 10px 20px;
+            z-index: 998;
+        }
+
+        .fish {
+            position: absolute;
+            width: 60px;
+            height: auto;
+            pointer-events: none;
+        }
+
+        #paddle {
+            position: absolute;
+            bottom: 50px;
+            width: 100px;
+            height: 20px;
+            background: #D0B49F;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="sandbox-wrapper">
+        <div id="sandbox-content">
+            <button class="close-button">Close</button>
+            <div id="hud">
+                <span id="bounces">Bounces: 0</span>
+                <span id="lives">Lives: 3</span>
+            </div>
+            <div id="game-message">Tap or click to start playing! Don't let the fish escape your paddle!</div>
+
+            <div id="paddle"></div>
+
+            <!-- On-screen arrows -->
+            <div id="left-btn" class="arrow-btn">&#8592;</div>
+            <div id="right-btn" class="arrow-btn">&#8594;</div>
+        </div>
+    </div>
+
+    <script type="module" src="fishBounce.js"></script>
+</body>
+</html>

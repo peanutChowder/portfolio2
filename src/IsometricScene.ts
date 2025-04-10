@@ -1,6 +1,5 @@
 import Phaser from 'phaser';
 import { Boat } from './Boat';
-import InteractionArea from './InteractionArea';
 
 // import map & map tiles
 import mapJSON from '../assets/world2/world2.json';
@@ -8,12 +7,17 @@ import tileset256x256Cubes from '../assets/world2/256x256 Cubes.png';
 import tileset256x192Tiles from '../assets/world2/256x192 Tiles.png'
 import tileset256x512Trees from '../assets/world2/256x512 Trees.png'
 import tileset256x128TileOverlays from '../assets/world2/256x128 Tile Overlays.png'
-import fishingRod from '../assets/fishing/rod.jpg'
 
+import { INTERACTION_AREAS } from './gamification/InteractionAreaData';
+import InteractionArea from './InteractionArea';
+import { IslandManager } from './gamification/IslandManager';
 import { ArrowIndicator } from './ArrowIndicator';
 import { VirtualJoystick } from './VirtualJoystick';
 import { FireworkManager } from './Fireworks';
 import { MapSystem } from './MapSystem';
+import { Inventory } from './gamification/Inventory';
+import { SafehouseInventory } from './gamification/SafehouseInventory';
+import { itemData } from './gamification/ItemData';
 
 const fontSize = "80px";
 const fontColor = "#ffffff"
@@ -23,7 +27,7 @@ const fontFamilies = {
 }
 
 const debugMode = false;
-const debugSpawn = { x: 12441, y: 16104 }
+const debugSpawn = { x: 12901, y: 15449 }
 
 const arrowIndicatorsEnabled = false;
 
@@ -56,7 +60,7 @@ export default class IsometricScene extends Phaser.Scene {
     private static readonly FOG_MIN_ALPHA = 0; // alpha for fog edge
     private static readonly FOG_MAX_ALPHA = 1; // alpha for fog start
     private oceanLayer: Phaser.Tilemaps.TilemapLayer | null = null;
-    
+
     // Lost boat handling
     private static readonly LOST_THRESHOLD = 25; // How many tiles off map before "lost" effect
     private lostText!: Phaser.GameObjects.Text;
@@ -68,18 +72,28 @@ export default class IsometricScene extends Phaser.Scene {
     private energyBar!: Phaser.GameObjects.Graphics;
     private energyBarBackground!: Phaser.GameObjects.Graphics;
     private lastBoatPosition!: { x: number; y: number };
-    private energyDrainRate: number = 1; // Drain rate per tiles
     private energyBarX = 1000;
     private energyBarY = 1000;
-    private energyBarWidth = 200;
+    private energyBarWidth = 900;
     private energyBarHeight = 50;
+    private energyBarText!: Phaser.GameObjects.Text;
 
 
     private fireworkManager!: FireworkManager
 
     private mapSystem!: MapSystem;
 
-    private fishingButton!: HTMLDivElement | null;
+    // inventory elements
+    private inventoryOverlayElement!: HTMLIFrameElement | null; // The HTML <iframe>
+    private inventoryButtonColor = 0xd1b884;
+    private inventoryButtonHoverColor = 0xe3cb98;
+    private inventory: Inventory | null = null;
+
+    // Safehouse storage/inventory
+    private safehouseInventory!: SafehouseInventory;
+
+    // Game elements manager
+    private islandManager!: IslandManager;
 
     // Debug text attributes
     private debugText!: Phaser.GameObjects.Text;
@@ -113,6 +127,10 @@ export default class IsometricScene extends Phaser.Scene {
 
         // Load boat sprites
         Boat.preload(this);
+        // Load minimap sprites
+        MapSystem.preload(this);
+
+        InteractionArea.preload(this);
 
         this.load.on('loaderror', (file: Phaser.Loader.File) => {
             console.error('Error loading file:', file.key);
@@ -135,7 +153,8 @@ export default class IsometricScene extends Phaser.Scene {
         this.load.html('experienceOverlay-UAlberta', 'expUAlbertaOverlay.html');
         this.load.html('welcomeOverlay', 'welcomeOverlay.html');
 
-        this.load.html('fishPunch', 'game-overlays/fishPunch.html');
+        // Game element overlays
+        IslandManager.preload(this)
 
         // load firework animations
         this.fireworkManager.preload()
@@ -180,18 +199,47 @@ export default class IsometricScene extends Phaser.Scene {
 
                 if (layer.layer.name == "Ocean") {
                     this.oceanLayer = layer;
+                    this.oceanLayer.setDepth(0);
                 }
             } else {
                 console.error(`Error getting layer number '${layerNum}'`);
             }
 
-            // Draw our interaction zones marked by an ellipse.
+
+
+            // The following steps must be executed in this order because they are dependent on each other.
+            // (1.) Initialize inventory, which is used by a createInteractionAreas child call method to check
+            // if we need to block buttons from clicks.
+            this.inventory = new Inventory();
+
+            // (2.) Initialize Interaction Area objects and draw our interaction zones marked by an ellipse.
             // Interaction zones are areas where users can activate an overlay to see embedded content.
-            this.setupInteractiveAreas();
+            this.createInteractionAreas();
+
+            // (3.) Retrieve game element assignments to islands (or create if first visit)
+            this.islandManager = new IslandManager(this.interactionAreas);
+
+            // (4.) Enable glowing for interactions with an assigned Game element
+            Object.values(this.interactionAreas).forEach((interactionArea: InteractionArea) => {
+                interactionArea.handleGlowEffect(0);
+            })
+
+            // (5.) Disable game elements buttons in Interaction Areas that have depleted resources
+            Object.values(this.interactionAreas).forEach((interactionArea: InteractionArea) => {
+                if (interactionArea.getGameElementBlockers()) {
+                    interactionArea.updateButtonBlockers(new Set(['depletion']));
+                }
+            })
+
+
+            // not load order sensitive
+            this.safehouseInventory = new SafehouseInventory();
+
 
             // Draw layer 2 (layer number 1), the lowest land layer
             layerNum = 1
             layer = this.map.createLayer(layerNum, tilesets, 0, 0);
+            layer?.setDepth(1)
             if (layer) {
                 layers[layerNum] = layer;
                 if (this.collisionLayerNames.includes(layer.layer.name)) {
@@ -220,13 +268,15 @@ export default class IsometricScene extends Phaser.Scene {
                 }
             }
 
-
-            // Create and draw boat
+            // Load boat coords from last visit
+            let savedPosition = localStorage.getItem('boatPosition');
+            let boatCoords = savedPosition ? JSON.parse(savedPosition) : IsometricScene.SPAWN_COORDS;
             this.boat = new Boat(
                 this,
-                IsometricScene.SPAWN_COORDS.x, IsometricScene.SPAWN_COORDS.y,
+                boatCoords.x, boatCoords.y,
                 this.interactionAreas
             );
+            this.boat.setDepth(5);
             this.add.existing(this.boat)
             console.log("Added boat")
 
@@ -234,6 +284,7 @@ export default class IsometricScene extends Phaser.Scene {
             // Add remaining layers
             for (let i = 2; i < this.map.layers.length; i++) {
                 const layer = this.map.createLayer(i, tilesets, 0, 0);
+                layer?.setDepth(i);
                 if (layer) {
                     layers[i] = layer;
 
@@ -267,8 +318,6 @@ export default class IsometricScene extends Phaser.Scene {
             const worldWidth = this.map.widthInPixels;
             const worldHeight = this.map.heightInPixels;
 
-            this.createEnergyBar();
-
 
             this.cameras.main.setZoom(0.2);
             this.cameras.main.centerOn(0, 500);
@@ -278,6 +327,18 @@ export default class IsometricScene extends Phaser.Scene {
 
             this.mapSystem = new MapSystem(this, this.interactionAreas);
 
+            this.createEnergyBar();
+
+            this.createInventoryButton();
+
+
+            this.islandManager.assignIslandGameElements(false)
+
+            // Set the glow effect for depletable game elements + evaluate if the user will be allowed to interact
+            Object.values(this.interactionAreas).forEach((interactionArea: InteractionArea) => {
+                interactionArea.evaluateGameElementBlockers();
+                interactionArea.handleGlowEffect(0);
+            });
 
 
             // Create a virtual joystick for non-desktop users to move the boat.
@@ -287,14 +348,249 @@ export default class IsometricScene extends Phaser.Scene {
                 this.boat.setJoystickDirectionGetter(() => this.joystick.getDirection())
             }
 
-            window.addEventListener("message", (event) => {
-                if (event.data?.type === "destroyGameOverlay") {
-                    let overlayName = event.data?.overlayName;
-                    console.log(`Received destroyGameOverlay event for overlay: ${overlayName}`);
-                    this.destroyGameOverlay(overlayName);  // Call the correct destroy function
+
+            // Listen for messages within iframes for minigames and inventory
+            window.addEventListener('message', (event) => {
+                if (!event.data?.type) return;
+
+                switch (event.data.type) {
+
+                    case 'addItemToInventory': {
+                        const { itemId } = event.data;
+                        console.log(`Received fish from minigame: ${itemId}`);
+                        if (this.inventory) {
+                            this.inventory.addItem(itemId);
+                        }
+                        break;
+                    }
+
+                    case 'dumpItem': {
+                        const { itemId, source } = event.data;
+                        console.log(`Received request to dump item: ${itemId} from ${source}`);
+
+                        if (source === 'inventory' && this.inventory) {
+                            this.inventory.removeItem(itemId);
+                        } else if (source === 'safehouse') {
+                            this.safehouseInventory.removeItem(itemId);
+                        } else {
+                            console.warn(`Unknown source '${source}' for dumpItem.`);
+                        }
+                        break;
+                    }
+
+
+                    case 'reduceFish': {
+                        console.log("Received reduceFish event");
+
+                        // Find the active interaction area 
+                        const { x, y } = this.boat.getPosition();
+                        const area = Object.values(this.interactionAreas).find(area =>
+                            area.containsPoint(x, y, 2) // radius = 2 tile padding
+                        );
+                        if (!area) {
+                            console.warn("No nearby interaction area found for reduceFish");
+                            break;
+                        }
+
+                        const success = this.islandManager.reduceFish(area.id);
+
+                        if (success) {
+                            console.log(`Fish reduced at area ${area.id}. Remaining: ${this.islandManager.getAssignments().find(a => a.id === area.id)?.resourceLeft}`);
+
+                            // Remove glow effect if resource is depleted
+                            if (this.islandManager.isResourceDepleted(area.id)) {
+                                console.log(`Area ${area.id} is now depleted.`);
+                                area.handleGlowEffect(0);  // Remove glow effect from minigame
+                                area.updateButtonBlockers(new Set(['depletion']));; // Disable button from further clicks
+                            }
+                        } else {
+                            console.warn(`Could not reduce fish at area ${area.id}. Maybe already depleted?`);
+                        }
+
+                        break;
+                    }
+
+
+                    case 'reduceEnergy': {
+                        const { amount } = event.data;
+                        console.log(`Reducing energy by ${amount}`);
+                        this.energy -= amount;
+
+                        this.energy = Math.max(this.energy, 0);
+
+                        // Save to localStorage
+                        localStorage.setItem('energy', this.energy.toString());
+
+                        // Re-evaluate all I.As to see if we have enough eneergy to interact
+                        Object.values(this.interactionAreas).forEach(area =>
+                            area.evaluateGameElementBlockers()
+                        );
+                        break;
+                    }
+
+                    case 'rest': {
+                        const iframe = document.getElementById('game-overlay-iframe');
+                        if (iframe) iframe.style.display = 'none'; // hide safehouse overlay temporarily
+
+                        const width = this.cameras.main.width / this.cameras.main.zoom;
+                        const height = this.cameras.main.height / this.cameras.main.zoom;
+
+                        const blackout = this.add.rectangle(
+                            this.cameras.main.centerX - width / 2,
+                            this.cameras.main.centerY - height / 2,
+                            width,
+                            height,
+                            0x000000,
+                            1
+                        );
+                        blackout.setScrollFactor(0);
+                        blackout.setDepth(999);
+                        blackout.setOrigin(0);
+                        blackout.alpha = 0;
+
+                        // Resting Text
+                        const restingText = this.add.text(
+                            this.cameras.main.centerX,
+                            this.cameras.main.centerY,
+                            'Resting...',
+                            {
+                                font: '120px Prompt',
+                                color: '#ffffff',
+                                align: 'center'
+                            }
+                        );
+                        restingText.setOrigin(0.5);
+                        restingText.setScrollFactor(0);
+                        restingText.setDepth(100000); // must be above blackout
+                        restingText.setAlpha(0);
+
+                        this.tweens.add({
+                            targets: [blackout, restingText],
+                            alpha: 1,
+                            duration: 500,
+                            onComplete: () => {
+                                this.time.delayedCall(1000, () => {
+                                    console.log("Resting... resetting energy to 100%");
+                                    this.energy = 100;
+                                    localStorage.setItem('energy', this.energy.toString());
+                                    this.updateEnergyBar();
+
+                                    // Update and remove energy depleted blocker now that we are rested.
+                                    Object.values(this.interactionAreas).forEach(area => area.evaluateGameElementBlockers());
+                                });
+
+                                this.time.delayedCall(2000, () => {
+                                    this.tweens.add({
+                                        targets: [blackout, restingText],
+                                        alpha: 0,
+                                        duration: 500,
+                                        onComplete: () => {
+                                            blackout.destroy();
+                                            restingText.destroy();
+                                            if (iframe) iframe.style.display = 'block';
+                                        }
+                                    });
+                                });
+                            }
+                        });
+
+                        break;
+                    }
+
+                    // transferring items in safehouse between safehouse storage <-> inventory
+                    case 'transferItem': {
+                        const { itemId, direction } = event.data;
+                        const isRod = itemId.startsWith('rod_');
+
+                        if (direction === 'toSafehouse') {
+                            if (isRod && this.inventory?.getRodStorage().getActiveRodId() === itemId) {
+                                // This is an equipped rod, unequip it first
+                                const removed = this.inventory?.getRodStorage().removeRod(itemId);
+                                if (removed) {
+                                    this.safehouseInventory.addItem(itemId);
+                                }
+                            } else {
+                                // Regular transfer
+                                this.safehouseInventory.addItem(itemId);
+                                this.inventory?.removeItem(itemId);
+                            }
+                        } else {
+                            // From safehouse to inventory
+                            this.inventory?.addItem(itemId);
+                            this.safehouseInventory.removeItem(itemId);
+                        }
+                        break;
+                    }
+
+
+                    case 'destroyInventoryOverlay': {
+                        this.destroyInventoryOverlay();
+                        break;
+                    }
+
+                    case 'destroyGameOverlay': {
+                        let overlayName = event.data?.overlayName;
+                        console.log(`Received destroyGameOverlay event for overlay: ${overlayName}`);
+                        this.destroyGameOverlay(overlayName);
+                        break;
+                    }
+
+                    // ---------- FISHING ROD MANAGEMENT ----------
+                    case 'equipRod': {
+                        const { rodId } = event.data;
+                        if (this.inventory?.equipRod(rodId)) {
+                            console.log(`Equipped rod: ${rodId}`);
+                        }
+                        break;
+                    }
+
+                    case 'unequipRod': {
+                        const { rodId } = event.data;
+                        if (this.inventory?.unequipRod(rodId)) {
+                            console.log(`Unequipped rod: ${rodId}`);
+                        }
+                        break;
+                    }
+
+                    case 'equipRodFromSafehouse': {
+                        const { rodId } = event.data;
+                        const rod = itemData[rodId];
+                        if (!rod) break;
+
+                        // Check if we have rod storage space
+                        if (this.inventory?.getRodStorage().hasSpace()) {
+                            // Remove from safehouse first
+                            this.safehouseInventory.removeItem(rodId);
+
+                            // Add to rod storage
+                            this.inventory.getRodStorage().addRod(rodId);
+                        }
+                        break;
+                    }
                 }
             });
-            
+
+            // Check if we need to perform random shuffling of minigames
+            this.time.addEvent({
+                delay: 1000, // 1s refresh
+                callback: () => {
+                    const reassigned = this.islandManager.assignIslandGameElements(false);
+
+                    // Always recheck blockers whether reassigned or not
+                    Object.values(this.interactionAreas).forEach((interactionArea: InteractionArea) => {
+                        interactionArea.evaluateGameElementBlockers();
+                    });
+
+                    if (reassigned) {
+                        Object.values(this.interactionAreas).forEach((interactionArea: InteractionArea) => {
+                            interactionArea.handleGlowEffect(0);
+                        });
+                    }
+                },
+                loop: true
+            });
+
+
 
             if (debugMode) {
                 // Add debug info
@@ -319,374 +615,108 @@ export default class IsometricScene extends Phaser.Scene {
         console.groupEnd();
     }
 
-    private createEnergyBar(): void {        
+    private createEnergyBar(): void {
+        const savedEnergy = localStorage.getItem('energy');
+        this.energy = savedEnergy ? parseInt(savedEnergy, 10) : 100;
+        this.energyBarWidth = this.mapSystem.getMinimapWidth();
+        this.energyBarX = this.cameras.main.centerX + (this.cameras.main.width / (2 * this.cameras.main.zoom)) - (this.energyBarWidth * 1.025) // multiplied by some (seemingly) arbitrary constant i had to brute force lol
+        this.energyBarY = this.mapSystem.getMapBottomRight().y * 0.95 // another arbitrary brute forced constant
+
         // Background (Gray)
         this.energyBarBackground = this.add.graphics();
         this.energyBarBackground.fillStyle(0x444444, 1);
         this.energyBarBackground.fillRect(0, 0, this.energyBarWidth, this.energyBarHeight);
         this.energyBarBackground.setScrollFactor(0); // Fix it to the screen
-    
+
         // Foreground (Green)
         this.energyBar = this.add.graphics();
         this.energyBar.fillStyle(0x00ff00, 1);
         this.energyBar.fillRect(0, 0, this.energyBarWidth, this.energyBarHeight);
         this.energyBar.setScrollFactor(0); // Fix it to the screen
-    
+
+        // Energy bar Label
+        this.energyBarText = this.add.text(this.energyBarX, this.energyBarY + this.energyBarHeight, 'Energy', {
+            color: 'white',
+            fontFamily: 'Prompt',
+            fontSize: '80px',
+        });
+        this.energyBarText.setScrollFactor(0);
+
         // Move to correct position
         this.energyBarBackground.setPosition(this.energyBarX, this.energyBarY);
         this.energyBar.setPosition(this.energyBarX, this.energyBarY);
-    
+
+        // Depth
+        this.energyBarBackground.setDepth(50);
+        this.energyBar.setDepth(51);
+        this.energyBarText.setDepth(51);
+
         this.lastBoatPosition = { x: this.boat.x, y: this.boat.y };
     }
-    
-    
 
-    private setupInteractiveAreas(): void {
-        const workMarkerInfo = {
-            color: 0x9028f7,
-            radius: 40,
-            locationType: "Work"
-        }
+    private createInventoryButton(): void {
+        const buttonWidth = 900;
+        const buttonHeight = 150;
+        const xPos = this.energyBarX;
+        const yPos = this.energyBarY * 0.75;;
 
-        const projectMarkerInfo = {
-            color: 0x134aba,
-            radius: 40,
-            locationType: "Projects"
-        }
+        const buttonBg = this.add.graphics();
+        const drawButtonBg = (color: number) => {
+            buttonBg.clear();
+            buttonBg.fillStyle(color, 1);
+            buttonBg.fillRoundedRect(0, 0, buttonWidth, buttonHeight, 20);
+            buttonBg.lineStyle(6, 0xffffff, 1);
+            buttonBg.strokeRoundedRect(0, 0, buttonWidth, buttonHeight, 20);
+        };
+        drawButtonBg(this.inventoryButtonColor);
 
-        this.interactionAreas["experience-Apple"] = new InteractionArea(
-            this,
-            10000, 8963,
-            3900, 2000,
-            "Apple",
-            "experienceOverlay-Apple",
-            0xaa9cff,
-            0xc4baff,
-            {
-                text: "Click for my time at Apple",
-                font: fontFamilies["header"],
-                fontColor: "#ffffff",
-                color: 0xaa9cff,
-                hoverColor: 0x9887fa
-            },
-            {
-                text: "Software Engineer Intern\n        @ Apple",
-                color: "#7340f5",
-                font: fontFamilies["header"],
-                fontSize: "220px",
-                offset: {
-                    x: -0, y: -1200
-                }
-            },
-            workMarkerInfo
-        )
+        const label = this.add.text(buttonWidth / 2, buttonHeight / 2, "Inventory", {
+            fontFamily: "Prompt",
+            fontSize: "100px",
+            color: "#ffffff",
+        }).setOrigin(0.5);
 
-        this.interactionAreas["experience-Teck"] = new InteractionArea(
-            this,
-            15600, 15800,
-            4100, 2300,
-            "Teck",
-            "experienceOverlay-Teck",
-            0x266dc9,
-            0x70a3e6,
-            {
-                text: "Click for my time at Teck",
-                font: fontFamilies["header"],
-                fontColor: "#ffffff",
-                color: 0x266dc9,
-                hoverColor: 0x1960bd
-            },
-            {
-                text: "Wireless Engineer Co-op\n        @ Teck",
-                color: "#1960bd",
-                font: fontFamilies["header"],
-                fontSize: "220px",
-                offset: {
-                    x: -0, y: -1000
-                }
-            },
-            workMarkerInfo
-        )
+        const buttonContainer = this.add.container(xPos, yPos, [buttonBg, label]);
+        buttonContainer.setScrollFactor(0).setDepth(99);
 
-        this.interactionAreas["experience-UAlberta"] = new InteractionArea(
-            this,
-            -2064, 16620,
-            4100, 2300,
-            "UAlberta",
-            "experienceOverlay-UAlberta",
-            0x21570a,
-            0x688c58,
-            {
-                text: "Click for my time at UAlberta",
-                font: fontFamilies["header"],
-                fontColor: "#ffffff",
-                color: 0x21570a,
-                hoverColor: 0x2d6e10
-            },
-            {
-                text: "Data Analyst Co-op\n    @ UAlberta",
-                color: "#21570a",
-                font: fontFamilies["header"],
-                fontSize: "220px",
-                offset: {
-                    x: -0, y: -1000
-                }
-            },
-            workMarkerInfo
-        )
+        buttonContainer.setSize(buttonWidth, buttonHeight);
+        buttonContainer.setInteractive(
+            new Phaser.Geom.Rectangle(buttonWidth / 2, buttonHeight / 2, buttonWidth, buttonHeight),
+            Phaser.Geom.Rectangle.Contains
+        );
 
-        this.interactionAreas["education"] = new InteractionArea(
-            this,
-            8689, 13200,
-            3600, 2700,
-            "Education",
-            "educationOverlay",
-            0x21570a,
-            0x688c58,
-            {
-                text: "Click to see my Education",
-                font: fontFamilies["header"],
-                fontColor: "#ffffff",
-                color: 0x21570a,
-                hoverColor: 0x2d6e10
-            },
-            {
-                text: "Education: UAlberta",
-                color: "#21570a",
-                font: fontFamilies["header"],
-                fontSize: "220px",
-                offset: {
-                    x: -0, y: -1420
-                }
-            },
-            {
-                color: 0x114a19,
-                radius: 40,
-                locationType: "Education"
-            }
-        )
+        // Hover effect
+        buttonContainer.on('pointerover', () => {
+            drawButtonBg(this.inventoryButtonHoverColor);
+        });
+        buttonContainer.on('pointerout', () => {
+            drawButtonBg(this.inventoryButtonColor);
+        });
 
-        this.interactionAreas["olympicWeightlifting"] = new InteractionArea(
-            this,
-            7780, 6061,
-            2700, 1700,
-            "Olympic\nWeightlifting",
-            "owOverlay",
-            0x145b66,
-            0x43a6b5,
-            {
-                text: "Click to see Olympic\nWeightlifting Content",
-                font: fontFamilies["header"],
-                fontColor: "#ffffff",
-                color: 0x145b66,
-                hoverColor: 0x208999
-            },
-            {
-                text: "Olympic Weightlifting",
-                color: "#145b66",
-                font: fontFamilies["header"],
-                fontSize: "130px",
-                offset: {
-                    x: 0, y: -600
-                }
-            },
-            {
-                color: 0xdbaf1f,
-                radius: 40,
-                locationType: "Oly-Lifting"
-            }
-        )
+        // Click handler
+        buttonContainer.on('pointerdown', () => {
+            this.showInventoryOverlay();
+        });
+    }
 
-        this.interactionAreas["formFitness"] = new InteractionArea(
-            this,
-            11390, 16569,
-            3400, 2000,
-            "iOS App",
-            "ffOverlay",
-            0xffa405,
-            0xffdb9c,
-            {
-                text: "Click to see FormFitness",
-                font: fontFamilies["header"],
-                fontColor: "#ffffff",
-                color: 0xa38b48,
-                hoverColor: 0xb89944
-            },
-            {
-                text: "FormFitness",
-                color: "#9e4a09",
-                font: fontFamilies["header"],
-                fontSize: "130px",
-                offset: {
-                    x: 0, y: 100
-                }
-            },
-            projectMarkerInfo,
-            undefined,
-            "fishing",
-            "fishPunch"
-        )
 
-        this.interactionAreas["imageCaptioner"] = new InteractionArea(
-            this,
-            1021, 21472,
-            3400, 2000,
-            "Image Captioner",
-            "icOverlay",
-            0x03b1fc,
-            0x2ad9f7,
-            {
-                text: "Click to see Image Captioner",
-                font: fontFamilies["header"],
-                fontColor: "#ffffff",
-                color: 0x03b1fc,
-                hoverColor: 0x2ad9f7
-            },
-            {
-                text: "Image Captioner",
-                color: "#0a34a8",
-                font: fontFamilies["header"],
-                fontSize: "130px",
-                offset: {
-                    x: 0, y: -800
-                }
-            },
-            projectMarkerInfo
-        )
 
-        this.interactionAreas["aiAsteroids"] = new InteractionArea(
-            this,
-            5378, 14325,
-            3400, 2000,
-            "Asteroids Bot",
-            "abOverlay",
-            0x2019e3,
-            0x7672e8,
-            {
-                text: "Click to see AI Asteroids Bot",
-                font: fontFamilies["header"],
-                fontColor: "#ffffff",
-                color: 0x7672e8,
-                hoverColor: 0x9894f7
-            },
-            {
-                text: "Asteroids Bot",
-                color: "#38375c",
-                font: fontFamilies["header"],
-                fontSize: "130px",
-                offset: {
-                    x: 0, y: -900
-                }
-            },
-            projectMarkerInfo
-        )
+    private createInteractionAreas(): void {
+        INTERACTION_AREAS.forEach(areaData => {
+            const area = new InteractionArea(this, areaData);
 
-        this.interactionAreas["concurrentCLI"] = new InteractionArea(
-            this,
-            -7178, 15667,
-            3400, 2000,
-            "Concurrent Processes",
-            "cpOverlay",
-            0x063580,
-            0x1e66d9,
-            {
-                text: "Click to see Concurrent\nProcess Manager",
-                font: fontFamilies["header"],
-                fontColor: "#ffffff",
-                color: 0x063580,
-                hoverColor: 0x1e66d9
-            },
-            {
-                text: "Concurrent Process\n      Manager",
-                color: "#38375c",
-                font: fontFamilies["header"],
-                fontSize: "130px",
-                offset: {
-                    x: 0, y: -600
-                }
-            },
-            projectMarkerInfo
-        )
-
-        this.interactionAreas["inventoryManager"] = new InteractionArea(
-            this,
-            3771, 9288,
-            3400, 2000,
-            "Inventory Manager",
-            "imOverlay",
-            0x0fd47b,
-            0x69f5cb,
-            {
-                text: "Click to see Inventory Manager",
-                font: fontFamilies["header"],
-                fontColor: "#ffffff",
-                color: 0x1b8c59,
-                hoverColor: 0x0fd47b
-            },
-            {
-                text: "Inventory Manager\n    [Android]",
-                color: "#2a473a",
-                font: fontFamilies["header"],
-                fontSize: "130px",
-                offset: {
-                    x: 0, y: -1000
-                }
-            },
-            projectMarkerInfo
-        )
-
-        this.interactionAreas["welcome"] = new InteractionArea(
-            this,
-            15510, 12315,
-            4100, 2300,
-            "Welcome",
-            "welcomeOverlay",
-            0x1689f5,
-            0x34b4eb,
-            {
-                text: "How to play?",
-                font: fontFamilies["header"],
-                fontColor: "#ffffff",
-                color: 0x1689f5,
-                hoverColor: 0x34b4eb
-            }
-        )
-
-        this.interactionAreas["fireworks"] = new InteractionArea(
-            this,
-            -7159, 19045,
-            3000, 1500,
-            "",
-            "",
-            0xa361fa,
-            0xc89eff,
-            {
-                text: "Click me!",
-                font: fontFamilies["header"],
-                fontColor: "#ffffff",
-                color: 0xa361fa,
-                hoverColor: 0xc89eff
-            },
-            undefined,
-            undefined,
-            () => {this.fireworkManager.createFireworkDisplay(-7159, 19045)}
-        )
-
+            // Local access to IAs
+            this.interactionAreas[areaData.id] = area;
+        });
 
         if (arrowIndicatorsEnabled) {
-            // Create arrow indicators for each interaction area
-            let arrowRadius;
-            if (this.game.device.os.desktop) {
-                arrowRadius = 2000;
-            } else {
-                arrowRadius = 900;
-            }
+            let arrowRadius = this.game.device.os.desktop ? 2000 : 900;
+
             Object.entries(this.interactionAreas).forEach(([key, area]) => {
                 const { x, y } = area.getCenter();
                 this.arrowIndicators[key] = new ArrowIndicator(
                     this,
-                    x,
-                    y,
+                    x, y,
                     area.getName(),
                     fontFamilies,
                     {
@@ -694,16 +724,16 @@ export default class IsometricScene extends Phaser.Scene {
                         textSize: 120,
                         arrowColor: 0xffffff,
                         textColor: '#ffffff',
-                        radius: arrowRadius // Distance from boat to arrow
-                    });
+                        radius: arrowRadius
+                    }
+                );
             });
         }
-
 
         if (this.input.keyboard) {
             this.input.keyboard.on('keydown-X', this.handleXKeyPress, this);
         } else {
-            console.error("Error: Could not add 'x' key listener")
+            console.error("Error: Could not add 'x' key listener");
         }
     }
 
@@ -711,13 +741,15 @@ export default class IsometricScene extends Phaser.Scene {
         this.boat.update();
         const { x: boatX, y: boatY } = this.boat.getPosition();
         const distanceMoved = Phaser.Math.Distance.Between(boatX, boatY, this.lastBoatPosition.x, this.lastBoatPosition.y);
-    
+
+        // Save position to localStorage
         if (distanceMoved > 0) {
-            this.energy -= (distanceMoved / this.map.tileWidth) * this.energyDrainRate;
-            this.energy = Math.max(this.energy, 0); // Prevent negative energy
             this.lastBoatPosition = { x: boatX, y: boatY };
+
+            // Save position to localStorage
+            localStorage.setItem('boatPosition', JSON.stringify({ x: boatX, y: boatY }));
         }
-    
+
         this.updateEnergyBar();
 
         if (this.mapSystem) {
@@ -820,6 +852,14 @@ export default class IsometricScene extends Phaser.Scene {
         }
     }
 
+    public getFireworkManager(): FireworkManager {
+        return this.fireworkManager;
+    }
+
+    public getInventory(): Inventory | null {
+        return this.inventory;
+    }
+
     public calcBoatFog(worldX: number, worldY: number): number {
         // Convert world coordinates to tile coordinates
         const tileCoords = this.map.worldToTileXY(worldX, worldY);
@@ -856,14 +896,17 @@ export default class IsometricScene extends Phaser.Scene {
         // Clear only the green bar
         this.energyBar.clear();
 
-        // Update the green energy
+        // Fill with new width based on energy level
         const newWidth = (this.energy / 100) * this.energyBarWidth;
         this.energyBar.fillStyle(0x00ff00, 1);
         this.energyBar.fillRect(0, 0, newWidth, this.energyBarHeight);
-        this.energyBar.setPosition(this.energyBarX, this.energyBarY);
+
+        // Update energy text
+        this.energyBarText.setText(`Energy: ${this.energy}%`);
     }
 
-    
+
+
 
     private async showLostBoatOverlay(): Promise<void> {
         if (this.isHandlingLostBoat) return;
@@ -1015,17 +1058,22 @@ export default class IsometricScene extends Phaser.Scene {
     // @ts-ignore
     private showOverlay(
         overlayHtmlKey: string,
-        areaType: string,
-        gameOverlayName: string
+        _areaType: string,
+        _gameOverlayName: string
     ): void {
         // Toggle overlay (destroy it) if it is currently shown
         if (this.overlayElement) {
             this.destroyOverlayWithAnimation(overlayHtmlKey);
             return;
         }
-    
+
+        // We check if we need to refresh the island game element
+        // assignments before showing the overlay. If within a new
+        // time block, we do.
+        this.islandManager.assignIslandGameElements(false);
+
         console.group("Creating overlay");
-    
+
         // Load HTML content
         const htmlContent = this.cache.html.get(overlayHtmlKey);
 
@@ -1034,11 +1082,11 @@ export default class IsometricScene extends Phaser.Scene {
             console.groupEnd();
             return;
         }
-    
+
         // Create wrapper
         const htmlWrapper = document.createElement('div');
         htmlWrapper.innerHTML = htmlContent;
-    
+
         // Position the overlay to the center of the screen
         htmlWrapper.style.position = 'fixed';
         htmlWrapper.style.top = '0';
@@ -1049,13 +1097,13 @@ export default class IsometricScene extends Phaser.Scene {
         htmlWrapper.style.display = 'flex';
         htmlWrapper.style.justifyContent = 'center';
         htmlWrapper.style.alignItems = 'center';
-    
+
         // Append to the actual document body
         document.body.appendChild(htmlWrapper);
-    
+
         // Save a reference so we can remove it later
         this.overlayElement = htmlWrapper;
-    
+
         // Find the close button in the overlay HTML
         const closeButton = htmlWrapper.querySelector('.close-button');
         if (closeButton) {
@@ -1065,93 +1113,18 @@ export default class IsometricScene extends Phaser.Scene {
         } else {
             console.error("Close button not found in overlay");
         }
-    
+
         console.groupEnd();
-    
+
         // Fade in effect (optional)
         htmlWrapper.style.opacity = '0';
         htmlWrapper.style.transition = 'opacity 0.5s ease-in-out';
         setTimeout(() => {
             htmlWrapper.style.opacity = '1';
         }, 50);
-    
-        if (!this.fishingButton && areaType === "fishing") {
-            this.fishingButton = document.createElement('div');
-            this.fishingButton.style.position = 'fixed';
-            this.fishingButton.id = 'fishing-button';
-        
-            // Desktop vs. mobile sizing
-            if (this.game.device.os.desktop) {
-                this.fishingButton.style.top = '10vh';
-                this.fishingButton.style.left = '5vh';
-                this.fishingButton.style.width = '20vh'; 
-                this.fishingButton.style.height = '20vh';
-            } else {
-                this.fishingButton.style.bottom = '10px';
-                this.fishingButton.style.right = '10px';
-                this.fishingButton.style.width = '100px'; 
-                this.fishingButton.style.height = '100px';
-            }
-        
-            // The rest of your fishing button styling
-            this.fishingButton.style.borderRadius = '50%';
-            this.fishingButton.style.border = '4px solid #8df7f6';
-            this.fishingButton.style.backgroundColor = '#fff'; 
-            this.fishingButton.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.2)';
-            this.fishingButton.style.cursor = 'pointer';
-            this.fishingButton.style.zIndex = '1100';
-            this.fishingButton.style.display = 'flex';
-            this.fishingButton.style.justifyContent = 'center';
-            this.fishingButton.style.alignItems = 'center';
-        
-            this.fishingButton.style.opacity = '0';
-            this.fishingButton.style.transition = 'opacity 0.5s ease-in-out';
-        
-            const styleTag = document.createElement('style');
-            styleTag.innerHTML = `
-                #fishing-button:hover {
-                    transform: scale(1.3);
-                    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
-                    transition: transform 2s ease, box-shadow 2s ease;
-                }
-            `;
-            document.head.appendChild(styleTag);
-        
-            // The rod image inside the button
-            const fishingRodImg = document.createElement('img');
-            fishingRodImg.src = fishingRod;
-            fishingRodImg.alt = 'Fishing Rod';
-            fishingRodImg.style.width = '60%';
-            fishingRodImg.style.height = '60%';
-            fishingRodImg.style.objectFit = 'contain';
-            fishingRodImg.style.opacity = '0';
-            fishingRodImg.style.transition = 'opacity 0.5s ease-in-out';
-        
-            this.fishingButton.appendChild(fishingRodImg);
-            document.body.appendChild(this.fishingButton);
-        
-            // Fade in the rod
-            this.time.delayedCall(0, () => {
-                if (fishingRodImg) {
-                    fishingRodImg.style.opacity = '1';
-                }
-            });
-        
-            this.time.delayedCall(500, () => {
-                if (this.fishingButton) {
-                    this.fishingButton.style.opacity = '1';
-                }
-            });
-        
-            // If the button is clicked, launch the mini-game or overlay
-            this.fishingButton.addEventListener('click', () => {
-                console.log(`Fishing rod button clicked! ${gameOverlayName}`);
-                this.showGameOverlay(gameOverlayName);
-            });
-        }
     }
-    
-    
+
+
 
     private destroyOverlayWithAnimation(overlayHtmlKey: string): void {
         if (this.overlayElement) {
@@ -1159,24 +1132,18 @@ export default class IsometricScene extends Phaser.Scene {
             this.overlayElement.style.opacity = '1'; // ensure it's visible
             this.overlayElement.style.transition = 'opacity 0.5s ease-in-out';
             this.overlayElement.style.opacity = '0';
-    
+
             // After fade, remove from body
             setTimeout(() => {
                 if (this.overlayElement && this.overlayElement.parentNode) {
                     this.overlayElement.parentNode.removeChild(this.overlayElement);
                 }
                 this.overlayElement = null;
-    
-                // Also remove fishing button if needed
-                if (this.fishingButton) {
-                    this.fishingButton.remove();
-                    this.fishingButton = null;
-                }
             }, 500);
         } else {
             console.warn("No overlay destroyed: currently null");
         }
-    
+
         // Re-enable the button if needed
         const interactionArea = Object.values(this.interactionAreas).find(
             child => child["overlayName"] === overlayHtmlKey
@@ -1189,57 +1156,115 @@ export default class IsometricScene extends Phaser.Scene {
             );
         }
     }
-    
-    
+
+
 
     private handleXKeyPress(): void {
         Object.values(this.interactionAreas).forEach(area => area.handleInteraction());
     }
-
+    // @ts-ignore
     private showGameOverlay(gameOverlayName: string): void {
         // If there's an existing overlay, remove it
         if (this.gameOverlayElement) {
-            this.destroyGameOverlay(gameOverlayName); 
+            this.destroyGameOverlay(gameOverlayName);
             return;
         }
-    
+
         console.group(`Creating game overlay: ${gameOverlayName}`);
-    
+
         // 1) Create an iframe
         const iframe = document.createElement('iframe');
-        console.log(`../game-overlays/${gameOverlayName}/${gameOverlayName}.html`)
-        iframe.src = `../game-overlays/${gameOverlayName}/${gameOverlayName}.html`;  
+        iframe.id = 'game-overlay-iframe';
+        console.log(`../game-overlays/${gameOverlayName}/${gameOverlayName}.html`);
+        iframe.src = `../game-overlays/${gameOverlayName}/${gameOverlayName}.html`;
         iframe.style.position = 'fixed';
         iframe.style.top = '0';
         iframe.style.left = '0';
         iframe.style.width = '100vw';
         iframe.style.height = '100vh';
         iframe.style.zIndex = '9999';
-        iframe.style.border = 'none';        // remove default iframe border
-        iframe.allow = "accelerometer; ..."; // if your game needs special perms
-    
+        iframe.style.border = 'none';
+
         // 2) Append to DOM
         document.body.appendChild(iframe);
-        this.gameOverlayElement = iframe;    // so we can remove it later
-    
+        this.gameOverlayElement = iframe; // so we can remove it later
+
         // 3) Optional fade-in
         iframe.style.opacity = '0';
         iframe.style.transition = 'opacity 0.5s ease-in-out';
         setTimeout(() => {
             iframe.style.opacity = '1';
         }, 50);
-    
+
+        // 4) On load, post safehouse data (if safehouse) AND minigame setup data
+        iframe.addEventListener('load', () => {
+            // If it's a safehouse overlay, send safehouse inventory data
+            if (gameOverlayName === "safehouse") {
+                iframe.contentWindow?.postMessage({
+                    type: "safehouseData",
+                    safehouse: this.safehouseInventory.getDetailedStorage(),
+                    inventory: this.inventory?.getDetailedInventory(),
+                    safehouseMax: this.safehouseInventory.getMaxSize(),
+                    inventoryMax: this.inventory?.getCurrentSize(),
+                    equippedRod: this.inventory?.getActiveRodDetails(),
+                    rodSlotsMax: this.inventory?.getRodStorage().getMaxRodSlots() || 1
+                }, "*");
+            }
+
+            // For minigames: figure out cost range & energy cost
+            // a) Find the interaction area for the player's current position
+            const { x, y } = this.boat.getPosition();
+            const nearArea = Object.values(this.interactionAreas).find(a =>
+                a.containsPoint(x, y, 2)
+            );
+            if (!nearArea) {
+                console.warn("No nearby interaction area found for game overlay.");
+                return;
+            }
+
+            // b) Retrieve the assignment from IslandManager
+            const assignment = this.islandManager
+                .getAssignments()
+                .find(a => a.id === nearArea.id);
+            if (!assignment) {
+                console.warn(`No assignment found for area '${nearArea.id}'.`);
+                return;
+            }
+
+            // c) Determine energy cost from the assigned game element
+            let energyCost = 0;
+            if (assignment.gameElementId) {
+                const gameElem = this.islandManager.getGameElementById(assignment.gameElementId);
+                energyCost = gameElem ? gameElem.energyCost : 0;
+            }
+
+            // d) Safe defaults
+            const minCost = assignment.minCost ?? 0;
+            const maxCost = assignment.maxCost ?? 999;
+
+            // e) Post a "gameSetup" message for minigame usage
+            iframe.contentWindow?.postMessage({
+                type: "gameSetup",
+                gameId: gameOverlayName,
+                energyCost: energyCost,
+                minCost: minCost,
+                maxCost: maxCost
+            }, "*");
+        });
+
         console.groupEnd();
     }
-    
 
-    private destroyGameOverlay(gameOverlayName: string): void {
+
+
+
+    private destroyGameOverlay(_gameOverlayName: string): void {
         if (this.gameOverlayElement) {
             // Fade out
-            this.gameOverlayElement.style.opacity = '1'; 
+            this.gameOverlayElement.style.opacity = '1';
             this.gameOverlayElement.style.transition = 'opacity 0.5s ease-in-out';
             this.gameOverlayElement.style.opacity = '0';
-    
+
             // Remove from the DOM after fade
             setTimeout(() => {
                 if (this.gameOverlayElement && this.gameOverlayElement.parentNode) {
@@ -1251,6 +1276,75 @@ export default class IsometricScene extends Phaser.Scene {
             console.warn("No game overlay to destroy.");
         }
     }
-    
-    
+
+    private showInventoryOverlay(): void {
+        if (this.inventoryOverlayElement) {
+            this.destroyInventoryOverlay();
+            return;
+        }
+
+        console.group("Creating inventory overlay");
+
+        // Create an iframe for the inventory
+        const iframe = document.createElement('iframe');
+        iframe.src = '../game-overlays/inventory.html';
+        iframe.style.position = 'fixed';
+        iframe.style.top = '50%';
+        iframe.style.left = '50%';
+        iframe.style.transform = 'translate(-50%, -50%)';
+        iframe.style.height = '80%';
+        iframe.style.border = 'none';
+        iframe.style.zIndex = '9999';
+
+        // Adjust width for mobile/desktop
+        iframe.style.width = this.isMobileDevice ? '100%' : '80%';
+
+        document.body.appendChild(iframe);
+        this.inventoryOverlayElement = iframe;
+
+        // Fade in effect
+        iframe.style.opacity = '0';
+        iframe.style.transition = 'opacity 0.5s ease-in-out';
+        setTimeout(() => {
+            iframe.style.opacity = '1';
+        }, 50);
+
+        // Send inventory data when the iframe loads
+        iframe.addEventListener('load', () => {
+            iframe.contentWindow?.postMessage({
+                type: "inventoryData",
+                items: this.inventory?.getDetailedInventory(),
+                money: this.inventory?.getMoney(),
+                inventoryMax: this.inventory?.getCurrentSize(),
+                equippedRod: this.inventory?.getActiveRodDetails()
+            }, "*");
+        });
+
+        console.groupEnd();
+    }
+
+
+
+
+
+    private destroyInventoryOverlay(): void {
+        if (!this.inventoryOverlayElement) {
+            console.warn('No inventory overlay to destroy.');
+            return;
+        }
+        console.log('Closing inventory overlay...');
+
+        // Fade out
+        this.inventoryOverlayElement.style.opacity = '1';
+        this.inventoryOverlayElement.style.transition = 'opacity 0.5s ease-in-out';
+        this.inventoryOverlayElement.style.opacity = '0';
+
+        // Remove from the DOM after fade
+        setTimeout(() => {
+            this.inventoryOverlayElement?.parentNode?.removeChild(this.inventoryOverlayElement);
+            this.inventoryOverlayElement = null;
+        }, 500);
+    }
+
+
 }
