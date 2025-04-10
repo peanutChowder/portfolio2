@@ -1,6 +1,6 @@
 import { InventoryData } from './Inventory';
-import { COST_RANGE_BANDS, IslandManager } from './IslandManager';
-import { ItemData, itemData } from './ItemData';
+import { IslandManager } from './IslandManager';
+import { itemData } from './ItemData';
 
 export class SafehouseInventory {
     private storage: InventoryData = {};
