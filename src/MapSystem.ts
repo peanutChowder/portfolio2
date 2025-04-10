@@ -99,6 +99,7 @@ export class MapSystem extends Phaser.GameObjects.Container {
 
     static preload(scene: IsometricScene): void {
         scene.load.image('minimapHouse', '../assets/minimap/house.png');
+        scene.load.image('minimapShop', '../assets/minimap/shop.png');
 
     }
 
@@ -168,7 +169,10 @@ export class MapSystem extends Phaser.GameObjects.Container {
             // marker using their set colour
             if (markerInfo.locationType === "Safehouse") {
                 marker = this.scene.add.image(mapX, mapY, 'minimapHouse');
-                marker.setScale(0.15);  
+                marker.setScale(0.10);  
+            } else if (markerInfo.locationType === "Shop") {
+                marker = this.scene.add.image(mapX, mapY, 'minimapShop');
+                marker.setScale(0.10);
             } else {
                 // Default circle marker
                 marker = this.scene.add.graphics();
