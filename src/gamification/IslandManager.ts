@@ -354,7 +354,11 @@ export class IslandManager {
     private assignShopsToIslands(): void {
         this.assignments.forEach(a => {
             if (a.areaElementType === 'shop') {
-                a.gameElementId = 'fisherShop';
+
+                // Manually assign types of shops based on interaction area ID
+                if (a.id == 'fisherShop1') {
+                    a.gameElementId = 'fisherShop';
+                }
                 a.resourceLeft = 0;  // irrelevant to shops
             }
         });
