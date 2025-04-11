@@ -198,6 +198,12 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            let playerMoney = 0;
+            let inventoryCount = 0;
+            let inventoryMax = 10;
+            let buyableItems = [];
+            let sellableItems = [];
+
             const mainMenu = document.getElementById('main-menu');
             const buyPanel = document.getElementById('buy-panel');
             const sellPanel = document.getElementById('sell-panel');
@@ -225,8 +231,123 @@
                 sellPanel.style.display = 'none';
                 mainMenu.style.display = 'flex';
             });
+
+            document.getElementById('sell-all-fish').addEventListener('click', () => {
+                parent.postMessage({ type: 'sellAllFish' }, '*');
+            });
+
+            function updateBuyPanel() {
+                const buyList = document.getElementById('buy-item-list');
+                buyList.innerHTML = '';
+
+                buyableItems.forEach(item => {
+                    const isOutOfStock = item.remaining !== null && item.remaining <= 0;
+                    const isInventoryFull = inventoryCount >= inventoryMax;
+                    const canAfford = playerMoney >= item.cost;
+
+                    const card = document.createElement('div');
+                    card.className = 'buy-item-card';
+
+                    const title = document.createElement('h4');
+                    title.textContent = item.name;
+                    card.appendChild(title);
+
+                    const img = document.createElement('img');
+                    img.src = `../../assets/${item.type === 'rod' ? 'fishing' : 'fish-sprites'}/${item.imgSrc}`;
+                    img.style.maxWidth = '60px';
+                    card.appendChild(img);
+
+                    const desc = document.createElement('p');
+                    desc.textContent = item.description;
+                    card.appendChild(desc);
+
+                    const costText = document.createElement('p');
+                    costText.textContent = `Cost: ${item.cost} coins`;
+                    card.appendChild(costText);
+
+                    if (item.remaining !== null) {
+                        const qty = document.createElement('p');
+                        qty.textContent = `Remaining: ${item.remaining}`;
+                        card.appendChild(qty);
+                    }
+
+                    const buyBtn = document.createElement('button');
+                    buyBtn.className = 'inspect-button success';
+                    buyBtn.textContent = 'Buy';
+
+                    if (!canAfford || isOutOfStock || isInventoryFull) {
+                        buyBtn.disabled = true;
+                        buyBtn.style.opacity = '0.5';
+                        buyBtn.style.cursor = 'not-allowed';
+                    } else {
+                        buyBtn.onclick = () => {
+                            parent.postMessage({ type: 'buyItem', itemId: item.id }, '*');
+                        };
+                    }
+
+                    card.appendChild(buyBtn);
+                    buyList.appendChild(card);
+                });
+            }
+
+            function updateSellPanel() {
+                const sellList = document.getElementById('sell-item-list');
+                sellList.innerHTML = '';
+
+                sellableItems.forEach(item => {
+                    const card = document.createElement('div');
+                    card.className = 'buy-item-card';
+
+                    const title = document.createElement('h4');
+                    title.textContent = `${item.name} (x${item.quantity})`;
+                    card.appendChild(title);
+
+                    const img = document.createElement('img');
+                    img.src = `../../assets/fish-sprites/${item.imgSrc}`;
+                    img.style.maxWidth = '60px';
+                    card.appendChild(img);
+
+                    const value = document.createElement('p');
+                    value.textContent = `Sell for: ${item.cost} coins`;
+                    card.appendChild(value);
+
+                    const sellOne = document.createElement('button');
+                    sellOne.textContent = 'Sell One';
+                    sellOne.className = 'inspect-button';
+                    sellOne.onclick = () => {
+                        parent.postMessage({ type: 'sellItem', itemId: item.id, quantity: 1 }, '*');
+                    };
+                    card.appendChild(sellOne);
+
+                    const sellAll = document.createElement('button');
+                    sellAll.textContent = 'Sell All';
+                    sellAll.className = 'inspect-button success';
+                    sellAll.onclick = () => {
+                        parent.postMessage({ type: 'sellItem', itemId: item.id, quantity: item.quantity }, '*');
+                    };
+                    card.appendChild(sellAll);
+
+                    sellList.appendChild(card);
+                });
+            }
+
+            window.addEventListener('message', event => {
+                const data = event.data;
+
+                if (data.type === 'shopData') {
+                    playerMoney = data.playerMoney;
+                    inventoryCount = data.inventoryCount;
+                    inventoryMax = data.inventoryMax;
+                    buyableItems = data.buyableItems;
+                    sellableItems = data.sellableItems;
+
+                    updateBuyPanel();
+                    updateSellPanel();
+                }
+            });
         });
     </script>
+
 </body>
 
 </html>
