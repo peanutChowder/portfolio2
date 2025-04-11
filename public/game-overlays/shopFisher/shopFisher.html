@@ -209,7 +209,7 @@
             const sellPanel = document.getElementById('sell-panel');
 
             document.querySelector('.close-button').addEventListener('click', () => {
-                parent.postMessage({ type: "destroyGameOverlay", overlayName: "fisherShop" }, "*");
+                parent.postMessage({ type: "destroyGameOverlay", overlayName: "shopFisher" }, "*");
             });
 
             document.getElementById('open-buy').addEventListener('click', () => {

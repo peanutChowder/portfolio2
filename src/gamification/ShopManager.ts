@@ -31,7 +31,7 @@ export class ShopManager {
     private initializeShops() {
         this.shopDefinitions = [
             {
-                id: 'fisherShop',
+                id: 'shopFisher',
                 name: 'Fisher Shop',
                 buyableItems: [
                     { itemId: 'rod1', quantityLimit: 'infinite' },

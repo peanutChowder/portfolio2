@@ -520,13 +520,13 @@ export const INTERACTION_AREAS: InteractionAreaData[] = [
         resourceBehavior: "static"
     },
     {
-        id: "fisherShop1",
+        id: "shopFisher",
         positionX: -4435,
         positionY: 20736,
         width: 4100,
         height: 2300,
         displayName: "Fisher Shop",
-        overlayKey: "fisherShop",
+        overlayKey: "shopFisher",
         areaBaseColor: 0x19e683,
         areaEdgeColor: 0,
 

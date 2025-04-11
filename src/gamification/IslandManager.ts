@@ -99,7 +99,7 @@ export class IslandManager {
             energyCost: 0
         },
         {
-            id: 'fisherShop',
+            id: 'shopFisher',
             name: 'Fisher Shop',
             maxResource: 0,     // irrelevant values to shop
             rarity: 1.0,
@@ -199,7 +199,7 @@ export class IslandManager {
 
     static preload(scene: Phaser.Scene): void {
         scene.load.html('safehouse', 'safehouseOverlay.html');
-        scene.load.html('fisherShop', 'shopOverlay/fisherShop.html');
+        scene.load.html('shopFisher', 'shopOverlay/fisherShop.html');
         scene.load.html('fishPunch', 'game-overlays/fishPunch.html');
         scene.load.html('fishBounce', 'game-overlays/fishBounce.html');
         scene.load.html('boatGrow', 'game-overlays/boatGrow/boatGrow.html');
@@ -349,15 +349,15 @@ export class IslandManager {
     }
 
     /**
-     * Assigns the 'fisherShop' game element to all shop areas
+     * Assigns the "shop" areas
      */
     private assignShopsToIslands(): void {
         this.assignments.forEach(a => {
             if (a.areaElementType === 'shop') {
 
                 // Manually assign types of shops based on interaction area ID
-                if (a.id == 'fisherShop1') {
-                    a.gameElementId = 'fisherShop';
+                if (a.id == 'shopFisher') {
+                    a.gameElementId = 'shopFisher';
                 }
                 a.resourceLeft = 0;  // irrelevant to shops
             }
