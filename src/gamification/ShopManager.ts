@@ -175,50 +175,32 @@ export class ShopManager {
         return false;
     }
 
-    public handleBuy(itemId: string, shopId: string, inventory: Inventory): void {
+    public handleBuy(itemId: string, inventory: Inventory): void {
         const item = itemData[itemId];
         if (!item) {
-            console.warn(`[ShopManager] handleBuy: Item '${itemId}' not found`);
+            console.warn(`[ShopManager] Item '${itemId}' not found in itemData`);
             return;
         }
 
-        const shop = this.getShopById(shopId);
-        if (!shop || !shop.buyableItems.some(b => b.itemId === itemId)) {
-            console.warn(`[ShopManager] handleBuy: Item '${itemId}' not sold by '${shopId}'`);
-            return;
-        }
+        const cost = item.cost ?? 0;
 
-        // Handle storage upgrades separately
-        if (itemId === 'upgrade_inventory') {
+        // Handle special upgrade cases
+        if (itemId === 'upgrade_inventory' || itemId === 'upgrade_safehouse') {
             if (!this.reduceStock(itemId)) return;
-            inventory.setInventorySize(inventory.getCurrentSize() + 5);
-            inventory.setMoney(inventory.getMoney() - (item.cost ?? 0));
+            inventory.setMoney(inventory.getMoney() - cost);
             return;
         }
 
-        if (itemId === 'upgrade_safehouse') {
-            if (!this.reduceStock(itemId)) return;
-            // Assuming safehouse upgrade will be handled separately via postMessage
-            inventory.setMoney(inventory.getMoney() - (item.cost ?? 0));
+        // For all regular items including rods
+        if (!this.reduceStock(itemId)) {
+            console.log("Failed to buy item:", itemId);
             return;
         }
-
-        // Handle rod purchase: move directly to rodStorage if possible
-        if (inventory.isRodItem(itemId)) {
-            if (!this.reduceStock(itemId)) return;
-            if (inventory.getRodStorage().addRod(itemId)) {
-                inventory.setMoney(inventory.getMoney() - (item.cost ?? 0));
-            } else {
-                console.warn(`[ShopManager] Rod storage full, cannot add '${itemId}'`);
-            }
-            return;
-        }
-
-        // Regular inventory item (fish, treasure, etc.)
-        if (!this.reduceStock(itemId)) return;
+        console.log(inventory)
         inventory.addItem(itemId);
-        inventory.setMoney(inventory.getMoney() - (item.cost ?? 0));
+        inventory.setMoney(inventory.getMoney() - cost);
     }
+
 
 
     public handleSell(itemId: string, quantity: number, inventory: Inventory): void {
