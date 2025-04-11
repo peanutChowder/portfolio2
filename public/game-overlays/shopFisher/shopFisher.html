@@ -274,32 +274,39 @@
                     const buyBtn = document.createElement('button');
                     buyBtn.className = 'inspect-button success';
                     buyBtn.textContent = 'Buy';
-                    if (!canAfford || isOutOfStock || isInventoryFull) {
-                        buyBtn.disabled = true;
-                        buyBtn.style.opacity = '0.5';
-                        buyBtn.style.cursor = 'not-allowed';
-                    } else {
-                        buyBtn.onclick = () => {
-                            parent.postMessage({ type: 'buyItem', itemId: item.id }, '*');
-                            // Update local inventory if it's a physical item
-                            if (item.id.startsWith('upgrade_')) {
-                                if (item.id === 'upgrade_inventory') {
-                                    inventoryMax += 5;
-                                }
-                                // No inventory count increase for upgrades
-                            } else {
-                                inventoryCount++;
-                            }
+                    buyBtn.onclick = () => {
+                        const isOutOfStock = item.remaining !== null && item.remaining <= 0;
+                        const isInventoryFull = inventoryCount >= inventoryMax;
+                        const canAfford = playerMoney >= item.cost;
 
-                            if (item.remaining !== null) {
-                                item.remaining--;
-                            }
+                        if (isOutOfStock) {
+                            showTemporaryMessage("Item is sold out");
+                            return;
+                        }
 
-                            playerMoney -= item.cost;
-                            updateBuyPanel(); // Refresh the buttons & UI
-                        };
-                    }
+                        if (isInventoryFull && item.id !== 'upgrade_inventory') {
+                            showTemporaryMessage("Inventory is full");
+                            return;
+                        }
 
+                        if (!canAfford) {
+                            showTemporaryMessage("Not enough coins");
+                            return;
+                        }
+
+                        // Valid purchase
+                        parent.postMessage({ type: 'buyItem', itemId: item.id }, '*');
+
+                        // Update local data if not an upgrade
+                        if (item.id === 'upgrade_inventory') {
+                            inventoryMax += 5;
+                        } else {
+                            inventoryCount += 1;
+                        }
+                        playerMoney -= item.cost;
+
+                        updateBuyPanel(); // refresh button states
+                    };
 
                     card.appendChild(buyBtn);
                     buyList.appendChild(card);
@@ -346,6 +353,22 @@
                     sellList.appendChild(card);
                 });
             }
+
+            function showTemporaryMessage(message) {
+                const messageBox = document.getElementById('temporary-message');
+                messageBox.textContent = message;
+                messageBox.style.display = 'block';
+                messageBox.style.opacity = '1';
+
+                setTimeout(() => {
+                    messageBox.style.transition = 'opacity 0.5s ease';
+                    messageBox.style.opacity = '0';
+                    setTimeout(() => {
+                        messageBox.style.display = 'none';
+                    }, 500);
+                }, 2000); // 2 seconds visible
+            }
+
 
             window.addEventListener('message', event => {
                 const data = event.data;
