@@ -18,6 +18,30 @@ export interface ShopDefinition {
     sellableCriteria: SellableItemCriteria[];
 }
 
+export interface BuyableItemDetails {
+    id: string;
+    name: string;
+    description: string;
+    cost: number;
+    imgSrc: string;
+    type: string;
+    remaining: number | null; // null means infinite
+}
+
+export interface SellableItemDetails {
+    id: string;
+    name: string;
+    imgSrc: string;
+    cost: number;
+    quantity: number;
+}
+
+export interface DetailedInventoryItem {
+    id: string;
+    quantity: number;
+}
+
+
 export class ShopManager {
     private static readonly STORAGE_KEY = 'shopStock';
     private shopDefinitions: ShopDefinition[] = [];
@@ -65,6 +89,69 @@ export class ShopManager {
     public getShopById(id: string): ShopDefinition | null {
         return this.shopDefinitions.find(s => s.id === id) || null;
     }
+
+    public getBuyableItems(shopId: string): BuyableItemDetails[] {
+        const shop = this.getShopById(shopId);
+        if (!shop) {
+            console.warn(`Shop '${shopId}' not found`);
+            return [];
+        }
+
+        const validItems = shop.buyableItems
+            .map(entry => {
+                const item = itemData[entry.itemId];
+                if (!item) {
+                    console.warn(`Item '${entry.itemId}' not found in itemData`);
+                    return null;
+                }
+
+                return {
+                    item,
+                    quantityLimit: entry.quantityLimit
+                };
+            })
+            .filter((entry): entry is { item: typeof itemData[string], quantityLimit: number | 'infinite' } => entry !== null);
+
+        return validItems.map(({ item, quantityLimit }) => ({
+            id: item.id,
+            name: item.name,
+            description: item.description,
+            cost: item.cost ?? 0,
+            imgSrc: item.imgSrc,
+            type: item.type,
+            remaining: quantityLimit === 'infinite' ? null : this.stock[item.id] ?? 0
+        }));
+    }
+
+
+
+    public getSellableInventory(inventory: DetailedInventoryItem[], shopId: string): SellableItemDetails[] {
+        const shop = this.getShopById(shopId);
+        if (!shop) return [];
+
+        return inventory
+            .filter(item => {
+                const def = itemData[item.id];
+                if (!def) return false;
+
+                return shop.sellableCriteria.some(criteria => {
+                    const typeMatch = criteria.type ? def.type === criteria.type : true;
+                    const idMatch = criteria.specificIds ? criteria.specificIds.includes(def.id) : true;
+                    return typeMatch && idMatch;
+                });
+            })
+            .map(item => {
+                const def = itemData[item.id];
+                return {
+                    id: def.id,
+                    name: def.name,
+                    imgSrc: def.imgSrc,
+                    cost: def.cost ?? 0,
+                    quantity: item.quantity
+                };
+            });
+    }
+
 
     public getRemainingStock(itemId: string): number | 'infinite' {
         const item = this.getAllBuyableItems().find(i => i.itemId === itemId);

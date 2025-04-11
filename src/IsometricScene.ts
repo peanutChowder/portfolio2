@@ -18,6 +18,7 @@ import { MapSystem } from './MapSystem';
 import { Inventory } from './gamification/Inventory';
 import { SafehouseInventory } from './gamification/SafehouseInventory';
 import { itemData } from './gamification/ItemData';
+import { ShopManager } from './gamification/ShopManager';
 
 const fontSize = "80px";
 const fontColor = "#ffffff"
@@ -94,6 +95,9 @@ export default class IsometricScene extends Phaser.Scene {
 
     // Game elements manager
     private islandManager!: IslandManager;
+
+    // Shop Manager
+    private shopManager!: ShopManager;
 
     // Debug text attributes
     private debugText!: Phaser.GameObjects.Text;
@@ -210,7 +214,11 @@ export default class IsometricScene extends Phaser.Scene {
             // The following steps must be executed in this order because they are dependent on each other.
             // (1.) Initialize inventory, which is used by a createInteractionAreas child call method to check
             // if we need to block buttons from clicks.
+            //
+            // Also initialize ShopManager -- idk if this is order sensitive lol
             this.inventory = new Inventory();
+            this.shopManager = new ShopManager();
+
 
             // (2.) Initialize Interaction Area objects and draw our interaction zones marked by an ellipse.
             // Interaction zones are areas where users can activate an overlay to see embedded content.
@@ -1209,7 +1217,22 @@ export default class IsometricScene extends Phaser.Scene {
                     equippedRod: this.inventory?.getActiveRodDetails(),
                     rodSlotsMax: this.inventory?.getRodStorage().getMaxRodSlots() || 1
                 }, "*");
+            } else if (gameOverlayName === "shopFisher" && this.inventory) {
+                const shopId = "shopFisher";
+                const buyableItems = this.shopManager.getBuyableItems(shopId);
+                const sellableItems = this.shopManager.getSellableInventory(this.inventory.getDetailedInventory(), shopId);
+                
+            
+                iframe.contentWindow?.postMessage({
+                    type: "shopData",
+                    playerMoney: this.inventory?.getMoney(),
+                    inventoryCount: this.inventory?.getItemCount(),
+                    inventoryMax: this.inventory?.getCurrentSize(),
+                    buyableItems: buyableItems,
+                    sellableItems: sellableItems
+                }, "*");
             }
+            
 
             // For minigames: figure out cost range & energy cost
             // a) Find the interaction area for the player's current position
