@@ -520,7 +520,7 @@ export const INTERACTION_AREAS: InteractionAreaData[] = [
         resourceBehavior: "static"
     },
     {
-        id: "shop1",
+        id: "fisherShop1",
         positionX: -4435,
         positionY: 20736,
         width: 4100,
