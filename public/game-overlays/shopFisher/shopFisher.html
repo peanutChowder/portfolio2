@@ -91,7 +91,8 @@
             padding: 30px;
             box-sizing: border-box;
         }
-        .shop-button {
+
+        .main-menu-button {
             flex: 1;
             height: 80%;
             background-color: #D0B49F;
@@ -105,6 +106,30 @@
             box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
             max-width: 300px;
         }
+
+        .main-menu-button:hover {
+            background-color: #C19A82;
+        }
+
+        .shop-button {
+            background-color: #D0B49F;
+            border: none;
+            color: white;
+            font-size: 16px;
+            font-weight: normal;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            box-shadow: none;
+            width: auto;
+            min-width: 100px;
+            /* If you want a minimum width */
+            padding: 10px 20px;
+            display: block;
+            margin: 0 auto 12px auto;
+            /* center plus some spacing */
+        }
+
         .shop-button:hover {
             background-color: #C19A82;
         }
@@ -208,8 +233,8 @@
 
                 <!-- === MAIN BUTTONS VIEW === -->
                 <div id="main-menu" class="main-buttons">
-                    <button class="shop-button" id="open-buy">BUY</button>
-                    <button class="shop-button" id="open-sell">SELL</button>
+                    <button class="main-menu-button" id="open-buy">BUY</button>
+                    <button class="main-menu-button" id="open-sell">SELL</button>
                 </div>
 
                 <!-- === BUY PANEL === -->
@@ -227,7 +252,7 @@
                 <div id="sell-panel" class="panel">
                     <div class="full-panel">
                         <h3>Your Inventory</h3>
-                        <button class="shop-button" id="sell-all-fish" style="margin: 0 auto;">Sell All Fish</button>
+                        <button class="shop-button" id="sell-all-fish">Sell All Fish</button>
                         <div id="sell-item-list">
                             <!-- Inventory items will be inserted here -->
                         </div>
