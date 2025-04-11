@@ -1,3 +1,4 @@
+import { Inventory } from './Inventory';
 import { itemData } from './ItemData';
 
 export interface BuyableItem {
@@ -173,6 +174,65 @@ export class ShopManager {
         }
         return false;
     }
+
+    public handleBuy(itemId: string, shopId: string, inventory: Inventory): void {
+        const item = itemData[itemId];
+        if (!item) {
+            console.warn(`[ShopManager] handleBuy: Item '${itemId}' not found`);
+            return;
+        }
+
+        const shop = this.getShopById(shopId);
+        if (!shop || !shop.buyableItems.some(b => b.itemId === itemId)) {
+            console.warn(`[ShopManager] handleBuy: Item '${itemId}' not sold by '${shopId}'`);
+            return;
+        }
+
+        // Handle storage upgrades separately
+        if (itemId === 'upgrade_inventory') {
+            if (!this.reduceStock(itemId)) return;
+            inventory.setInventorySize(inventory.getCurrentSize() + 5);
+            inventory.setMoney(inventory.getMoney() - (item.cost ?? 0));
+            return;
+        }
+
+        if (itemId === 'upgrade_safehouse') {
+            if (!this.reduceStock(itemId)) return;
+            // Assuming safehouse upgrade will be handled separately via postMessage
+            inventory.setMoney(inventory.getMoney() - (item.cost ?? 0));
+            return;
+        }
+
+        // Handle rod purchase: move directly to rodStorage if possible
+        if (inventory.isRodItem(itemId)) {
+            if (!this.reduceStock(itemId)) return;
+            if (inventory.getRodStorage().addRod(itemId)) {
+                inventory.setMoney(inventory.getMoney() - (item.cost ?? 0));
+            } else {
+                console.warn(`[ShopManager] Rod storage full, cannot add '${itemId}'`);
+            }
+            return;
+        }
+
+        // Regular inventory item (fish, treasure, etc.)
+        if (!this.reduceStock(itemId)) return;
+        inventory.addItem(itemId);
+        inventory.setMoney(inventory.getMoney() - (item.cost ?? 0));
+    }
+
+
+    public handleSell(itemId: string, quantity: number, inventory: Inventory): void {
+        const item = itemData[itemId];
+        if (!item) {
+            console.warn(`[ShopManager] handleSell: Item '${itemId}' not found`);
+            return;
+        }
+
+        const sellPrice = item.cost ?? 0;
+        inventory.removeItem(itemId, quantity);
+        inventory.setMoney(inventory.getMoney() + sellPrice * quantity);
+    }
+
 
     private getAllBuyableItems(): BuyableItem[] {
         return this.shopDefinitions.flatMap(s => s.buyableItems);

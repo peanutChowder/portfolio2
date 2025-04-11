@@ -575,6 +575,31 @@ export default class IsometricScene extends Phaser.Scene {
                         }
                         break;
                     }
+
+                    // ---------- SHOP MANAGEMENT ----------
+                    case 'buyItem': {
+                        const { itemId } = event.data;
+                        console.log(`[Scene] Buy item request received: ${itemId}`);
+                        this.shopManager.handleBuy(itemId, 'shopFisher', this.inventory!);
+                        break;
+                    }
+
+                    case 'sellItem': {
+                        const { itemId, quantity } = event.data;
+                        console.log(`[Scene] Sell item request received: ${itemId} x${quantity}`);
+                        this.shopManager.handleSell(itemId, quantity, this.inventory!);
+                        break;
+                    }
+
+                    case 'sellAllFish': {
+                        const sellable = this.shopManager.getSellableInventory(this.inventory!.getDetailedInventory(), 'shopFisher');
+                        sellable.forEach(item => {
+                            console.log(`[Scene] Selling all of '${item.name}' x${item.quantity}`);
+                            this.shopManager.handleSell(item.id, item.quantity, this.inventory!);
+                        });
+                        break;
+                    }
+
                 }
             });
 
