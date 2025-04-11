@@ -264,8 +264,25 @@ const itemData: Record<string, ItemData> = {
         cost: 70,
         durability: 100,
         specialEffect: "class3"
-    }
+    },
 
+    // ----------------------- INVENTORY + SAFEHOUSE STORAGE UPGRADES -----------------------
+    "upgrade_inventory": {
+        id: "upgrade_inventory",
+        name: "Boat Inventory Upgrade",
+        type: "sellable", // Treated as sellable so it appears in shops (even though it's not resellable)
+        imgSrc: "upgrade_inventory.png", // You’ll need to add this image
+        description: "Increases your boat's inventory capacity by 5 slots.",
+        cost: 50
+    },
+    "upgrade_safehouse": {
+        id: "upgrade_safehouse",
+        name: "Safehouse Storage Upgrade",
+        type: "sellable",
+        imgSrc: "upgrade_safehouse.png", // You’ll need to add this image
+        description: "Expands safehouse storage by 5 slots.",
+        cost: 60
+}
 };
 
 function getRandomFishByCost(minCost: number, maxCost: number) {
