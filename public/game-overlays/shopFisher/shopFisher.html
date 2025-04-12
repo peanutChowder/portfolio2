@@ -399,25 +399,57 @@
                     value.textContent = `Sell for: ${item.cost} coins`;
                     card.appendChild(value);
 
+                    // ---- SELL ONE BUTTON ----
                     const sellOne = document.createElement('button');
                     sellOne.textContent = 'Sell One';
                     sellOne.className = 'inspect-button';
                     sellOne.onclick = () => {
+                        if (item.quantity <= 0) {
+                            showTemporaryMessage("No more items to sell!");
+                            return;
+                        }
+
+                        // 1) Send message to scene
                         parent.postMessage({ type: 'sellItem', itemId: item.id, quantity: 1 }, '*');
+
+                        // 2) Update local data immediately
+                        item.quantity--;
+                        if (item.quantity <= 0) {
+                            // Remove from array
+                            sellableItems = sellableItems.filter(it => it.id !== item.id);
+                        }
+
+                        // 3) Re-render Sell panel
+                        updateSellPanel();
                     };
                     card.appendChild(sellOne);
 
+                    // ---- SELL ALL BUTTON ----
                     const sellAll = document.createElement('button');
                     sellAll.textContent = 'Sell All';
                     sellAll.className = 'inspect-button success';
                     sellAll.onclick = () => {
+                        if (item.quantity <= 0) {
+                            showTemporaryMessage("No more items to sell!");
+                            return;
+                        }
+
+                        // 1) Send message to scene
                         parent.postMessage({ type: 'sellItem', itemId: item.id, quantity: item.quantity }, '*');
+
+                        // 2) Update local data
+                        item.quantity = 0;
+                        sellableItems = sellableItems.filter(it => it.id !== item.id);
+
+                        // 3) Re-render
+                        updateSellPanel();
                     };
                     card.appendChild(sellAll);
 
                     sellList.appendChild(card);
                 });
             }
+
 
             function showTemporaryMessage(message) {
                 const messageBox = document.getElementById('temporary-message');
