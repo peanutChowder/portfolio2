@@ -302,7 +302,29 @@
             });
 
             document.getElementById('sell-all-fish').addEventListener('click', () => {
-                parent.postMessage({ type: 'sellAllFish' }, '*');
+                // 1) Tally how many fish we have locally
+                let totalFishCount = 0;
+                sellableItems.forEach(item => {
+                    // Check if item.type === 'fish' or if we treat all items here as fish
+                    if (item.id.startsWith('fish')) {
+                        totalFishCount += item.quantity;
+                    }
+                });
+
+                if (totalFishCount === 0) {
+                    showTemporaryMessage("You have no fish to sell.");
+                    return;
+                }
+
+                // 2) Send one postMessage to the scene letting it handle the official sale
+                // or you can do separate messages for each fish. This is flexible.
+                parent.postMessage({ type: 'sellAllFish', quantity: totalFishCount }, '*');
+                
+                // 3) Remove fish from the local array
+                sellableItems = sellableItems.filter(item => !item.id.startsWith('fish'));
+
+                // 4) Re-render
+                updateSellPanel();
             });
 
             function updateBuyPanel() {
