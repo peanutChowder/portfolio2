@@ -247,7 +247,7 @@ const itemData: Record<string, ItemData> = {
     // ----------------------- FISHING RODS -----------------------
     "rod1": {
         id: "rod1",
-        name: "Old rod",
+        name: "Plain rod",
         type: "rod",
         imgSrc: "old_rod.png",
         description: "The plainest fishing rod mankind has ever seen.",
@@ -255,13 +255,23 @@ const itemData: Record<string, ItemData> = {
         durability: 100,
         specialEffect: "class1"
     },
+    "rod2": {
+        id: "rod2",
+        name: "Antique rod",
+        type: "rod",
+        imgSrc: "antique_rod.png",
+        description: "Wash your hands after using it, way too many hands have touched it.",
+        cost: 60,
+        durability: 100,
+        specialEffect: "class2"
+    },
     "rod3": {
         id: "rod3",
         name: "Advanced rod",
         type: "rod",
         imgSrc: "advanced_rod.png",
-        description: "The aliens might have built this instead of the pyramids.",
-        cost: 70,
+        description: "We got this rod instead of flying cars.",
+        cost: 90,
         durability: 100,
         specialEffect: "class3"
     },
