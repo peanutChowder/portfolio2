@@ -148,7 +148,8 @@ export class ShopManager {
                     name: def.name,
                     imgSrc: def.imgSrc,
                     cost: def.cost ?? 0,
-                    quantity: item.quantity
+                    quantity: item.quantity,
+                    type: def.type
                 };
             });
     }
