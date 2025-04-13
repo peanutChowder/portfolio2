@@ -306,7 +306,7 @@
                 let totalFishCount = 0;
                 sellableItems.forEach(item => {
                     // Check if item.type === 'fish' or if we treat all items here as fish
-                    if (item.id.type === 'fish') {
+                    if (item.type === 'fish') {
                         totalFishCount += item.quantity;
                     }
                 });
