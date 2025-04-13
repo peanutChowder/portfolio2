@@ -1,5 +1,5 @@
-import { COST_RANGE_BANDS, IslandManager } from './IslandManager';
-import { itemData, ItemData } from './ItemData';
+import { IslandManager } from './IslandManager';
+import { itemData } from './ItemData';
 import { RodStorage } from './RodStorage';
 
 export interface InventoryData {
