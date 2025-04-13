@@ -372,24 +372,37 @@
                 mainMenu.style.display = 'flex';
             });
 
-            // SELL ALL FISH
             document.getElementById('sell-all-fish').addEventListener('click', () => {
                 let totalFishCount = 0;
+                let totalCoinsEarned = 0;
+
                 sellableItems.forEach(item => {
                     if (item.type === 'fish') {
                         totalFishCount += item.quantity;
+                        totalCoinsEarned += item.cost * item.quantity;
                     }
                 });
+
                 if (totalFishCount === 0) {
                     showTemporaryMessage("You have no fish to sell.");
                     return;
                 }
+
+                // 1) Notify scene to handle sale
                 parent.postMessage({ type: 'sellAllFish', quantity: totalFishCount }, '*');
-                // Remove from local array
+
+                // 2) Update local coin and inventory count
+                playerMoney += totalCoinsEarned;
+                inventoryCount -= totalFishCount;
+
+                // 3) Remove sold fish from local array
                 sellableItems = sellableItems.filter(it => it.type !== 'fish');
+
+                // 4) Refresh display
                 updateStatusBar();
                 updateSellPanel();
             });
+
 
             // ======================== BUY PANEL UI ========================
             function updateBuyPanel() {
