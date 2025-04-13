@@ -267,7 +267,7 @@ const itemData: Record<string, ItemData> = {
     },
     "rod3": {
         id: "rod3",
-        name: "Advanced rod",
+        name: "Techno rod",
         type: "rod",
         imgSrc: "advanced_rod.png",
         description: "We got this rod instead of flying cars.",
