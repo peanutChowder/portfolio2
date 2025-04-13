@@ -1,7 +1,7 @@
 export interface ItemData {
     id: string;
     name: string;
-    type: "fish" | "rod" | "sellable" | "non-sellable";
+    type: "fish" | "rod" | "sellable" | "non-sellable" | "upgrade";
     imgSrc: string;
     description: string;
     cost?: number;           // For sellable items
@@ -247,25 +247,82 @@ const itemData: Record<string, ItemData> = {
     // ----------------------- FISHING RODS -----------------------
     "rod1": {
         id: "rod1",
-        name: "Old rod",
+        name: "Stick rod",
         type: "rod",
-        imgSrc: "old_rod.png",
-        description: "The plainest fishing rod mankind has ever seen.",
+        imgSrc: "stick_rod.png",
+        description: "A stick that you wack fish with.",
         cost: 0,
         durability: 100,
         specialEffect: "class1"
     },
+    "rod2": {
+        id: "rod2",
+        name: "Antique rod",
+        type: "rod",
+        imgSrc: "antique_rod.png",
+        description: "Wash your hands after using it, way too many hands have touched it.",
+        cost: 60,
+        durability: 100,
+        specialEffect: "class2"
+    },
     "rod3": {
         id: "rod3",
-        name: "Advanced rod",
+        name: "Techno rod",
         type: "rod",
         imgSrc: "advanced_rod.png",
-        description: "The aliens might have built this instead of the pyramids.",
-        cost: 70,
+        description: "We got this rod instead of flying cars.",
+        cost: 180,
         durability: 100,
         specialEffect: "class3"
-    }
+    },
+    "rod4": {
+        id: "rod4",
+        name: "Imaginary rod",
+        type: "rod",
+        imgSrc: "cartoon_rod.png",
+        description: "You manifested a drawing into an actual fishing rod.",
+        cost: 270,
+        durability: 100,
+        specialEffect: "class4"
+    },
+    "rod5": {
+        id: "rod5",
+        name: "Magical rod",
+        type: "rod",
+        imgSrc: "wand_rod.png",
+        description: "It's not even a fishing rod. But legends speak of its omnipotent power.",
+        cost: 450,
+        durability: 100,
+        specialEffect: "class5"
+    },
+    "rod6": {
+        id: "rod6",
+        name: "Canadian rod",
+        type: "rod",
+        imgSrc: "hockey_rod.png",
+        description: "Eh?",
+        cost: 1000,
+        durability: 100,
+        specialEffect: "class6"
+    },
 
+    // ----------------------- INVENTORY + SAFEHOUSE STORAGE UPGRADES -----------------------
+    "upgrade_inventory": {
+        id: "upgrade_inventory",
+        name: "Boat Inventory Upgrade",
+        type: "upgrade", 
+        imgSrc: "capacity-boat.png", 
+        description: "Increases your boat's inventory capacity by 3 slots.",
+        cost: 80
+    },
+    "upgrade_safehouse": {
+        id: "upgrade_safehouse",
+        name: "Safehouse Storage Upgrade",
+        type: "upgrade",
+        imgSrc: "capacity-safehouse.png", 
+        description: "Expands safehouse storage by 5 slots.",
+        cost: 60
+}
 };
 
 function getRandomFishByCost(minCost: number, maxCost: number) {

@@ -520,9 +520,42 @@ export const INTERACTION_AREAS: InteractionAreaData[] = [
         resourceBehavior: "static"
     },
     {
+        id: "shopFisher",
+        positionX: -4435,
+        positionY: 20736,
+        width: 4100,
+        height: 2300,
+        displayName: "Fisher Shop",
+        overlayKey: "shopFisher",
+        areaBaseColor: 0x19e683,
+        areaEdgeColor: 0,
+
+        buttonConfig: {
+            text: "Enter Shop",
+            font: "Arial",
+            fontColor: "#ffffff",
+            baseColor: 0x23945e,
+            hoverColor: 0x32c780
+        },
+        floatingText: {
+            text: "Fisher Shop",
+            color: "#23945e",
+            font: "Arial",
+            fontSize: "130px",
+            offset: { x: 0, y: -1000 }
+        },
+        markerInfo: {
+            baseColor: 0x000000,
+            radius: -1,
+            locationType: "Shop"
+        },
+        gameElementType: "shop",
+        resourceBehavior: "static"
+    },
+    {
         id: "fireworks",
-        positionX: -7159,
-        positionY: 19045,
+        positionX: -12152,
+        positionY: 18805,
         width: 3000,
         height: 1500,
         displayName: "",
@@ -550,7 +583,7 @@ export const INTERACTION_AREAS: InteractionAreaData[] = [
             }
 
             // Trigger Fireworks
-            fireworkManager.createFireworkDisplay(-7159, 19045, 1000);
+            fireworkManager.createFireworkDisplay(-12152, 18805, 1000);
             console.log("Fireworks triggered!");
         }
     }
