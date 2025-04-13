@@ -1,5 +1,6 @@
 import { Inventory } from './Inventory';
 import { itemData } from './ItemData';
+import { SafehouseInventory } from './SafehouseInventory';
 
 export interface BuyableItem {
     itemId: string;
@@ -65,8 +66,8 @@ export class ShopManager {
                     { itemId: 'rod4', quantityLimit: 'infinite' },
                     { itemId: 'rod5', quantityLimit: 'infinite' },
                     { itemId: 'rod6', quantityLimit: 'infinite' },
-                    { itemId: 'upgrade_inventory', quantityLimit: 1 },
-                    { itemId: 'upgrade_safehouse', quantityLimit: 1 },
+                    { itemId: 'upgrade_inventory', quantityLimit: 'infinite' },
+                    { itemId: 'upgrade_safehouse', quantityLimit: 'infinite' },
                 ],
                 sellableCriteria: [
                     { type: 'fish' }
@@ -177,7 +178,7 @@ export class ShopManager {
         return false;
     }
 
-    public handleBuy(itemId: string, inventory: Inventory): void {
+    public handleBuy(itemId: string, inventory: Inventory, safehouseInventory: SafehouseInventory): void {
         const item = itemData[itemId];
         if (!item) {
             console.warn(`[ShopManager] Item '${itemId}' not found in itemData`);
@@ -186,9 +187,18 @@ export class ShopManager {
 
         const cost = item.cost ?? 0;
 
-        // Handle special upgrade cases
-        if (itemId === 'upgrade_inventory' || itemId === 'upgrade_safehouse') {
+        // inventory storage upgrade -- HARDCODED to 3
+        if (itemId === 'upgrade_inventory') {
             if (!this.reduceStock(itemId)) return;
+            inventory.setInventorySize(inventory.getCurrentSize() + 3);
+            inventory.setMoney(inventory.getMoney() - cost);
+            return;
+        }
+    
+        // safehouse storage upgrade -- HARDCODED to 5
+        if (itemId === 'upgrade_safehouse') {
+            if (!this.reduceStock(itemId)) return;
+            safehouseInventory.setStorageSize(safehouseInventory.getMaxSize() + 5);
             inventory.setMoney(inventory.getMoney() - cost);
             return;
         }

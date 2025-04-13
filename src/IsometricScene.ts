@@ -580,7 +580,7 @@ export default class IsometricScene extends Phaser.Scene {
                     case 'buyItem': {
                         const { itemId } = event.data;
                         console.log(`[Scene] Buy item request received: ${itemId}`);
-                        this.shopManager.handleBuy(itemId, this.inventory!);
+                        this.shopManager.handleBuy(itemId, this.inventory!, this.safehouseInventory!);
                         break;
                     }
 
