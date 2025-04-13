@@ -319,7 +319,7 @@ export default class InteractionArea {
                 // Add more specific information based on the access requirements (only if user has rod equipped)
                 if (rodInfo) {
                     if (this.rodAccess.requiredClass !== undefined) {
-                        message += ` You need a Class ${this.rodAccess.requiredClass} or better rod.`;
+                        message += ` Class ${this.rodAccess.requiredClass} or higher is required.`;
                     } else if (this.rodAccess.specialAbility) {
                         message += ` You need a rod with the ${this.rodAccess.specialAbility} ability.`;
                     } else if (this.rodAccess.allowedRodIds && this.rodAccess.allowedRodIds.length > 0) {
