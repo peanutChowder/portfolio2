@@ -7,15 +7,17 @@
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;700&display=swap" rel="stylesheet">
     <title>Fisher Shop</title>
     <style>
-        /* Base body styles to match safehouse.html */
-        body,
-        html {
+        /* ===== Base: match safehouse look ===== */
+        html,
+        body {
             margin: 0;
             padding: 0;
             font-family: 'Prompt', sans-serif;
+            color: #7E6D5A;
+            /* Uniform text color */
         }
 
-        /* Matching the overlay-wrapper and simple-overlay style */
+        /* Overlay wrapper + panel */
         #overlay-wrapper {
             position: absolute;
             width: 100%;
@@ -48,14 +50,15 @@
             position: relative;
         }
 
-        /* Headings: match color and alignment from safehouse.html */
+        /* Headings match safehouse */
         h2,
         h3 {
             color: #7E6D5A;
             text-align: center;
+            margin: 0 0 15px 0;
         }
 
-        /* Close button with rotate-on-hover effect */
+        /* Close button */
         .close-button {
             position: sticky;
             top: 20px;
@@ -65,7 +68,6 @@
             color: #7E6D5A;
             font-size: 24px;
             cursor: pointer;
-            z-index: 2;
             width: 40px;
             height: 40px;
             border-radius: 50%;
@@ -73,6 +75,7 @@
             align-items: center;
             justify-content: center;
             transition: transform 0.3s ease;
+            z-index: 2;
         }
 
         .close-button:hover {
@@ -80,7 +83,48 @@
             background-color: #E6D9C2;
         }
 
-        /* Main menu buttons container (Buy / Sell) */
+        /* Shop status bar: coins + inventory usage */
+        #shop-status-bar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 15px;
+        }
+
+        #money-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background-color: #F0E6D2;
+            padding: 5px 10px;
+            border-radius: 8px;
+            border: 2px solid #E6D9C2;
+            box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        #money-container img {
+            width: 24px;
+            height: 24px;
+        }
+
+        #money-container span {
+            font-weight: bold;
+            color: #7E6D5A;
+        }
+
+        #inventory-usage {
+            background-color: #F0E6D2;
+            padding: 5px 10px;
+            border-radius: 8px;
+            border: 2px solid #E6D9C2;
+            box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+            font-weight: bold;
+            font-size: 16px;
+            color: #7E6D5A;
+        }
+
+        /* Main menu (Buy / Sell) view */
         .main-buttons {
             display: flex;
             flex-direction: row;
@@ -111,29 +155,6 @@
             background-color: #C19A82;
         }
 
-        .shop-button {
-            background-color: #D0B49F;
-            border: none;
-            color: white;
-            font-size: 16px;
-            font-weight: normal;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background-color 0.2s ease;
-            box-shadow: none;
-            width: auto;
-            min-width: 100px;
-            /* If you want a minimum width */
-            padding: 10px 20px;
-            display: block;
-            margin: 0 auto 12px auto;
-            /* center plus some spacing */
-        }
-
-        .shop-button:hover {
-            background-color: #C19A82;
-        }
-
         /* Panels for Buy / Sell sections */
         .panel {
             display: none;
@@ -141,7 +162,6 @@
             height: 100%;
         }
 
-        /* Full panel content area with a background block, similar to safehouse .section-block */
         .full-panel {
             background-color: #FBF5E5;
             border-radius: 12px;
@@ -151,7 +171,7 @@
             overflow-y: auto;
         }
 
-        /* Item card style, adapted from .inventory-item style in safehouse.html */
+        /* Item Cards (Buy or Sell items) */
         .buy-item-card {
             background-color: #F0E6D2;
             border: 2px solid #E6D9C2;
@@ -164,14 +184,17 @@
             transition: transform 0.2s ease;
         }
 
-        .buy-item-card > p {
-            text-align: center;
-        }
-
         .buy-item-card:hover {
             transform: scale(1.02);
         }
 
+        .buy-item-card>p {
+            color: #7E6D5A;
+            text-align: center;
+            margin: 4px 0;
+        }
+
+        /* Generic small button for actions inside item cards */
         .inspect-button {
             display: block;
             width: 60%;
@@ -209,7 +232,30 @@
             background-color: #6A936A;
         }
 
-        /* Temporary message at the bottom center */
+        /* Generic 'Back' or 'Sell All' button */
+        .shop-button {
+            background-color: #D0B49F;
+            border: none;
+            color: white;
+            font-size: 16px;
+            font-weight: normal;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            box-shadow: none;
+            width: auto;
+            min-width: 100px;
+            padding: 10px 20px;
+            display: block;
+            margin: 0 auto 12px auto;
+            text-align: center;
+        }
+
+        .shop-button:hover {
+            background-color: #C19A82;
+        }
+
+        /* Temporary message at bottom center */
         #temporary-message {
             display: none;
             position: fixed;
@@ -232,8 +278,24 @@
     <div id="overlay-wrapper">
         <div id="simple-overlay">
             <div class="content-inner">
+                <!-- CLOSE BUTTON -->
                 <button class="close-button">X</button>
+                <!-- TITLE -->
                 <h2>FISHER SHOP</h2>
+
+                <!-- === STATUS BAR (Coins & Inventory) === -->
+                <div id="shop-status-bar">
+                    <!-- Coin display -->
+                    <div id="money-container">
+                        <img id="money-icon" src="../../assets/coin.png" alt="Coins">
+                        <span id="money-amount">0</span>
+                    </div>
+
+                    <!-- Inventory usage -->
+                    <div id="inventory-usage">
+                        <span id="inventory-count">0</span>/<span id="inventory-max">0</span>
+                    </div>
+                </div>
 
                 <!-- === MAIN BUTTONS VIEW === -->
                 <div id="main-menu" class="main-buttons">
@@ -248,7 +310,7 @@
                         <div id="buy-item-list">
                             <!-- Items will be inserted here -->
                         </div>
-                        <button class="shop-button" id="back-from-buy" style="margin: 0 auto;">Back</button>
+                        <button class="shop-button" id="back-from-buy">Back</button>
                     </div>
                 </div>
 
@@ -260,7 +322,7 @@
                         <div id="sell-item-list">
                             <!-- Inventory items will be inserted here -->
                         </div>
-                        <button class="shop-button" id="back-from-sell" style="margin: 0 auto;">Back</button>
+                        <button class="shop-button" id="back-from-sell">Back</button>
                     </div>
                 </div>
             </div>
@@ -281,68 +343,64 @@
             const buyPanel = document.getElementById('buy-panel');
             const sellPanel = document.getElementById('sell-panel');
 
+            // Close the entire overlay
             document.querySelector('.close-button').addEventListener('click', () => {
                 parent.postMessage({ type: "destroyGameOverlay", overlayName: "shopFisher" }, "*");
             });
 
+            // NAV: Switch to BUY panel
             document.getElementById('open-buy').addEventListener('click', () => {
                 mainMenu.style.display = 'none';
                 buyPanel.style.display = 'flex';
             });
 
+            // NAV: Switch to SELL panel
             document.getElementById('open-sell').addEventListener('click', () => {
                 mainMenu.style.display = 'none';
                 sellPanel.style.display = 'flex';
             });
 
+            // NAV: Back from BUY
             document.getElementById('back-from-buy').addEventListener('click', () => {
                 buyPanel.style.display = 'none';
                 mainMenu.style.display = 'flex';
             });
 
+            // NAV: Back from SELL
             document.getElementById('back-from-sell').addEventListener('click', () => {
                 sellPanel.style.display = 'none';
                 mainMenu.style.display = 'flex';
             });
 
+            // SELL ALL FISH
             document.getElementById('sell-all-fish').addEventListener('click', () => {
-                // 1) Tally how many fish we have locally
                 let totalFishCount = 0;
                 sellableItems.forEach(item => {
-                    // Check if item.type === 'fish' or if we treat all items here as fish
                     if (item.type === 'fish') {
                         totalFishCount += item.quantity;
                     }
                 });
-
                 if (totalFishCount === 0) {
                     showTemporaryMessage("You have no fish to sell.");
                     return;
                 }
-
-                // 2) Send one postMessage to the scene letting it handle the official sale
-                // or you can do separate messages for each fish. This is flexible.
                 parent.postMessage({ type: 'sellAllFish', quantity: totalFishCount }, '*');
-
-                // 3) Remove fish from the local array
-                sellableItems = sellableItems.filter(item => item.type !== 'fish');
-
-                // 4) Re-render
+                // Remove from local array
+                sellableItems = sellableItems.filter(it => it.type !== 'fish');
+                updateStatusBar();
                 updateSellPanel();
             });
 
+            // ======================== BUY PANEL UI ========================
             function updateBuyPanel() {
                 const buyList = document.getElementById('buy-item-list');
                 buyList.innerHTML = '';
 
                 buyableItems.forEach(item => {
-                    const isOutOfStock = item.remaining !== null && item.remaining <= 0;
-                    const isInventoryFull = inventoryCount >= inventoryMax;
-                    const canAfford = playerMoney >= item.cost;
-
                     const card = document.createElement('div');
                     card.className = 'buy-item-card';
 
+                    // Title
                     const title = document.createElement('h4');
                     title.textContent = item.name;
                     card.appendChild(title);
@@ -361,7 +419,7 @@
                     img.style.maxWidth = '60px';
                     card.appendChild(img);
 
-                    // parse and display class if it's rod
+                    // If it's a rod, parse specialEffect for class
                     if (item.type === "rod" && item.specialEffect) {
                         const match = item.specialEffect.match(/class(\d+)/);
                         if (match) {
@@ -372,34 +430,40 @@
                         }
                     }
 
+                    // Desc
                     const desc = document.createElement('p');
                     desc.textContent = item.description;
                     card.appendChild(desc);
 
+                    // Cost
                     const costText = document.createElement('p');
                     costText.textContent = `Cost: ${item.cost} coins`;
                     card.appendChild(costText);
 
+                    // Remaining
                     if (item.remaining !== null) {
                         const qty = document.createElement('p');
                         qty.textContent = `Remaining: ${item.remaining}`;
                         card.appendChild(qty);
                     }
 
+                    // BUY button
                     const buyBtn = document.createElement('button');
                     buyBtn.className = 'inspect-button success';
                     buyBtn.textContent = 'Buy';
                     buyBtn.onclick = () => {
+                        const isOutOfStock = item.remaining !== null && item.remaining <= 0;
+                        const isInventoryFull = inventoryCount >= inventoryMax;
+                        const canAfford = playerMoney >= item.cost;
+
                         if (isOutOfStock) {
                             showTemporaryMessage("Item is sold out");
                             return;
                         }
-
                         if (isInventoryFull && item.id !== 'upgrade_inventory') {
                             showTemporaryMessage("Inventory is full");
                             return;
                         }
-
                         if (!canAfford) {
                             showTemporaryMessage("Not enough coins");
                             return;
@@ -408,22 +472,31 @@
                         // Valid purchase
                         parent.postMessage({ type: 'buyItem', itemId: item.id }, '*');
 
-                        // Update local data if not an upgrade
+                        // Update local data
                         if (item.id === 'upgrade_inventory') {
                             inventoryMax += 5;
+                            document.getElementById('inventory-max').textContent = inventoryMax;
                         } else {
                             inventoryCount += 1;
+                            document.getElementById('inventory-count').textContent = inventoryCount;
                         }
                         playerMoney -= item.cost;
+                        document.getElementById('money-amount').textContent = playerMoney;
 
-                        updateBuyPanel(); // refresh button states
+                        if (item.remaining !== null) {
+                            item.remaining--;
+                        }
+
+                        updateStatusBar();
+                        updateBuyPanel();
                     };
-
                     card.appendChild(buyBtn);
+
                     buyList.appendChild(card);
                 });
             }
 
+            // ======================== SELL PANEL UI ========================
             function updateSellPanel() {
                 const sellList = document.getElementById('sell-item-list');
                 sellList.innerHTML = '';
@@ -432,20 +505,23 @@
                     const card = document.createElement('div');
                     card.className = 'buy-item-card';
 
+                    // Title
                     const title = document.createElement('h4');
                     title.textContent = `${item.name} (x${item.quantity})`;
                     card.appendChild(title);
 
+                    // Image
                     const img = document.createElement('img');
                     img.src = `../../assets/fish-sprites/${item.imgSrc}`;
                     img.style.maxWidth = '60px';
                     card.appendChild(img);
 
+                    // Value
                     const value = document.createElement('p');
                     value.textContent = `Sell for: ${item.cost} coins`;
                     card.appendChild(value);
 
-                    // ---- SELL ONE BUTTON ----
+                    // SELL ONE
                     const sellOne = document.createElement('button');
                     sellOne.textContent = 'Sell One';
                     sellOne.className = 'inspect-button';
@@ -454,23 +530,20 @@
                             showTemporaryMessage("No more items to sell!");
                             return;
                         }
-
-                        // 1) Send message to scene
                         parent.postMessage({ type: 'sellItem', itemId: item.id, quantity: 1 }, '*');
-
-                        // 2) Update local data immediately
                         item.quantity--;
+                        playerMoney += item.cost;
+                        inventoryCount--;
                         if (item.quantity <= 0) {
-                            // Remove from array
                             sellableItems = sellableItems.filter(it => it.id !== item.id);
                         }
 
-                        // 3) Re-render Sell panel
+                        updateStatusBar();
                         updateSellPanel();
                     };
                     card.appendChild(sellOne);
 
-                    // ---- SELL ALL BUTTON ----
+                    // SELL ALL
                     const sellAll = document.createElement('button');
                     sellAll.textContent = 'Sell All';
                     sellAll.className = 'inspect-button success';
@@ -479,15 +552,14 @@
                             showTemporaryMessage("No more items to sell!");
                             return;
                         }
-
-                        // 1) Send message to scene
                         parent.postMessage({ type: 'sellItem', itemId: item.id, quantity: item.quantity }, '*');
-
-                        // 2) Update local data
+                        playerMoney += (item.cost * item.quantity);
+                        inventoryCount -= item.quantity;
                         item.quantity = 0;
+
                         sellableItems = sellableItems.filter(it => it.id !== item.id);
 
-                        // 3) Re-render
+                        updateStatusBar();
                         updateSellPanel();
                     };
                     card.appendChild(sellAll);
@@ -496,7 +568,7 @@
                 });
             }
 
-
+            // ======================== TEMP MESSAGE ========================
             function showTemporaryMessage(message) {
                 const messageBox = document.getElementById('temporary-message');
                 messageBox.textContent = message;
@@ -509,12 +581,23 @@
                     setTimeout(() => {
                         messageBox.style.display = 'none';
                     }, 500);
-                }, 2000); // 2 seconds visible
+                }, 2000);
             }
 
+            /**
+             * Update the top bar with the current player money, inventory count, and
+             * inventory max.
+             */
+            function updateStatusBar() {
+                document.getElementById('money-amount').textContent = playerMoney;
+                document.getElementById('inventory-count').textContent = inventoryCount;
+                document.getElementById('inventory-max').textContent = inventoryMax;
+            }
+
+
+            // ======================== MAIN MESSAGE HANDLER ========================
             window.addEventListener('message', event => {
                 const data = event.data;
-
                 if (data.type === 'shopData') {
                     playerMoney = data.playerMoney;
                     inventoryCount = data.inventoryCount;
@@ -522,6 +605,12 @@
                     buyableItems = data.buyableItems;
                     sellableItems = data.sellableItems;
 
+                    // Update top bar
+                    document.getElementById('money-amount').textContent = playerMoney;
+                    document.getElementById('inventory-count').textContent = inventoryCount;
+                    document.getElementById('inventory-max').textContent = inventoryMax;
+
+                    updateStatusBar();
                     updateBuyPanel();
                     updateSellPanel();
                 }
