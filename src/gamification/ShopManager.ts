@@ -120,7 +120,8 @@ export class ShopManager {
             cost: item.cost ?? 0,
             imgSrc: item.imgSrc,
             type: item.type,
-            remaining: quantityLimit === 'infinite' ? null : this.stock[item.id] ?? 0
+            remaining: quantityLimit === 'infinite' ? null : this.stock[item.id] ?? 0,
+            specialEffect: item.specialEffect,
         }));
     }
 

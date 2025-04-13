@@ -348,6 +348,17 @@
                     img.style.maxWidth = '60px';
                     card.appendChild(img);
 
+                    // parse and display class if it's rod
+                    if (item.type === "rod" && item.specialEffect) {
+                        const match = item.specialEffect.match(/class(\d+)/);
+                        if (match) {
+                            const rodClass = match[1];
+                            const classText = document.createElement('p');
+                            classText.textContent = `Class ${rodClass} Rod`;
+                            card.appendChild(classText);
+                        }
+                    }
+
                     const desc = document.createElement('p');
                     desc.textContent = item.description;
                     card.appendChild(desc);
