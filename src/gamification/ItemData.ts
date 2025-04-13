@@ -1,7 +1,7 @@
 export interface ItemData {
     id: string;
     name: string;
-    type: "fish" | "rod" | "sellable" | "non-sellable";
+    type: "fish" | "rod" | "sellable" | "non-sellable" | "upgrade";
     imgSrc: string;
     description: string;
     cost?: number;           // For sellable items
@@ -270,16 +270,16 @@ const itemData: Record<string, ItemData> = {
     "upgrade_inventory": {
         id: "upgrade_inventory",
         name: "Boat Inventory Upgrade",
-        type: "sellable", // Treated as sellable so it appears in shops (even though it's not resellable)
-        imgSrc: "upgrade_inventory.png", // You’ll need to add this image
-        description: "Increases your boat's inventory capacity by 5 slots.",
-        cost: 50
+        type: "upgrade", 
+        imgSrc: "capacity-boat.png", 
+        description: "Increases your boat's inventory capacity by 3 slots.",
+        cost: 80
     },
     "upgrade_safehouse": {
         id: "upgrade_safehouse",
         name: "Safehouse Storage Upgrade",
-        type: "sellable",
-        imgSrc: "upgrade_safehouse.png", // You’ll need to add this image
+        type: "upgrade",
+        imgSrc: "capacity-safehouse.png", 
         description: "Expands safehouse storage by 5 slots.",
         cost: 60
 }

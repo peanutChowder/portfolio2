@@ -343,8 +343,17 @@
                     title.textContent = item.name;
                     card.appendChild(title);
 
+                    let folder;
+                    if (item.type === 'rod') {
+                        folder = "fishing";
+                    } else if (item.type === 'fish') {
+                        folder = "fish-sprites";
+                    } else if (item.type === 'upgrade') {
+                        folder = "upgrades"
+                    }
+
                     const img = document.createElement('img');
-                    img.src = `../../assets/${item.type === 'rod' ? 'fishing' : 'fish-sprites'}/${item.imgSrc}`;
+                    img.src = `../../assets/${folder}/${item.imgSrc}`;
                     img.style.maxWidth = '60px';
                     card.appendChild(img);
 
