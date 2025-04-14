@@ -22,6 +22,8 @@ export class MapSystem extends Phaser.GameObjects.Container {
     
     private mapScale!: number;
     private mapMargin = 50;
+    private mapBottomRight: {x: number, y: number}; // used to position inventory button, which then is used to position energy bar
+    private mapBgSize: number;
 
     // Map Markers
     private boatMarker!: Phaser.GameObjects.Graphics;
@@ -76,11 +78,19 @@ export class MapSystem extends Phaser.GameObjects.Container {
 
         this.mapBackground.fillRect(
             (cameraWidth / 2 - effectiveMapBgSize) + (effectiveCameraWidth / 2) - this.mapMargin,
-            (-cameraHeight / 2 + effectiveMapBgSize / 2) - (effectiveCameraHeight / 2) + this.mapMargin,
+            (cameraHeight / 2 - effectiveCameraHeight / 2) + this.mapMargin,
             effectiveMapBgSize,
             effectiveMapBgSize
         );
         this.mapContainer.add(this.mapBackground);
+
+        // Save this property so that inventory button and energy bar can be positioned correctly
+        this.mapBottomRight = {
+            x: (cameraWidth / 2 - effectiveMapBgSize) + (effectiveCameraWidth / 2) - this.mapMargin,
+            y: (cameraHeight / 2 - effectiveCameraHeight / 2) + 2 * this.mapMargin + effectiveMapBgSize,
+        }
+
+        this.mapBgSize = effectiveMapBgSize
 
         // Create actual map graphics
         this.mapContent = this.scene.add.graphics();
@@ -124,13 +134,12 @@ export class MapSystem extends Phaser.GameObjects.Container {
                          + (effectiveCameraWidth / 2)
                          - this.mapMargin
                          - this.mapPadding / 2;
-        const waterRectY = (-cameraHeight / 2 + this.mapSize / 2)
-                         - (effectiveCameraHeight / 2)
+        const waterRectY = (cameraHeight / 2  - effectiveCameraHeight / 2)
                          + this.mapMargin
-                         + this.mapPadding;
+                         + this.mapPadding / 2;
     
         // 2) Draw the water square itself
-        this.mapContent.fillStyle(this.waterColor);
+        this.mapContent.fillStyle(this.waterColor, this.mapAlpha);
         this.mapContent.fillRect(
             waterRectX,
             waterRectY,
@@ -247,7 +256,7 @@ export class MapSystem extends Phaser.GameObjects.Container {
     }
 
     public getMinimapWidth(): number {
-        return this.mapSize;
+        return this.mapBgSize;
     }
 
     private drawBoatMarker(): void {
@@ -266,16 +275,11 @@ export class MapSystem extends Phaser.GameObjects.Container {
 
     /**
      * Get the bottom right position of the map container in world coordinates.
-     * Hacky implementation used to position the energy bar relative to the map.
+     * Used to position the energy bar relative to the map.
      * @returns The bottom right position of the map container
      */
     public getMapBottomRight(): { x: number; y: number } {
-        const halfSize = this.mapSize / 2;
-    
-        const bottomRightX = this.mapContainer.x + halfSize;
-        const bottomRightY = this.mapContainer.y + halfSize;
-    
-        return { x: bottomRightX, y: bottomRightY };
+        return this.mapBottomRight
     }
     
     

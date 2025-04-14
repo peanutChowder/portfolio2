@@ -68,6 +68,10 @@ export default class IsometricScene extends Phaser.Scene {
     private lostOverlay!: Phaser.GameObjects.Rectangle;
     private isHandlingLostBoat: boolean = false;
 
+    // Inventory location
+    private inventoryButtonX: number = 0;
+    private inventoryButtonY: number = 0;
+
     // Energy bar
     private energy: number = 100; // Initial 100% energy
     private energyBar!: Phaser.GameObjects.Graphics;
@@ -328,15 +332,19 @@ export default class IsometricScene extends Phaser.Scene {
 
 
             this.cameras.main.setZoom(0.2);
-            this.cameras.main.centerOn(0, 500);
+            this.cameras.main.centerOn(0, 0);
 
             // Set up camera to follow the boat
             this.cameras.main.startFollow(this.boat, true);
 
             this.mapSystem = new MapSystem(this, this.interactionAreas);
 
+            // Must be created after the map system, it relies on the map system's
+            // bottom corner to position.
             this.createEnergyBar();
 
+            // Must be created after the map system, it relies on the map system's
+            // bottom corner to position.
             this.createInventoryButton();
 
 
@@ -652,8 +660,10 @@ export default class IsometricScene extends Phaser.Scene {
         const savedEnergy = localStorage.getItem('energy');
         this.energy = savedEnergy ? parseInt(savedEnergy, 10) : 100;
         this.energyBarWidth = this.mapSystem.getMinimapWidth();
-        this.energyBarX = this.cameras.main.centerX + (this.cameras.main.width / (2 * this.cameras.main.zoom)) - (this.energyBarWidth * 1.025) // multiplied by some (seemingly) arbitrary constant i had to brute force lol
-        this.energyBarY = this.mapSystem.getMapBottomRight().y * 0.95 // another arbitrary brute forced constant
+
+        const mapBottomRight = this.mapSystem.getMapBottomRight();
+        this.energyBarX = mapBottomRight.x;
+        this.energyBarY = mapBottomRight.y + 300;
 
         // Background (Gray)
         this.energyBarBackground = this.add.graphics();
@@ -688,10 +698,11 @@ export default class IsometricScene extends Phaser.Scene {
     }
 
     private createInventoryButton(): void {
-        const buttonWidth = 900;
+        const buttonWidth = this.mapSystem.getMinimapWidth();
         const buttonHeight = 150;
-        const xPos = this.energyBarX;
-        const yPos = this.energyBarY * 0.75;;
+        const mapBottomRight = this.mapSystem.getMapBottomRight();
+        this.inventoryButtonX = mapBottomRight.x;
+        this.inventoryButtonY = mapBottomRight.y;
 
         const buttonBg = this.add.graphics();
         const drawButtonBg = (color: number) => {
@@ -709,7 +720,7 @@ export default class IsometricScene extends Phaser.Scene {
             color: "#ffffff",
         }).setOrigin(0.5);
 
-        const buttonContainer = this.add.container(xPos, yPos, [buttonBg, label]);
+        const buttonContainer = this.add.container(this.inventoryButtonX, this.inventoryButtonY, [buttonBg, label]);
         buttonContainer.setScrollFactor(0).setDepth(99);
 
         buttonContainer.setSize(buttonWidth, buttonHeight);
