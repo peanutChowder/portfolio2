@@ -7,13 +7,13 @@ let maxCost = 999;
 function initFishGame() {
     console.log("Fish punch is starting!");
 
-    const CROSSHAIR_RADIUS = 50;
+    const CROSSHAIR_RADIUS = 80;
     const FISH_WIDTH = 60;
     const FISH_HEIGHT = 40;
     const FISH_SPAWN_INTERVAL = 1000; // ms
-    const MIN_SPEED = 150;  // px/sec
-    const MAX_SPEED = 700; // px/sec
-    const MAX_HITS = 4;
+    const MIN_SPEED = 300;  // px/sec
+    const MAX_SPEED = 1100; // px/sec
+    const MAX_HITS = 7;
     const MAX_MISSES = 3;
 
     let hits = 0;
@@ -28,6 +28,7 @@ function initFishGame() {
     const hudMisses = document.getElementById('misses');
     const message = document.getElementById('message');
     const crosshair = document.getElementById('crosshair');
+    let crosshairEl = null;
 
     let selectedFish = null;
 
@@ -87,27 +88,39 @@ function initFishGame() {
         // Select a fish
         selectedFish = getRandomFishByCost(minCost, maxCost);
         console.log(`Selected fish: ${selectedFish.id}`);
-
-        window.parent.postMessage({
-            type: "reduceFish",
-        }, "*");
-
+    
+        window.parent.postMessage({ type: "reduceFish" }, "*");
+    
         gameStarted = true;
-        crosshair.style.display = "block";
         console.log("Game started!");
-
-        // Hide the instruction message
+    
+        // Hide instruction message
         gameMessage.style.opacity = "0";
-
-        // Send message to reduce energy
+    
+        // Send energy message
         window.parent.postMessage({
             type: "reduceEnergy",
             amount: energyCost
         }, "*");
-
+    
+        crosshairEl = document.createElement('div');
+        crosshairEl.id = "crosshair";
+        crosshairEl.style.position = "absolute";
+        crosshairEl.style.pointerEvents = "none";
+        crosshairEl.style.width = `${CROSSHAIR_RADIUS * 2}px`;
+        crosshairEl.style.height = `${CROSSHAIR_RADIUS * 2}px`;
+        crosshairEl.style.border = "3px solid white";
+        crosshairEl.style.borderRadius = "50%";
+        crosshairEl.style.left = "50%";
+        crosshairEl.style.top = "50%";
+        crosshairEl.style.transform = "translate(-50%, -50%)";
+        crosshairEl.style.zIndex = "1000";
+        
+        sandboxContent.appendChild(crosshairEl);
+    
         // Start spawning fish
         spawnIntervalId = setInterval(spawnFish, FISH_SPAWN_INTERVAL);
-
+    
         // Replace event listener for gameplay clicks
         sandboxContent.addEventListener('pointerdown', onPointerDown);
     }
@@ -217,10 +230,9 @@ function initFishGame() {
         gameStatus = won ? "won" : "lost";
         clearInterval(spawnIntervalId);
 
-        const crosshair = document.getElementById('crosshair');
-        if (crosshair) {
-            crosshair.style.display = 'none'
-        }
+        if (crosshairEl) {
+            crosshairEl.remove(); // remove it from DOM
+            crosshairEl = null;        }
         document.querySelectorAll('.fish').forEach(el => el.remove());
 
         if (won) {
