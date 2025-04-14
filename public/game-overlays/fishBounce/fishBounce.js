@@ -11,13 +11,13 @@ let fishX = 0, fishY = 0;
 let fishVx = 0, fishVy = 0;
 
 const GRAVITY = 400;       // px/s^2 pulling fish downward
-const FISH_MIN_VX = -200;
-const FISH_MAX_VX = 200;
+const FISH_MIN_VX = -500;
+const FISH_MAX_VX = 500;
 const FISH_MIN_VY = -300;
 const FISH_MAX_VY = -200;
 
-const REQUIRED_BOUNCES = 5;
-const MAX_LIVES = 3;
+const REQUIRED_BOUNCES = 12;
+const MAX_LIVES = 5;
 let bounces = 0;
 let lives = MAX_LIVES;
 let isGameRunning = false;
@@ -27,7 +27,7 @@ let gameEnded = false; // game won/lost
 
 // Paddle
 let paddleX = 0, paddleVx = 0;
-const PADDLE_ACCEL = 1200;
+const PADDLE_ACCEL = 1800;
 const PADDLE_FRICTION = 0.92;
 const PADDLE_MAX_SPEED = 400;
 let paddleWidth = 120, paddleHeight = 20;
