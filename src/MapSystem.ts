@@ -21,6 +21,7 @@ export class MapSystem extends Phaser.GameObjects.Container {
     private graphicOffsetY!: number;
     
     private mapScale!: number;
+    private mapMargin = 50;
 
     // Map Markers
     private boatMarker!: Phaser.GameObjects.Graphics;
@@ -56,32 +57,35 @@ export class MapSystem extends Phaser.GameObjects.Container {
 
         // Add minimap to top right corner of screen
         this.mapContainer = this.scene.add.container(
-            this.scene.cameras.main.centerX + (cameraWidth / (2 * cameraZoom)) - (this.mapSize / 1.9), // divide by slightly less than 2 so that there is some margin between map and screen edge
-            this.scene.cameras.main.centerY - (cameraHeight / (2 * cameraZoom)) + (this.mapSize / 1.9)
+            0, 0
         );
         this.mapContainer.setScrollFactor(0);
         this.mapContainer.setDepth(99);
 
-        const backgroundSize = this.mapSize;
         this.mapBackground = this.scene.add.graphics();
         this.mapBackground.fillStyle(this.mapColor, this.mapAlpha);
-        this.mapBackground.strokeRect(
-            -backgroundSize / 2, 
-            -backgroundSize / 2, 
-            backgroundSize, 
-            backgroundSize
-        );
+
+        // -------- CALCULATING MINIMAP PLACEMENT BASED ON ITS SIZE --------
+        // this is a huge pain. By default, the square that the scene camera width + height
+        // and x + y form a small rectangle around the origin. Because of this, we need to
+        // account for that offset using cameraWidth / 2 and cameraHeight / 2. Afterwards,
+        // account for the camera zoom to get the effective camera width and height.
+        const effectiveCameraWidth = (cameraWidth / (this.scene.cameras.main.zoom))
+        const effectiveCameraHeight = (cameraHeight / (this.scene.cameras.main.zoom))
+        const effectiveMapBgSize = this.mapSize + this.mapPadding;
+
         this.mapBackground.fillRect(
-            -backgroundSize / 2, 
-            -backgroundSize / 2, 
-            backgroundSize, 
-            backgroundSize
+            (cameraWidth / 2 - effectiveMapBgSize) + (effectiveCameraWidth / 2) - this.mapMargin,
+            (-cameraHeight / 2 + effectiveMapBgSize / 2) - (effectiveCameraHeight / 2) + this.mapMargin,
+            effectiveMapBgSize,
+            effectiveMapBgSize
         );
         this.mapContainer.add(this.mapBackground);
 
         // Create actual map graphics
         this.mapContent = this.scene.add.graphics();
         this.mapContainer.add(this.mapContent);
+
 
         // Draw the map
         this.drawMap(); // note: must be called prior to markers in order to set "graphicOffsetX" and "graphicOffsetY"
@@ -92,7 +96,7 @@ export class MapSystem extends Phaser.GameObjects.Container {
         this.mapContainer.add(this.boatMarker);
 
         this.createInteractionMarkers();
-        
+
 
         scene.add.existing(this);
     }
@@ -104,45 +108,94 @@ export class MapSystem extends Phaser.GameObjects.Container {
     }
 
     private drawMap(): void {
-        const map = (this.scene as IsometricScene).map;
+        const map = this.scene.map;
         if (!map) return;
-
+    
         this.mapContent.clear();
-
-        // Draw water background (square)
-        const effectiveSize = this.mapSize - this.mapPadding;
+    
+        // 1) Calculate the camera-based coords for the water square
+        const cameraWidth = this.scene.cameras.main.width;
+        const cameraHeight = this.scene.cameras.main.height;
+        const effectiveCameraWidth = cameraWidth / this.scene.cameras.main.zoom;
+        const effectiveCameraHeight = cameraHeight / this.scene.cameras.main.zoom;
+    
+        // The top-left of our water square
+        const waterRectX = (cameraWidth / 2 - this.mapSize)
+                         + (effectiveCameraWidth / 2)
+                         - this.mapMargin
+                         - this.mapPadding / 2;
+        const waterRectY = (-cameraHeight / 2 + this.mapSize / 2)
+                         - (effectiveCameraHeight / 2)
+                         + this.mapMargin
+                         + this.mapPadding;
+    
+        // 2) Draw the water square itself
         this.mapContent.fillStyle(this.waterColor);
         this.mapContent.fillRect(
-            -effectiveSize / 2,
-            -effectiveSize / 2,
-            effectiveSize,
-            effectiveSize
+            waterRectX,
+            waterRectY,
+            this.mapSize,
+            this.mapSize
         );
-
-        // Get land layer 
+    
+        // 3) Get the land layer
         const landLayer = map.layers.find(layer => layer.name === "Land 1");
         if (!landLayer) return;
-
-        // Draw land tiles
-        this.mapContent.fillStyle(this.landColor);
-        
-        // Calculate center offset
-        this.graphicOffsetX = 0;
-        this.graphicOffsetY = -((map.height * map.tileHeight/2) * this.mapScale);
-
+    
+        // 4) Find the bounding box (min/max) of the entire diamond
+        //    in isometric/cartoons coords. Then we can center it.
+        let minCartX = Infinity, maxCartX = -Infinity;
+        let minCartY = Infinity, maxCartY = -Infinity;
+    
         landLayer.data.forEach((row, y) => {
             row.forEach((tile, x) => {
-                if (tile.index !== -1) { 
-                    const cartX = (x - y) * map.tileWidth / 2;
-                    const cartY = (x + y) * map.tileHeight / 2;
-
-                    const mapX = (cartX * this.mapScale) + this.graphicOffsetX;
-                    const mapY = (cartY * this.mapScale) + this.graphicOffsetY;
-
+                if (tile.index !== -1) {
+                    const cartX = (x - y) * (map.tileWidth / 2);
+                    const cartY = (x + y) * (map.tileHeight / 2);
+    
+                    if (cartX < minCartX) minCartX = cartX;
+                    if (cartX > maxCartX) maxCartX = cartX;
+                    if (cartY < minCartY) minCartY = cartY;
+                    if (cartY > maxCartY) maxCartY = cartY;
+                }
+            });
+        });
+    
+        // If no valid tiles found, just return
+        if (maxCartX === -Infinity) return;
+    
+        // 5) The center of our land-layer diamond in isometric space
+        const diamondCenterX = (minCartX + maxCartX) / 2;
+        const diamondCenterY = (minCartY + maxCartY) / 2;
+    
+        // 6) Scale that center
+        const scaledCenterX = diamondCenterX * this.mapScale;
+        const scaledCenterY = diamondCenterY * this.mapScale;
+    
+        // 7) The center of the water square
+        const waterCenterX = waterRectX + (this.mapSize / 2);
+        const waterCenterY = waterRectY + (this.mapSize / 2);
+    
+        // 8) Our offsets = (water center) - (scaled diamond center)
+        this.graphicOffsetX = waterCenterX - scaledCenterX;
+        this.graphicOffsetY = waterCenterY - scaledCenterY;
+    
+        // 9) Now draw land tiles using those offsets
+        this.mapContent.fillStyle(this.landColor, this.mapAlpha);
+    
+        landLayer.data.forEach((row, y) => {
+            row.forEach((tile, x) => {
+                if (tile.index !== -1) {
+                    const cartX = (x - y) * (map.tileWidth / 2);
+                    const cartY = (x + y) * (map.tileHeight / 2);
+    
+                    const mapX = cartX * this.mapScale + this.graphicOffsetX;
+                    const mapY = cartY * this.mapScale + this.graphicOffsetY;
+    
                     this.mapContent.fillRect(
-                        mapX, 
-                        mapY, 
-                        map.tileWidth * this.mapScale, 
+                        mapX,
+                        mapY,
+                        map.tileWidth * this.mapScale,
                         map.tileHeight * this.mapScale
                     );
                 }
@@ -157,19 +210,19 @@ export class MapSystem extends Phaser.GameObjects.Container {
         Object.values(this.interactionAreas).forEach(area => {
             const markerInfo = area.markerInfo;
             if (!markerInfo) return;
-    
+
             const { x, y } = area.getCenter();
             const mapX = x * this.mapScale + this.graphicOffsetX;
             const mapY = y * this.mapScale + this.graphicOffsetY;
-    
+
             let marker: Phaser.GameObjects.Image | Phaser.GameObjects.Graphics;
-    
+
 
             // We handle custom markers first, then default to the circle
             // marker using their set colour
             if (markerInfo.locationType === "Safehouse") {
                 marker = this.scene.add.image(mapX, mapY, 'minimapHouse');
-                marker.setScale(0.10);  
+                marker.setScale(0.10);
             } else if (markerInfo.locationType === "Shop") {
                 marker = this.scene.add.image(mapX, mapY, 'minimapShop');
                 marker.setScale(0.10);
@@ -184,10 +237,10 @@ export class MapSystem extends Phaser.GameObjects.Container {
                 marker.closePath();
                 marker.fillPath();
                 marker.strokePath();
-                
+
                 marker.setPosition(mapX, mapY);
             }
-    
+
             this.mapContainer.add(marker);
             this.interactionMarkers.push(marker as Phaser.GameObjects.Graphics);
         });
