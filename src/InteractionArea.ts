@@ -349,7 +349,7 @@ export default class InteractionArea {
             }
 
             if (blockers.has('noEnergy')) {
-                this.showDepletionPopup(`You are too tired to fish here; go rest at a safehouse.`);
+                this.showDepletionPopup(`You are too tired to fish here, you must rest at a safehouse.`);
                 return;
             }
 
@@ -671,8 +671,8 @@ export default class InteractionArea {
         const camera = this.scene.cameras.main;
         const zoomScale = 1 / camera.zoom;
 
-        const fontSize = 32 * zoomScale;
-        const padding = 30 * zoomScale;
+        const fontSize = 28 * zoomScale;
+        const padding = 15 * zoomScale;
         const maxWidth = camera.width * 0.8 * zoomScale;
 
         // Create a temporary hidden text object to measure size
