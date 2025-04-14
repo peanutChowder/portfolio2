@@ -32,7 +32,7 @@ const hideLoadingScreen = () => {
 };
 
 const isMobile = () => {
-    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    return Math.min(window.innerHeight, window.innerWidth) <= 768;
 };
 
 const showMobileWarning = () => {

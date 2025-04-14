@@ -123,7 +123,7 @@ export default class IsometricScene extends Phaser.Scene {
     }
 
     preload(): void {
-        this.isMobileDevice = this.sys.game.device.os.android || this.sys.game.device.os.iOS
+        this.isMobileDevice = Math.min(window.innerWidth, window.innerHeight) <= 768;
 
         this.fireworkManager = new FireworkManager(this);
 
