@@ -11,7 +11,7 @@ function initFishGame() {
     const FISH_WIDTH = 60;
     const FISH_HEIGHT = 40;
     const FISH_SPAWN_INTERVAL = 1000; // ms
-    const MIN_SPEED = 300;  // px/sec
+    const MIN_SPEED = 200;  // px/sec
     const MAX_SPEED = 1100; // px/sec
     const MAX_HITS = 7;
     const MAX_MISSES = 3;
@@ -303,7 +303,7 @@ function initFishGame() {
 
         const speed = randInt(MIN_SPEED, MAX_SPEED);
         const oscillationRate = randInt(2, 6);
-        const oscillationAmplitude = randInt(5, 20); // Vertical movement range (px)
+        const oscillationAmplitude = randInt(10, 80); // Vertical movement range (px)
         let startTime = null;
 
         function animateFish(timestamp) {
