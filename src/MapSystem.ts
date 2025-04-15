@@ -6,7 +6,7 @@ export class MapSystem extends Phaser.GameObjects.Container {
 
     private mapSize!: number; // Square minimap sizing  
     private mapPadding: number = 40;
-    private mapAlpha: number = 0.5;
+    private mapAlpha: number = 0.6;
     private mapColor: number = 0xffffff;
     private landColor: number = 0x5ce086;  
     private waterColor: number = 0x8df7f6;  
@@ -44,7 +44,7 @@ export class MapSystem extends Phaser.GameObjects.Container {
         if (this.scene.isMobileDevice) {
             mapPercentOfScreen = 0.3;
         } else {
-            mapPercentOfScreen = 0.2;
+            mapPercentOfScreen = 0.25;
         }
         const minDimension = Math.min(cameraWidth, cameraHeight);
         this.mapSize = (minDimension / cameraZoom) * mapPercentOfScreen;
