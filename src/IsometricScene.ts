@@ -1388,6 +1388,8 @@ export default class IsometricScene extends Phaser.Scene {
             this.gameOverlayElement.style.transition = 'opacity 0.5s ease-in-out';
             this.gameOverlayElement.style.opacity = '0';
 
+            this.updateAllFishingButtons(); // Sync fishing rod button in case user changed equipped rods
+
             // Remove from the DOM after fade
             setTimeout(() => {
                 if (this.gameOverlayElement && this.gameOverlayElement.parentNode) {
