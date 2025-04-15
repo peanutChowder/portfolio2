@@ -6,7 +6,7 @@ export class MapSystem extends Phaser.GameObjects.Container {
 
     private mapSize!: number; // Square minimap sizing  
     private mapPadding: number = 40;
-    private mapAlpha: number = 0.8;
+    private mapAlpha: number = 0.5;
     private mapColor: number = 0xffffff;
     private landColor: number = 0x5ce086;  
     private waterColor: number = 0x8df7f6;  
@@ -42,7 +42,7 @@ export class MapSystem extends Phaser.GameObjects.Container {
         // Pick the smaller dimension so the minimap remains square
         let mapPercentOfScreen;
         if (this.scene.isMobileDevice) {
-            mapPercentOfScreen = 0.4;
+            mapPercentOfScreen = 0.3;
         } else {
             mapPercentOfScreen = 0.2;
         }
@@ -190,7 +190,7 @@ export class MapSystem extends Phaser.GameObjects.Container {
         this.graphicOffsetY = waterCenterY - scaledCenterY;
     
         // 9) Now draw land tiles using those offsets
-        this.mapContent.fillStyle(this.landColor, this.mapAlpha);
+        this.mapContent.fillStyle(this.landColor, 1); // We use an alpha of 1 for land
     
         landLayer.data.forEach((row, y) => {
             row.forEach((tile, x) => {
