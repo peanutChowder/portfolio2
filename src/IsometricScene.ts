@@ -293,6 +293,10 @@ export default class IsometricScene extends Phaser.Scene {
             this.add.existing(this.boat)
             console.log("Added boat")
 
+            // Show the tutorial overlay if the user has not visited before
+            if (savedPosition === null) {
+                this.showTutorialOverlay()
+            }
 
             // Add remaining layers
             for (let i = 2; i < this.map.layers.length; i++) {
