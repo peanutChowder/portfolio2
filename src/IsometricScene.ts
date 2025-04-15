@@ -1370,7 +1370,8 @@ export default class IsometricScene extends Phaser.Scene {
                 gameId: gameOverlayName,
                 energyCost: energyCost,
                 minCost: minCost,
-                maxCost: maxCost
+                maxCost: maxCost,
+                equippedRod: this.inventory?.getActiveRodDetails()
             }, "*");
         });
 

@@ -3,6 +3,8 @@ import { getRandomFishByCost } from "../../src/gamification/ItemData.ts";
 let energyCost = 0;
 let minCost = 0;
 let maxCost = 999;
+let equippedRod = null;
+
 
 function initFishGame() {
     console.log("Fish punch is starting!");
@@ -29,7 +31,6 @@ function initFishGame() {
     const message = document.getElementById('message');
     const crosshair = document.getElementById('crosshair');
     let crosshairEl = null;
-
     let selectedFish = null;
 
     if (!sandboxContent) {
@@ -46,7 +47,10 @@ function initFishGame() {
     // Create the fishing rod element
     const fishingRod = document.createElement('img');
     fishingRod.id = "fishing-rod";
-    fishingRod.src = "../../assets/fishing/rod_ingame.png";
+    console.log("equippedRod", equippedRod)
+    fishingRod.src = equippedRod?.imgSrc
+    ? `../../assets/fishing/${equippedRod.imgSrc}`
+    : "../../assets/fishing/rod_ingame.png"; // fallback
     sandboxContent.appendChild(fishingRod);
 
     // Create game message element for instructions & status updates
@@ -345,20 +349,18 @@ function initFishGame() {
     });
 }
 
-window.addEventListener('message', (e) => {
-    if (e.data?.type === 'gameSetup') {
-        energyCost = e.data.energyCost || 0;
-        minCost = e.data.minCost ?? 0;
-        maxCost = e.data.maxCost ?? 999;
-        console.log("[fishPunch] Setup => cost range:", minCost, "-", maxCost, "energyCost:", energyCost);
-    }
+document.addEventListener("DOMContentLoaded", () => {
+    window.addEventListener('message', (e) => {
+        if (e.data?.type === 'gameSetup') {
+            energyCost = e.data.energyCost || 0;
+            minCost = e.data.minCost ?? 0;
+            maxCost = e.data.maxCost ?? 999;
+            equippedRod = e.data.equippedRod || null;
+    
+            console.log("[fishPunch] Setup =>", { minCost, maxCost, energyCost, equippedRod });
+            initFishGame();
+        }
+    });
 });
 
-// Run `initFishGame()` immediately if DOM is ready
-if (document.readyState === "loading") {
-    console.log(" Waiting for DOM...");
-    document.addEventListener("DOMContentLoaded", initFishGame);
-} else {
-    console.log(" DOM already loaded! Running initFishGame immediately.");
-    initFishGame();
-}
+
