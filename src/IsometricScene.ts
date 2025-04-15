@@ -666,7 +666,7 @@ export default class IsometricScene extends Phaser.Scene {
 
         const mapBottomRight = this.mapSystem.getMapBottomRight();
         this.energyBarX = mapBottomRight.x;
-        this.energyBarY = mapBottomRight.y + 300;
+        this.energyBarY = mapBottomRight.y + 200;
 
         // Background (Gray)
         this.energyBarBackground = this.add.graphics();
@@ -753,7 +753,7 @@ export default class IsometricScene extends Phaser.Scene {
         // Position in top right corner, below the energy bar (and thus minimap)
         const mapBottomRight = this.mapSystem.getMapBottomRight();
         const buttonX = mapBottomRight.x + this.mapSystem.getMinimapWidth() - buttonSize;
-        const buttonY = mapBottomRight.y + 450; // Arbitrary constant from trial and error
+        const buttonY = mapBottomRight.y + 350; // Arbitrary constant from trial and error
     
         const buttonBg = this.add.graphics();
         const drawButtonBg = (color: number) => {
