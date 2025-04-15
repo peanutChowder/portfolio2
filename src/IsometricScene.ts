@@ -244,6 +244,8 @@ export default class IsometricScene extends Phaser.Scene {
                 }
             })
 
+            // (6.) Update all fishing buttons to reflect the currently equipped rod
+            this.updateAllFishingButtons();
 
             // not load order sensitive
             this.safehouseInventory = new SafehouseInventory();
@@ -563,6 +565,8 @@ export default class IsometricScene extends Phaser.Scene {
                         const { rodId } = event.data;
                         if (this.inventory?.equipRod(rodId)) {
                             console.log(`Equipped rod: ${rodId}`);
+
+                            this.updateAllFishingButtons();
                         }
                         break;
                     }
@@ -1269,6 +1273,7 @@ export default class IsometricScene extends Phaser.Scene {
         // If there's an existing overlay, remove it
         if (this.gameOverlayElement) {
             this.destroyGameOverlay(gameOverlayName);
+            this.updateAllFishingButtons(); // update the fishing rod button with the currently equipped rod
             return;
         }
 
@@ -1504,6 +1509,8 @@ export default class IsometricScene extends Phaser.Scene {
         this.inventoryOverlayElement.style.transition = 'opacity 0.5s ease-in-out';
         this.inventoryOverlayElement.style.opacity = '0';
 
+        this.updateAllFishingButtons(); // Sync fishing rod button in case user changed equipped rods
+
         // Remove from the DOM after fade
         setTimeout(() => {
             this.inventoryOverlayElement?.parentNode?.removeChild(this.inventoryOverlayElement);
@@ -1512,4 +1519,11 @@ export default class IsometricScene extends Phaser.Scene {
     }
 
 
+    private updateAllFishingButtons(): void {
+        Object.values(this.interactionAreas).forEach(area => {
+            if (area.getGameElementType() === 'fishing') {
+                area.updateFishingButtonVisual();
+            }
+        });
+    }
 }

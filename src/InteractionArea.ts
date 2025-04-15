@@ -77,6 +77,12 @@ export default class InteractionArea {
 
     static preload(scene: Phaser.Scene): void {
         scene.load.image('fishingRod', fishingRod);
+
+        Object.values(itemData).forEach(item => {
+            if (item.type === 'rod') {
+                scene.load.image(item.id, `../assets/fishing/${item.imgSrc}`);
+            }
+        });
     }
 
     constructor(scene: Phaser.Scene, areaData: InteractionAreaData) {
@@ -206,6 +212,15 @@ export default class InteractionArea {
         this.interactionButton.on('pointerdown', this.handleClick, this);
     }
 
+    /**
+     * Initializes the game element button based on the type of game element associated
+     * with this interaction area. The button's appearance and behavior are determined
+     * by the `gameElementType` property. If the type is 'safehouse' or 'shop', a 
+     * rectangular button with specific styles is created. If the type is 'fishing', 
+     * the button includes an icon. The button also handles interactions such as 
+     * hover effects and click events, displaying popups for various conditions 
+     * like insufficient equipment, resource depletion, or full inventory.
+     */
     private initGameElementButton(): void {
         if (!this.minigameId) return;
 
@@ -225,9 +240,9 @@ export default class InteractionArea {
             bg.fillRoundedRect(-btnWidth / 2, -btnHeight / 2, btnWidth, btnHeight, btnRadius);
             bg.lineStyle(btnLineWidth, 0xffffff, 1);
             bg.strokeRoundedRect(-btnWidth / 2, -btnHeight / 2, btnWidth, btnHeight, btnRadius);
-        
+
             const labelText = this.gameElementType === 'shop' ? 'Enter Shop' : 'Enter Safehouse';
-        
+
             const label = this.scene.add.text(0, 0, labelText, {
                 font: `24px Prompt`,
                 color: '#ffffff'
@@ -298,11 +313,9 @@ export default class InteractionArea {
             this.gameElementButton.on('pointerout', () => drawBg(this.normalColor));
         }
 
-        // Behavior on pointerdown for the "game element" button
         this.gameElementButton.on('pointerdown', () => {
             const blockers = this.activeBlockers;
 
-            // Inside your button click handler
             if (blockers.has('insufficientRod')) {
                 const inventory = (this.scene as any).getInventory?.();
                 const activeRodId = inventory?.getRodStorage().getActiveRodId();
@@ -358,6 +371,46 @@ export default class InteractionArea {
             }
         });
     }
+
+    public updateFishingButtonVisual(): void {
+        if (!this.gameElementButton || this.gameElementType !== 'fishing') return;
+    
+        const inventory = (this.scene as any).getInventory?.();
+        const rod = inventory?.getActiveRodDetails?.();
+    
+        // Find the image child regardless of rod state
+        const icon = this.gameElementButton.list.find(
+            child => child instanceof Phaser.GameObjects.Image
+        ) as Phaser.GameObjects.Image;
+    
+        if (!icon) return;
+    
+        if (!rod) {
+            // If no rod equipped, clear icon 
+            icon.setTexture('');  // clears the texture
+            icon.setDisplaySize(0, 0); // hide the image visually
+            return;
+        }
+    
+        const rodData = itemData[rod.id];
+        if (!rodData) return;
+    
+        // Update texture to match equipped rod
+        icon.setTexture(rodData.id);
+    
+        // Resize rod image to fill button cleanly
+        const maxWidth = this.geButtonWidth - 20;
+        const maxHeight = this.geButtonHeight - 20;
+    
+        const tex = this.scene.textures.get(rodData.id);
+        if (tex && tex.getSourceImage()) {
+            const { width, height } = tex.getSourceImage();
+            const scale = Math.min(maxWidth / width, maxHeight / height);
+            icon.setDisplaySize(width * scale, height * scale);
+        }
+    
+        icon.setOrigin(0.5);
+    }  
 
     private drawButtonBackground(color: number) {
         this.buttonBg.clear();
