@@ -19,6 +19,7 @@ import { Inventory } from './gamification/Inventory';
 import { SafehouseInventory } from './gamification/SafehouseInventory';
 import { itemData } from './gamification/ItemData';
 import { ShopManager } from './gamification/ShopManager';
+import { COST_RANGE_BANDS } from './gamification/IslandManager';
 
 const fontSize = "80px";
 const fontColor = "#ffffff"
@@ -347,7 +348,7 @@ export default class IsometricScene extends Phaser.Scene {
             // bottom corner to position.
             this.createInventoryButton();
 
-            this.createHelpButton();
+            this.createTutorialButton();
 
 
             this.islandManager.assignIslandGameElements(false)
@@ -745,7 +746,7 @@ export default class IsometricScene extends Phaser.Scene {
         });
     }
 
-    private createHelpButton(): void {
+    private createTutorialButton(): void {
         const buttonSize = 200;
         const cornerRadius = 40;
     
@@ -793,7 +794,7 @@ export default class IsometricScene extends Phaser.Scene {
     
         // Click handler
         buttonContainer.on('pointerdown', () => {
-            this.showHelpOverlay();
+            this.showTutorialOverlay();
         });
     }
 
@@ -1389,7 +1390,7 @@ export default class IsometricScene extends Phaser.Scene {
         }
     }
 
-    private showHelpOverlay(): void {
+    private showTutorialOverlay(): void {
         // Prevent multiple overlays
         if (this.gameOverlayElement) {
             this.destroyGameOverlay("tutorial");
@@ -1417,6 +1418,13 @@ export default class IsometricScene extends Phaser.Scene {
         // 3. Append to DOM
         document.body.appendChild(iframe);
         this.gameOverlayElement = iframe;
+
+        iframe.addEventListener('load', () => {
+            iframe.contentWindow?.postMessage({
+                type: "tutorialData",
+                costRangeBands: COST_RANGE_BANDS // your array
+            }, "*");
+        });
     
         setTimeout(() => {
             iframe.style.opacity = '1';

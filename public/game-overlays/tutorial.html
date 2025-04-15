@@ -164,6 +164,7 @@
             background-color: #6A936A;
         }
 
+        /* ============== PAGE 1 EXTRA STYLES FOR INSTRUCTIONS ============== */
         .mobile-content,
         .desktop-content {
             display: none;
@@ -242,6 +243,49 @@
             background-color: #A79B8E;
         }
 
+        /* ============== SWATCH WRAPPER STYLES ============== */
+        #swatches-wrapper {
+            background-color: #F6F0E0;
+            border: 2px solid #E6D9C2;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 15px auto;
+            max-width: 400px;
+        }
+
+        #fish-classes-container {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            width: 100%;
+        }
+
+        /* Each row is one color swatch + text */
+        .class-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .class-swatch {
+            width: 60px;
+            height: 40px;
+            border-radius: 8px;
+            border: 6px solid #F0E6D2;
+            /* “cream” border */
+            box-sizing: border-box;
+            /* The center color is set in JS (band.color) */
+        }
+
+        .class-text {
+            font-size: 16px;
+            line-height: 1.3;
+            color: #7E6D5A;
+        }
+
+        /* ============== MEDIA QUERIES ============== */
+
         @media only screen and (max-width: 768px),
         (hover: none) and (pointer: coarse) {
             .mobile-content {
@@ -311,31 +355,35 @@
                     </div>
                     <div class="nav-buttons">
                         <!-- We won't show "Back" on the first page, so it's either hidden or disabled -->
-                        <button class="arrow-button" style="visibility: hidden;">←</button>
-                        <button class="arrow-button" data-next="2">→</button>
+                        <button class="arrow-button" style="visibility: hidden;">&lt;</button>
+                        <button class="arrow-button" data-next="2">&gt;</button>
                     </div>
                 </div>
 
                 <!-- PAGE 2 -->
                 <div class="tutorial-page" id="page-2">
-                    <h2>Find the Islands</h2>
-                    <p>Every 5 minutes, fish might appear at an island. These islands have flashing circles, click on
-                        their fishing button to catch them!</p>
-                    <!-- <img src="../../assets/tutorial/islands.png" alt="Islands overview" /> -->
+                    <h2>Fishing at Islands</h2>
+                    <p>Every 5 minutes, each island has a chance of spawning a certain rarity of fish. These islands have <b>flashing outlines</b>. Click on the rod button to fish!</p>
+                    <img class="tutorial-img" src="../../assets/tutorial/tutorial-2.gif" alt="How to fish" />
                     <div class="nav-buttons">
-                        <button class="arrow-button" data-prev="1">←</button>
-                        <button class="arrow-button" data-next="3">→</button>
+                        <button class="arrow-button" data-prev="1">&lt;</button>
+                        <button class="arrow-button" data-next="3">&gt;</button>
                     </div>
                 </div>
 
                 <!-- PAGE 3 -->
                 <div class="tutorial-page" id="page-3">
                     <h2>Fish Rarity Guide</h2>
-                    <p>The rarity of fish is indicated by the color of the circle. Here’s a quick guide!</p>
-                    <!-- <img src="../../assets/tutorial/rarity-guide.png" alt="Fish Rarity" /> -->
+                    <p>The rarity of fish is indicated by color. The outlines around fishable islands indicate the rarity of the fish there.</p>
+
+                    <!-- Off-cream background + a container for the class rows -->
+                    <div id="swatches-wrapper">
+                        <div id="fish-classes-container"></div>
+                    </div>
+
                     <div class="nav-buttons">
-                        <button class="arrow-button" data-prev="2">←</button>
-                        <button class="arrow-button" data-next="4">→</button>
+                        <button class="arrow-button" data-prev="2">&lt;</button>
+                        <button class="arrow-button" data-next="4">&gt;</button>
                     </div>
                 </div>
 
@@ -343,19 +391,18 @@
                 <div class="tutorial-page" id="page-4">
                     <h2>Shops & Safe Houses</h2>
                     <p>
-                        After a hard day of fishing, you can buy/sell items at the shop or rest at one of the safe
-                        houses.
+                        After a hard day of fishing, you can buy/sell items at the <b>shop</b> or rest at one of the <b>safehouses</b>.
                         Good luck!
                     </p>
-                    <!-- <img src="../../assets/tutorial/shop-safehouse.png" alt="Shops and Safehouses" /> -->
+                    <img class="tutorial-img" src="../../assets/tutorial/tutorial-4.gif" alt="Shops and Safehouses" />
 
                     <!-- "Begin Playing" button -->
-                    <button class="begin-button" id="begin-playing">Begin Playing</button>
+                    <button class="begin-button" id="begin-playing">Start Playing</button>
 
                     <div class="nav-buttons">
-                        <button class="arrow-button" data-prev="3">←</button>
+                        <button class="arrow-button" data-prev="3">&lt;</button>
                         <!-- On last page, we can hide the forward arrow or just omit it -->
-                        <button class="arrow-button" style="visibility: hidden;">→</button>
+                        <button class="arrow-button" style="visibility: hidden;">&gt;</button>
                     </div>
                 </div>
 
@@ -415,6 +462,41 @@
             // Also close the overlay
             parent.postMessage({ type: "destroyGameOverlay", overlayName: "tutorial" }, "*");
         });
+
+        // ========== Fish Rarity Guide ==========
+        window.addEventListener('message', event => {
+            if (event.data?.type === 'tutorialData' && event.data.costRangeBands) {
+                buildFishClassesGuide(event.data.costRangeBands);
+            }
+        });
+
+        function buildFishClassesGuide(costRangeBands) {
+            const container = document.getElementById('fish-classes-container');
+            if (!container) return;
+            container.innerHTML = '';
+
+            costRangeBands.forEach(band => {
+                const row = document.createElement('div');
+                row.className = 'class-row';
+
+                const swatch = document.createElement('div');
+                swatch.className = 'class-swatch';
+                // Fill the center with band.color
+                swatch.style.backgroundColor = band.color;
+
+                const text = document.createElement('div');
+                text.className = 'class-text';
+
+                const requiredClass = band.rodAccess?.requiredClass || 1;
+                text.innerHTML = `
+                Class ${requiredClass} 
+            `;
+
+                row.appendChild(swatch);
+                row.appendChild(text);
+                container.appendChild(row);
+            });
+        }
     </script>
 </body>
 
