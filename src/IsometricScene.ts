@@ -347,6 +347,8 @@ export default class IsometricScene extends Phaser.Scene {
             // bottom corner to position.
             this.createInventoryButton();
 
+            this.createHelpButton();
+
 
             this.islandManager.assignIslandGameElements(false)
 
@@ -743,6 +745,57 @@ export default class IsometricScene extends Phaser.Scene {
         });
     }
 
+    private createHelpButton(): void {
+        const buttonSize = 200;
+        const cornerRadius = 40;
+    
+        // Position in top right corner, below the energy bar (and thus minimap)
+        const mapBottomRight = this.mapSystem.getMapBottomRight();
+        const buttonX = mapBottomRight.x + this.mapSystem.getMinimapWidth() - buttonSize;
+        const buttonY = mapBottomRight.y + 450; // Arbitrary constant from trial and error
+    
+        const buttonBg = this.add.graphics();
+        const drawButtonBg = (color: number) => {
+            buttonBg.clear();
+            buttonBg.fillStyle(color, 1);
+            buttonBg.fillRoundedRect(0, 0, buttonSize, buttonSize, cornerRadius);
+            buttonBg.lineStyle(6, 0xffffff, 1);
+            buttonBg.strokeRoundedRect(0, 0, buttonSize, buttonSize, cornerRadius);
+        };
+        drawButtonBg(this.inventoryButtonColor);
+    
+        const label = this.add.text(buttonSize / 2, buttonSize / 2, "?", {
+            fontFamily: "Prompt",
+            fontSize: "90px",
+            color: "#ffffff"
+        }).setOrigin(0.5);
+    
+        // Create a container for the background + label
+        const buttonContainer = this.add.container(buttonX, buttonY, [buttonBg, label]);
+        buttonContainer.setScrollFactor(0).setDepth(99);
+    
+        // Match the container size to our square
+        buttonContainer.setSize(buttonSize, buttonSize);
+    
+        // Use a rectangular hit area matching the same size
+        buttonContainer.setInteractive(
+            new Phaser.Geom.Rectangle(buttonSize / 2, buttonSize / 2, buttonSize, buttonSize),
+            Phaser.Geom.Rectangle.Contains
+        );
+    
+        // Hover effect
+        buttonContainer.on('pointerover', () => {
+            drawButtonBg(this.inventoryButtonHoverColor);
+        });
+        buttonContainer.on('pointerout', () => {
+            drawButtonBg(this.inventoryButtonColor);
+        });
+    
+        // Click handler
+        buttonContainer.on('pointerdown', () => {
+            this.showHelpOverlay();
+        });
+    }
 
 
     private createInteractionAreas(): void {
@@ -1334,6 +1387,42 @@ export default class IsometricScene extends Phaser.Scene {
         } else {
             console.warn("No game overlay to destroy.");
         }
+    }
+
+    private showHelpOverlay(): void {
+        // Prevent multiple overlays
+        if (this.gameOverlayElement) {
+            this.destroyGameOverlay("tutorial");
+            return;
+        }
+    
+        console.group("Creating help/tutorial overlay");
+    
+        // 1. Create iframe
+        const iframe = document.createElement('iframe');
+        iframe.id = 'game-overlay-iframe';
+        iframe.src = '../game-overlays/tutorial.html';
+        iframe.style.position = 'fixed';
+        iframe.style.top = '0';
+        iframe.style.left = '0';
+        iframe.style.width = '100vw';
+        iframe.style.height = '100vh';
+        iframe.style.zIndex = '9999';
+        iframe.style.border = 'none';
+    
+        // 2. Fade in
+        iframe.style.opacity = '0';
+        iframe.style.transition = 'opacity 0.5s ease-in-out';
+    
+        // 3. Append to DOM
+        document.body.appendChild(iframe);
+        this.gameOverlayElement = iframe;
+    
+        setTimeout(() => {
+            iframe.style.opacity = '1';
+        }, 50);
+    
+        console.groupEnd();
     }
 
     private showInventoryOverlay(): void {

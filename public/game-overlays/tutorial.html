@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Tutorial</title>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            width: 100%;
+            height: 100%;
+            font-family: 'Prompt', sans-serif;
+            background: transparent;
+        }
+
+        /* ============== OVERLAY WRAPPER STYLES (same as inventory) ============== */
+        #overlay-wrapper {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            pointer-events: none;
+        }
+
+        #simple-overlay {
+            width: 90%;
+            max-width: 600px;
+            height: 90%;
+            max-height: 800px;
+            background-color: rgba(255, 253, 240, 0.95);
+            display: flex;
+            flex-direction: column;
+            border-radius: 15px;
+            pointer-events: auto;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border: 2px solid #F0E6D2;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .content-inner {
+            flex: 1;
+            overflow-y: scroll;
+            position: relative;
+        }
+
+        /* ============== CLOSE BUTTON ============== */
+        .close-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 10;
+            background-color: #F0E6D2;
+            border: none;
+            color: #7E6D5A;
+            font-size: 24px;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .close-button:hover {
+            transform: rotate(90deg);
+            background-color: #E6D9C2;
+        }
+
+        /* ============== Scroll bar ============== */
+
+        .content-inner::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .content-inner::-webkit-scrollbar-track {
+            background: #F0E6D2;
+            border-radius: 4px;
+        }
+
+        .content-inner::-webkit-scrollbar-thumb {
+            background: #7E6D5A;
+            border-radius: 4px;
+        }
+
+        /* ============== TUTORIAL PAGE STYLES ============== */
+        .tutorial-page {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .tutorial-page h2 {
+            color: #7E6D5A;
+            margin-bottom: 15px;
+        }
+
+        .tutorial-page p {
+            color: #7E6D5A;
+            font-size: 18px;
+            margin: 10px 0 20px;
+            max-width: 90%;
+        }
+
+        .tutorial-img {
+            display: block;
+            max-width: 100%;
+            border-radius: 20px;
+            border: 4px solid white;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+            margin: 0 auto 20px auto;
+        }
+
+        /* ============== NAV BUTTONS ============== */
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-top: auto;
+        }
+
+        .arrow-button {
+            background-color: #D0B49F;
+            border: none;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            width: 70px;
+            height: 70px;
+            border-radius: 18px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .arrow-button:hover {
+            background-color: #C19A82;
+        }
+
+        /* "Begin Playing" button on last page */
+        .begin-button {
+            background-color: #7AA47A;
+            border: none;
+            color: white;
+            font-size: 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            padding: 12px 24px;
+            transition: background-color 0.2s ease;
+            margin: 20px 0;
+        }
+
+        .begin-button:hover {
+            background-color: #6A936A;
+        }
+
+        .mobile-content,
+        .desktop-content {
+            display: none;
+        }
+
+        #instructions {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-evenly;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        #arrow-keys {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: 350px;
+            margin: 0 auto;
+        }
+
+        .arrow-row {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .arrow {
+            font-size: 24px;
+            width: 40px;
+            height: 40px;
+            line-height: 40px;
+            text-align: center;
+            background-color: #D0B49F;
+            color: white;
+            margin: 5px;
+            border-radius: 5px;
+        }
+
+        .arrow.up {
+            margin-bottom: 5px;
+        }
+
+        .arrow.down {
+            margin-top: 5px;
+        }
+
+        #joystick-container {
+            width: 100%;
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        #joystick {
+            width: 80px;
+            height: 80px;
+        }
+
+        .joystick-outer {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background-color: #D0B49F;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .joystick-inner {
+            width: 30%;
+            height: 30%;
+            border-radius: 50%;
+            background-color: #A79B8E;
+        }
+
+        @media only screen and (max-width: 768px),
+        (hover: none) and (pointer: coarse) {
+            .mobile-content {
+                margin-top: 50px;
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+                min-height: 250px;
+            }
+
+            .desktop-content {
+                display: none;
+            }
+        }
+
+        @media only screen and (min-width: 769px),
+        (hover: hover) and (pointer: fine) {
+            .mobile-content {
+                display: none;
+            }
+
+            .desktop-content {
+                display: flex;
+                flex-direction: column;
+                justify-content: space-evenly;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="overlay-wrapper">
+        <div id="simple-overlay">
+            <!-- Close button in top-right corner -->
+            <button class="close-button" id="close-tutorial">X</button>
+            <div class="content-inner">
+
+
+                <!-- PAGE 1 -->
+                <div class="tutorial-page" id="page-1">
+                    <h2>Welcome to Jacob’s ocean!</h2>
+                    <p>Drive your boat to each of the islands and click on them to learn more.</p>
+                    <img class="tutorial-img" src="../../assets/tutorial/tutorial-1.gif" alt="Viewing island content" />
+                    <div id="instructions">
+                        <div class="desktop-content">
+                            <p>Use the arrow keys to move the boat</p>
+                            <div id="arrow-keys">
+                                <div class="arrow up">&#9650;</div>
+                                <div class="arrow-row">
+                                    <div class="arrow left">&#9664;</div>
+                                    <div class="arrow down">&#9660;</div>
+                                    <div class="arrow right">&#9654;</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mobile-content">
+                            <p>Drag the joystick to move the boat</p>
+                            <div id="joystick-container">
+                                <div id="joystick">
+                                    <div class="joystick-outer">
+                                        <div class="joystick-inner"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="nav-buttons">
+                        <!-- We won't show "Back" on the first page, so it's either hidden or disabled -->
+                        <button class="arrow-button" style="visibility: hidden;">←</button>
+                        <button class="arrow-button" data-next="2">→</button>
+                    </div>
+                </div>
+
+                <!-- PAGE 2 -->
+                <div class="tutorial-page" id="page-2">
+                    <h2>Find the Islands</h2>
+                    <p>Every 5 minutes, fish might appear at an island. These islands have flashing circles, click on
+                        their fishing button to catch them!</p>
+                    <!-- <img src="../../assets/tutorial/islands.png" alt="Islands overview" /> -->
+                    <div class="nav-buttons">
+                        <button class="arrow-button" data-prev="1">←</button>
+                        <button class="arrow-button" data-next="3">→</button>
+                    </div>
+                </div>
+
+                <!-- PAGE 3 -->
+                <div class="tutorial-page" id="page-3">
+                    <h2>Fish Rarity Guide</h2>
+                    <p>The rarity of fish is indicated by the color of the circle. Here’s a quick guide!</p>
+                    <!-- <img src="../../assets/tutorial/rarity-guide.png" alt="Fish Rarity" /> -->
+                    <div class="nav-buttons">
+                        <button class="arrow-button" data-prev="2">←</button>
+                        <button class="arrow-button" data-next="4">→</button>
+                    </div>
+                </div>
+
+                <!-- PAGE 4 -->
+                <div class="tutorial-page" id="page-4">
+                    <h2>Shops & Safe Houses</h2>
+                    <p>
+                        After a hard day of fishing, you can buy/sell items at the shop or rest at one of the safe
+                        houses.
+                        Good luck!
+                    </p>
+                    <!-- <img src="../../assets/tutorial/shop-safehouse.png" alt="Shops and Safehouses" /> -->
+
+                    <!-- "Begin Playing" button -->
+                    <button class="begin-button" id="begin-playing">Begin Playing</button>
+
+                    <div class="nav-buttons">
+                        <button class="arrow-button" data-prev="3">←</button>
+                        <!-- On last page, we can hide the forward arrow or just omit it -->
+                        <button class="arrow-button" style="visibility: hidden;">→</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // We'll keep an array of page IDs
+        const pages = ["page-1", "page-2", "page-3", "page-4"];
+        let currentPageIndex = 0;
+
+        // Show only the first page to start
+        function showPage(index) {
+            // Hide all pages
+            pages.forEach((pageId, i) => {
+                const pageEl = document.getElementById(pageId);
+                if (!pageEl) return;
+                pageEl.style.display = (i === index) ? "flex" : "none";
+            });
+        }
+
+        // Next/Prev button logic
+        function goToPage(index) {
+            if (index < 0 || index >= pages.length) return;
+            currentPageIndex = index;
+            showPage(currentPageIndex);
+        }
+
+        // ========== Initialization ==========
+        showPage(currentPageIndex);
+
+        // ========== Wire up arrow buttons ==========
+        document.querySelectorAll(".arrow-button").forEach(btn => {
+            btn.addEventListener("click", (e) => {
+                const nextPage = e.target.getAttribute("data-next");
+                if (nextPage) {
+                    goToPage(parseInt(nextPage) - 1);
+                }
+                const prevPage = e.target.getAttribute("data-prev");
+                if (prevPage) {
+                    goToPage(parseInt(prevPage) - 1);
+                }
+            });
+        });
+
+        // ========== Close Button ==========
+        const closeBtn = document.getElementById("close-tutorial");
+        closeBtn?.addEventListener("click", () => {
+            // Typically, you'd post a message to the parent to close this overlay
+            parent.postMessage({ type: "destroyGameOverlay", overlayName: "tutorial" }, "*");
+        });
+
+        // ========== "Begin Playing" on last page ==========
+        const beginBtn = document.getElementById("begin-playing");
+        beginBtn.addEventListener("click", () => {
+            // Also close the overlay
+            parent.postMessage({ type: "destroyGameOverlay", overlayName: "tutorial" }, "*");
+        });
+    </script>
+</body>
+
+</html>
