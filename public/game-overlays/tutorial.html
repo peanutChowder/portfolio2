@@ -284,6 +284,65 @@
             color: #7E6D5A;
         }
 
+        /* ============== PAGE 5 EXTRA STYLES ============== */
+        #page-5 .final-message {
+            color: #7E6D5A;
+            font-size: 18px;
+            margin-bottom: 20px;
+            max-width: 80%;
+            margin: 0 auto 20px auto;
+            text-align: center;
+            line-height: 1.4;
+        }
+
+        /* Cream wrapper (similar to swatches) */
+        #starter-rod-frame-wrapper {
+            background-color: #F6F0E0;
+            /* off-cream color */
+            border: 2px solid #E6D9C2;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 15px auto;
+            max-width: 400px;
+        }
+
+        /* The content area for the rod details */
+        #starter-rod-frame {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            /* center the rod image + text */
+        }
+
+        /* Tweak the rod image size */
+        #starter-rod-frame img {
+            max-width: 120px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+        }
+
+        /* Additional text styling for rod details */
+        .starter-rod-name {
+            font-size: 20px;
+            color: #7E6D5A;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .starter-rod-class {
+            font-size: 16px;
+            color: #7E6D5A;
+            margin-bottom: 8px;
+            font-style: italic;
+        }
+
+        .starter-rod-desc {
+            font-size: 14px;
+            color: #7E6D5A;
+            max-width: 90%;
+            text-align: center;
+        }
+
         /* ============== MEDIA QUERIES ============== */
 
         @media only screen and (max-width: 768px),
@@ -363,7 +422,8 @@
                 <!-- PAGE 2 -->
                 <div class="tutorial-page" id="page-2">
                     <h2>Fishing at Islands</h2>
-                    <p>Every 5 minutes, each island has a chance of spawning a certain rarity of fish. These islands have <b>flashing outlines</b>. Click on the rod button to fish!</p>
+                    <p>Every 5 minutes, each island has a chance of spawning a certain rarity of fish. These islands
+                        have <b>flashing outlines</b>. Click on the rod button to fish!</p>
                     <img class="tutorial-img" src="../../assets/tutorial/tutorial-2.gif" alt="How to fish" />
                     <div class="nav-buttons">
                         <button class="arrow-button" data-prev="1">&lt;</button>
@@ -374,7 +434,8 @@
                 <!-- PAGE 3 -->
                 <div class="tutorial-page" id="page-3">
                     <h2>Fish Rarity Guide</h2>
-                    <p>The rarity of fish is indicated by color. The outlines around fishable islands indicate the rarity of the fish there.</p>
+                    <p>The rarity of fish is indicated by color. The outlines around fishable islands indicate the
+                        rarity of the fish there.</p>
 
                     <!-- Off-cream background + a container for the class rows -->
                     <div id="swatches-wrapper">
@@ -391,113 +452,171 @@
                 <div class="tutorial-page" id="page-4">
                     <h2>Shops & Safe Houses</h2>
                     <p>
-                        After a hard day of fishing, you can buy/sell items at the <b>shop</b> or rest at one of the <b>safehouses</b>.
-                        Good luck!
+                        After a hard day of fishing, you can buy/sell items at the <b>shop</b> or rest at one of the
+                        <b>safehouses</b>.
                     </p>
                     <img class="tutorial-img" src="../../assets/tutorial/tutorial-4.gif" alt="Shops and Safehouses" />
 
-                    <!-- "Begin Playing" button -->
-                    <button class="begin-button" id="begin-playing">Start Playing</button>
-
                     <div class="nav-buttons">
                         <button class="arrow-button" data-prev="3">&lt;</button>
-                        <!-- On last page, we can hide the forward arrow or just omit it -->
-                        <button class="arrow-button" style="visibility: hidden;">&gt;</button>
+                        <button class="arrow-button" data-next="5"">&gt;</button>
                     </div>
                 </div>
 
+                <!-- PAGE 5 -->
+                <div class=" tutorial-page" id="page-5">
+                            <p class="final-message">
+                                You've been gifted a humble fishing tool.<br>
+                                Now go find some fish!
+                            </p>
+
+                            <!-- Cream background area to display rod info -->
+                            <div id="starter-rod-frame-wrapper">
+                                <div id="starter-rod-frame"></div>
+                            </div>
+
+                            <!-- "Begin Playing" button -->
+                            <button class="begin-button" id="begin-playing">Start Playing</button>
+
+                            <div class="nav-buttons">
+                                <button class="arrow-button" data-prev="4">&lt;</button>
+                                <button class="arrow-button" style="visibility: hidden;">&gt;</button>
+                            </div>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
 
-    <script>
-        // We'll keep an array of page IDs
-        const pages = ["page-1", "page-2", "page-3", "page-4"];
-        let currentPageIndex = 0;
+        <script>
+            // We'll keep an array of page IDs
+            const pages = ["page-1", "page-2", "page-3", "page-4", "page-5"];
+            let currentPageIndex = 0;
 
-        // Show only the first page to start
-        function showPage(index) {
-            // Hide all pages
-            pages.forEach((pageId, i) => {
-                const pageEl = document.getElementById(pageId);
-                if (!pageEl) return;
-                pageEl.style.display = (i === index) ? "flex" : "none";
-            });
-        }
-
-        // Next/Prev button logic
-        function goToPage(index) {
-            if (index < 0 || index >= pages.length) return;
-            currentPageIndex = index;
-            showPage(currentPageIndex);
-        }
-
-        // ========== Initialization ==========
-        showPage(currentPageIndex);
-
-        // ========== Wire up arrow buttons ==========
-        document.querySelectorAll(".arrow-button").forEach(btn => {
-            btn.addEventListener("click", (e) => {
-                const nextPage = e.target.getAttribute("data-next");
-                if (nextPage) {
-                    goToPage(parseInt(nextPage) - 1);
-                }
-                const prevPage = e.target.getAttribute("data-prev");
-                if (prevPage) {
-                    goToPage(parseInt(prevPage) - 1);
-                }
-            });
-        });
-
-        // ========== Close Button ==========
-        const closeBtn = document.getElementById("close-tutorial");
-        closeBtn?.addEventListener("click", () => {
-            // Typically, you'd post a message to the parent to close this overlay
-            parent.postMessage({ type: "destroyGameOverlay", overlayName: "tutorial" }, "*");
-        });
-
-        // ========== "Begin Playing" on last page ==========
-        const beginBtn = document.getElementById("begin-playing");
-        beginBtn.addEventListener("click", () => {
-            // Also close the overlay
-            parent.postMessage({ type: "destroyGameOverlay", overlayName: "tutorial" }, "*");
-        });
-
-        // ========== Fish Rarity Guide ==========
-        window.addEventListener('message', event => {
-            if (event.data?.type === 'tutorialData' && event.data.costRangeBands) {
-                buildFishClassesGuide(event.data.costRangeBands);
+            // Show only the first page to start
+            function showPage(index) {
+                // Hide all pages
+                pages.forEach((pageId, i) => {
+                    const pageEl = document.getElementById(pageId);
+                    if (!pageEl) return;
+                    pageEl.style.display = (i === index) ? "flex" : "none";
+                });
             }
-        });
 
-        function buildFishClassesGuide(costRangeBands) {
-            const container = document.getElementById('fish-classes-container');
-            if (!container) return;
-            container.innerHTML = '';
+            // Next/Prev button logic
+            function goToPage(index) {
+                if (index < 0 || index >= pages.length) return;
+                currentPageIndex = index;
+                showPage(currentPageIndex);
+            }
 
-            costRangeBands.forEach(band => {
-                const row = document.createElement('div');
-                row.className = 'class-row';
+            // ========== Initialization ==========
+            showPage(currentPageIndex);
 
-                const swatch = document.createElement('div');
-                swatch.className = 'class-swatch';
-                // Fill the center with band.color
-                swatch.style.backgroundColor = band.color;
+            // ========== Listen for messages from parent ==========
+            window.addEventListener('message', (event) => {
+                if (event.data?.type === 'tutorialData') {
+                    // Build the fish classes page if we have costRangeBands
+                    if (event.data.costRangeBands) {
+                        buildFishClassesGuide(event.data.costRangeBands);
+                    }
+                    // Build the starter rod on page 5
+                    if (event.data.starterRod) {
+                        buildStarterRod(event.data.starterRod);
+                    }
+                }
+            });
 
-                const text = document.createElement('div');
-                text.className = 'class-text';
+            // ========== Wire up arrow buttons ==========
+            document.querySelectorAll(".arrow-button").forEach(btn => {
+                btn.addEventListener("click", (e) => {
+                    const nextPage = e.target.getAttribute("data-next");
+                    if (nextPage) {
+                        goToPage(parseInt(nextPage) - 1);
+                    }
+                    const prevPage = e.target.getAttribute("data-prev");
+                    if (prevPage) {
+                        goToPage(parseInt(prevPage) - 1);
+                    }
+                });
+            });
 
-                const requiredClass = band.rodAccess?.requiredClass || 1;
-                text.innerHTML = `
+            // ========== Close Button ==========
+            const closeBtn = document.getElementById("close-tutorial");
+            closeBtn?.addEventListener("click", () => {
+                // Typically, you'd post a message to the parent to close this overlay
+                parent.postMessage({ type: "destroyGameOverlay", overlayName: "tutorial" }, "*");
+            });
+
+            // ========== "Begin Playing" on last page ==========
+            const beginBtn = document.getElementById("begin-playing");
+            beginBtn.addEventListener("click", () => {
+                // Also close the overlay
+                parent.postMessage({ type: "destroyGameOverlay", overlayName: "tutorial" }, "*");
+            });
+
+            // ========== Fish Rarity Guide ==========
+            function buildFishClassesGuide(costRangeBands) {
+                const container = document.getElementById('fish-classes-container');
+                if (!container) return;
+                container.innerHTML = '';
+
+                costRangeBands.forEach(band => {
+                    const row = document.createElement('div');
+                    row.className = 'class-row';
+
+                    const swatch = document.createElement('div');
+                    swatch.className = 'class-swatch';
+                    // Fill the center with band.color
+                    swatch.style.backgroundColor = band.color;
+
+                    const text = document.createElement('div');
+                    text.className = 'class-text';
+
+                    const requiredClass = band.rodAccess?.requiredClass || 1;
+                    text.innerHTML = `
                 Class ${requiredClass} 
             `;
 
-                row.appendChild(swatch);
-                row.appendChild(text);
-                container.appendChild(row);
-            });
-        }
-    </script>
+                    row.appendChild(swatch);
+                    row.appendChild(text);
+                    container.appendChild(row);
+                });
+            }
+
+            // ========== Starter rod displaying ==========
+            function buildStarterRod(rod) {
+                const frame = document.getElementById('starter-rod-frame');
+                if (!frame) return;
+                frame.innerHTML = ''; // clear in case of reload
+
+                // Create the rod image
+                const img = document.createElement('img');
+                img.src = `../../assets/fishing/${rod.imgSrc}`;
+
+                // Name
+                const nameEl = document.createElement('div');
+                nameEl.className = 'starter-rod-name';
+                nameEl.textContent = rod.name;
+
+                // Class: parse the "classX" from specialEffect
+                const rodClassMatch = rod.specialEffect?.match(/class(\d+)/);
+                const rodClass = rodClassMatch ? rodClassMatch[1] : '?';
+                const classEl = document.createElement('div');
+                classEl.className = 'starter-rod-class';
+                classEl.textContent = `Class ${rodClass} Rod`;
+
+                // Description
+                const descEl = document.createElement('div');
+                descEl.className = 'starter-rod-desc';
+                descEl.textContent = rod.description;
+
+                // Append them
+                frame.appendChild(img);
+                frame.appendChild(nameEl);
+                frame.appendChild(classEl);
+                frame.appendChild(descEl);
+            }
+        </script>
 </body>
 
 </html>

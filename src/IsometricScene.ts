@@ -1419,10 +1419,15 @@ export default class IsometricScene extends Phaser.Scene {
         document.body.appendChild(iframe);
         this.gameOverlayElement = iframe;
 
+        // Assume 'rod1' is the starter rod
+        const starterRod = itemData["rod1"];
+
         iframe.addEventListener('load', () => {
+            // Also send costRangeBands if you need them for page 3
             iframe.contentWindow?.postMessage({
                 type: "tutorialData",
-                costRangeBands: COST_RANGE_BANDS // your array
+                costRangeBands: COST_RANGE_BANDS,
+                starterRod: starterRod
             }, "*");
         });
     
