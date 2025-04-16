@@ -1287,8 +1287,8 @@ export default class IsometricScene extends Phaser.Scene {
         iframe.style.position = 'fixed';
         iframe.style.top = '0';
         iframe.style.left = '0';
-        iframe.style.width = '100vw';
-        iframe.style.height = '100vh';
+        iframe.style.width = '100dvw';
+        iframe.style.height = '100dvh';
         iframe.style.zIndex = '9999';
         iframe.style.border = 'none';
 
@@ -1419,7 +1419,7 @@ export default class IsometricScene extends Phaser.Scene {
         iframe.style.top = '0';
         iframe.style.left = '0';
         iframe.style.width = '100vw';
-        iframe.style.height = '100vh';
+        iframe.style.height = '90%';
         iframe.style.zIndex = '9999';
         iframe.style.border = 'none';
     
