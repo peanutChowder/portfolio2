@@ -379,6 +379,37 @@ h1 {
     transform: translateX(-50%) scale(1.02);
 }
 
+#fireworks-canvas {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 999;
+    display: none;
+}
+
+#welcome-popup {
+    position: fixed;
+    top: 30%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(255, 253, 240, 0.95);
+    padding: 24px 32px;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    text-align: center;
+    font-family: 'Prompt', sans-serif;
+    z-index: 1000;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    pointer-events: none;
+    color: #7E6D5A;
+}
+#welcome-popup.show {
+    opacity: 1;
+}
+
 @media screen and (max-width: 768px) {
     #portfolio-page {
         padding: 10px 0;
