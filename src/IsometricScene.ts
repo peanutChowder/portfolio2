@@ -1282,8 +1282,8 @@ export default class IsometricScene extends Phaser.Scene {
         // 1) Create an iframe
         const iframe = document.createElement('iframe');
         iframe.id = 'game-overlay-iframe';
-        console.log(`../game-overlays/${gameOverlayName}/${gameOverlayName}.html`);
-        iframe.src = `../game-overlays/${gameOverlayName}/${gameOverlayName}.html`;
+        console.log(`./gamification/game-overlays/${gameOverlayName}/${gameOverlayName}.html`);
+        iframe.src = `./gamification/game-overlays/${gameOverlayName}/${gameOverlayName}.html`;
         iframe.style.position = 'fixed';
         iframe.style.top = '0';
         iframe.style.left = '0';
@@ -1414,7 +1414,7 @@ export default class IsometricScene extends Phaser.Scene {
         // 1. Create iframe
         const iframe = document.createElement('iframe');
         iframe.id = 'game-overlay-iframe';
-        iframe.src = '../game-overlays/tutorial.html';
+        iframe.src = './gamification/game-overlays/tutorial.html';
         iframe.style.position = 'fixed';
         iframe.style.top = '0';
         iframe.style.left = '0';
@@ -1460,7 +1460,7 @@ export default class IsometricScene extends Phaser.Scene {
 
         // Create an iframe for the inventory
         const iframe = document.createElement('iframe');
-        iframe.src = '../game-overlays/inventory.html';
+        iframe.src = './gamification/game-overlays/inventory.html';
         iframe.style.position = 'fixed';
         iframe.style.top = '50%';
         iframe.style.left = '50%';

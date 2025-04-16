@@ -198,11 +198,6 @@ export class IslandManager {
     }
 
     static preload(scene: Phaser.Scene): void {
-        scene.load.html('safehouse', 'safehouseOverlay.html');
-        scene.load.html('shopFisher', 'shopOverlay/fisherShop.html');
-        scene.load.html('fishPunch', 'game-overlays/fishPunch.html');
-        scene.load.html('fishBounce', 'game-overlays/fishBounce.html');
-        scene.load.html('boatGrow', 'game-overlays/boatGrow/boatGrow.html');
     }
 
     /**
