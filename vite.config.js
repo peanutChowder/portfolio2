@@ -4,19 +4,25 @@ import react from '@vitejs/plugin-react';
 export default defineConfig({
   plugins: [react()],
   server: {
-    // open: true,
-    // host: '0.0.0.0',
     port: 3000
   },
   build: {
-    rollupOptions: {
-      input: {
-        main: './index.html',
-        game: './game.html'
-      }
-    },
     outDir: 'dist',
     assetsDir: 'assets',
-    emptyOutDir: true
+    emptyOutDir: true,
+    rollupOptions: {
+      input: {
+        main: resolve(__dirname, 'index.html'),
+        game: resolve(__dirname, 'game.html'),
+        // --- Minigame iframe entries ---
+        boatGrow: resolve(__dirname, 'src/gamification/game-overlays/boatGrow/boatGrow.html'),
+        fishPunch: resolve(__dirname, 'src/gamification/game-overlays/fishPunch/fishPunch.html'),
+        fishBounce: resolve(__dirname, 'src/gamification/game-overlays/fishBounce/fishBounce.html'),
+        safehouse: resolve(__dirname, 'src/gamification/game-overlays/safehouse/safehouse.html'),
+        shopFisher: resolve(__dirname, 'src/gamification/game-overlays/shopFisher/shopFisher.html'),
+        tutorial: resolve(__dirname, 'src/gamification/game-overlays/tutorial.html'),
+        inventory: resolve(__dirname, 'src/gamification/game-overlays/inventory.html')
+      }
+    }
   }
-});
+})
