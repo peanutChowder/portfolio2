@@ -18,7 +18,7 @@ function handleCardEffects() {
     function getScrollTriggerDistance() {
         const windowHeight = window.innerHeight;
         const windowWidth = window.innerWidth;
-        
+
         if (windowWidth < 1024) {
             console.log("aa")
             return windowHeight * 0.16;
@@ -78,6 +78,42 @@ function handleCardEffects() {
     updateHighlight();
 }
 
+function handleScrollHintPersistent() {
+    const scrollHint = document.getElementById('scroll-hint');
+
+    function updateHintVisibility() {
+        const scrollPosition = window.pageYOffset || document.documentElement.scrollTop;
+        const windowHeight = window.innerHeight;
+        const windowWidth = window.innerWidth;
+
+        let highlightStart = windowHeight * 0.75;
+        if (windowWidth >= 1024) {
+            highlightStart = windowHeight * 0.7;
+        }
+
+        if (scrollPosition >= highlightStart) {
+            scrollHint.classList.add('visible');
+        } else {
+            scrollHint.classList.remove('visible');
+        }
+    }
+
+    // Use throttled scroll event for performance
+    let ticking = false;
+    function onScroll() {
+        if (!ticking) {
+            window.requestAnimationFrame(() => {
+                updateHintVisibility();
+                ticking = false;
+            });
+            ticking = true;
+        }
+    }
+
+    window.addEventListener('scroll', onScroll);
+    updateHintVisibility(); // run on load
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     const cards = document.querySelectorAll('.card');
     const sections = document.querySelectorAll('.content-section');
@@ -91,7 +127,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const startHeight = cardRect.height;
         const contentInner = section.querySelector('.content-inner');
         contentInner.style.transformOrigin = `${startX}px ${startY}px`;
-        
+
         // Force a reflow before adding active class
         section.offsetHeight;
         section.classList.add('active');
@@ -100,7 +136,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function closeSection(section) {
         // Add closing class for animation
         section.classList.add('closing');
-        
+
         // Wait for animation to complete before hiding
         setTimeout(() => {
             section.classList.remove('active', 'closing');
@@ -168,4 +204,5 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     handleCardEffects()
+    handleScrollHintPersistent()
 });
