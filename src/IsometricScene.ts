@@ -1282,8 +1282,8 @@ export default class IsometricScene extends Phaser.Scene {
         // 1) Create an iframe
         const iframe = document.createElement('iframe');
         iframe.id = 'game-overlay-iframe';
-        console.log(`./gamification/game-overlays/${gameOverlayName}/${gameOverlayName}.html`);
-        iframe.src = `./gamification/game-overlays/${gameOverlayName}/${gameOverlayName}.html`;
+        console.log(`/src/gamification/game-overlays/${gameOverlayName}/${gameOverlayName}.html`);
+        iframe.src = `/src/gamification/game-overlays/${gameOverlayName}/${gameOverlayName}.html`;
         iframe.style.position = 'fixed';
         iframe.style.top = '0';
         iframe.style.left = '0';
