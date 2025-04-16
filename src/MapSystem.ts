@@ -112,8 +112,8 @@ export class MapSystem extends Phaser.GameObjects.Container {
     }
 
     static preload(scene: IsometricScene): void {
-        scene.load.image('minimapHouse', '../assets/minimap/house.png');
-        scene.load.image('minimapShop', '../assets/minimap/shop.png');
+        scene.load.image('minimapHouse', '/assets/minimap/house.png');
+        scene.load.image('minimapShop', '/assets/minimap/shop.png');
 
     }
 

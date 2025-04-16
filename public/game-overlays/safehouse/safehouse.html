@@ -362,9 +362,9 @@
                 const img = document.createElement('img');
                 // Use correct path for class of item
                 if (item.type === "fish") {
-                    img.src = `../../assets/fish-sprites/${item.imgSrc}`;
+                    img.src = `/assets/fish-sprites/${item.imgSrc}`;
                 } else if (item.type === "rod") {
-                    img.src = `../../assets/fishing/${item.imgSrc}`;
+                    img.src = `/assets/fishing/${item.imgSrc}`;
                 }
 
                 div.appendChild(img);
@@ -420,7 +420,7 @@
                 container.appendChild(title);
 
                 const img = document.createElement('img');
-                img.src = `../../assets/fish-sprites/${item.imgSrc}`;
+                img.src = `/assets/fish-sprites/${item.imgSrc}`;
                 img.style.maxWidth = '200px';
                 img.style.marginBottom = '15px';
                 container.appendChild(img);
@@ -545,7 +545,7 @@
                 container.appendChild(title);
 
                 const img = document.createElement('img');
-                img.src = `../../assets/fishing/${item.imgSrc}`;
+                img.src = `/assets/fishing/${item.imgSrc}`;
                 img.style.maxWidth = '200px';
                 img.style.marginBottom = '15px';
                 container.appendChild(img);
@@ -643,7 +643,7 @@
                 div.style.border = `2px solid ${rod.outlineColor || '#E6D9C2'}`;
 
                 const img = document.createElement('img');
-                img.src = `../../assets/fishing/${rod.imgSrc}`; // Fixed path for rod images
+                img.src = `/assets/fishing/${rod.imgSrc}`; // Fixed path for rod images
                 img.style.maxWidth = '48px';
                 img.style.maxHeight = '48px';
                 div.appendChild(img);
@@ -689,7 +689,7 @@
                 container.appendChild(title);
 
                 const img = document.createElement('img');
-                img.src = `../../assets/fishing/${rod.imgSrc}`;
+                img.src = `/assets/fishing/${rod.imgSrc}`;
                 img.style.maxWidth = '200px';
                 img.style.marginBottom = '15px';
                 container.appendChild(img);

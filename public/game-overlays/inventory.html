@@ -324,7 +324,7 @@
 
                 <!-- Money Display -->
                 <div id="money-container">
-                    <img id="money-icon" src="../assets/coin.png" alt="Coins">
+                    <img id="money-icon" src="/assets/coin.png" alt="Coins">
                     <span id="money-amount">0</span>
                 </div>
 
@@ -415,7 +415,7 @@
                 rodItem.style.alignItems = 'center';
 
                 const img = document.createElement('img');
-                img.src = `../../assets/fishing/${equippedRod.imgSrc}`;
+                img.src = `/assets/fishing/${equippedRod.imgSrc}`;
                 img.style.maxWidth = '64px';
                 img.style.maxHeight = '64px';
                 rodItem.appendChild(img);
@@ -480,9 +480,9 @@
                     const img = document.createElement('img');
 
                     if (item.type === "fish") {
-                        img.src = `../../assets/fish-sprites/${item.imgSrc}`;
+                        img.src = `/assets/fish-sprites/${item.imgSrc}`;
                     } else if (item.type === "rod") {
-                        img.src = `../../assets/fishing/${item.imgSrc}`;
+                        img.src = `/assets/fishing/${item.imgSrc}`;
                     }
 
                     itemDiv.appendChild(img);
@@ -551,7 +551,7 @@
                 inspectContainer.appendChild(title);
 
                 const img = document.createElement('img');
-                img.src = `../../assets/fish-sprites/${item.imgSrc}`;
+                img.src = `/assets/fish-sprites/${item.imgSrc}`;
                 img.onload = () => {
                     img.style.width = `${img.naturalWidth * 1.5}px`;
                 };
@@ -695,7 +695,7 @@
             inspectContainer.appendChild(title);
 
             const img = document.createElement('img');
-            img.src = `../../assets/fishing/${item.imgSrc}`;
+            img.src = `/assets/fishing/${item.imgSrc}`;
             img.style.width = '150px';
             img.style.marginBottom = '20px';
             inspectContainer.appendChild(img);
@@ -841,7 +841,7 @@
 
             // Rod image and details
             const img = document.createElement('img');
-            img.src = `../../assets/fishing/${rod.imgSrc}`;
+            img.src = `/assets/fishing/${rod.imgSrc}`;
             img.style.width = '150px';
             img.style.marginBottom = '20px';
             inspectContainer.appendChild(img);
@@ -981,7 +981,7 @@
             const moneyContainer = document.createElement('div');
             moneyContainer.id = "money-container";
             moneyContainer.innerHTML = `
-                <img id="money-icon" src="../../assets/coin.png" alt="Coins">
+                <img id="money-icon" src="/assets/coin.png" alt="Coins">
                 <span id="money-amount">${moneyValue}</span>`;
             contentInner.appendChild(moneyContainer);
 

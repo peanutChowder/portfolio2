@@ -133,8 +133,8 @@ function spawnFish() {
 
     // Fallback if no fish data from parent
     fishElement.src = selectedFish?.imgSrc
-        ? `../../assets/fish-sprites/${selectedFish.imgSrc}`
-        : '../../assets/fish-sprites/fish0.png';
+        ? `/assets/fish-sprites/${selectedFish.imgSrc}`
+        : '/assets/fish-sprites/fish0.png';
 
     sandbox.appendChild(fishElement);
 
@@ -287,7 +287,7 @@ function endGame(won) {
     if (won) {
         const sandbox = document.getElementById("sandbox-content");
         const caughtFish = document.createElement("img");
-        caughtFish.src = `../../assets/fish-sprites/${selectedFish.imgSrc}`;
+        caughtFish.src = `/assets/fish-sprites/${selectedFish.imgSrc}`;
         caughtFish.style.position = "absolute";
         caughtFish.style.top = "35%";
         caughtFish.style.left = "50%";

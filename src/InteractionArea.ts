@@ -80,7 +80,7 @@ export default class InteractionArea {
 
         Object.values(itemData).forEach(item => {
             if (item.type === 'rod') {
-                scene.load.image(item.id, `../assets/fishing/${item.imgSrc}`);
+                scene.load.image(item.id, `/assets/fishing/${item.imgSrc}`);
             }
         });
     }

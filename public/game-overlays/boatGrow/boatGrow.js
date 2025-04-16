@@ -142,7 +142,7 @@ function updateBoatSizeVisual() {
     boatEl.style.height = `${boatSize * 1.5}px`;
     // Optionally update the background image if selectedFish is available
     if (selectedFish && selectedFish.imgSrc) {
-        boatEl.style.backgroundImage = "../../../assets/boat/boatE.png";
+        boatEl.style.backgroundImage = "/assets/boat/boatE.png";
     }
     boatEl.style.backgroundSize = "contain";
     boatEl.style.backgroundRepeat = "no-repeat";
@@ -169,7 +169,7 @@ function spawnFish() {
     fishEl.style.height = `${size * 1.5}px`;
     fishEl.dataset.size = size.toString();
 
-    fishEl.style.backgroundImage = `url("../../assets/fish-sprites/${selectedFish.imgSrc}")`;
+    fishEl.style.backgroundImage = `url("/assets/fish-sprites/${selectedFish.imgSrc}")`;
 
     console.log("spawned fish with sprite:", fishEl.style.backgroundImage);
 
@@ -314,7 +314,7 @@ function endGame(won) {
     if (won) {
         // Display the caught fish image and a text message on win
         const caughtFish = document.createElement("img");
-        caughtFish.src = `../../assets/fish-sprites/${selectedFish.imgSrc}`;
+        caughtFish.src = `/assets/fish-sprites/${selectedFish.imgSrc}`;
         caughtFish.style.position = "absolute";
         caughtFish.style.top = "45%";
         caughtFish.style.left = "50%";
