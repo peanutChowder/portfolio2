@@ -86,7 +86,7 @@ hr {
     transition: background-color 0.3s ease;
     display: block;
     margin: 30px auto;
-    animation: pulse 2s infinite;
+    animation: pulse 1s infinite;
 }
 
 #landing-text p {
@@ -103,7 +103,7 @@ hr {
       box-shadow: 0 0 0 0 #c6f3ff;
     }
     80% {
-      box-shadow: 0 0 0 15px rgba(255, 253, 240, 0.95);
+      box-shadow: 0 0 0 30px rgba(255, 253, 240, 0.95);
     }
     100% {
       box-shadow: 0 0 0 0 rgba(255, 253, 240, 0.95);

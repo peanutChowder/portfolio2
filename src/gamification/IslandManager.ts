@@ -46,7 +46,7 @@ export const COST_RANGE_BANDS = [
     {
         minCost: 46,
         maxCost: 55,
-        color: "#de1490",
+        color: "#720af2",
         rodAccess: { requiredClass: 5 }
     },
     {
@@ -110,26 +110,26 @@ export class IslandManager {
         {
             id: 'fishPunch',
             name: 'Fish Punch',
-            maxResource: 4,
-            rarity: 0.5,
+            maxResource: 3,
+            rarity: 0.8,
             elementType: 'fishing',
             energyCost: 15
         },
         {
             id: 'fishBounce',
             name: 'Fish Bounce',
-            maxResource: 4,
+            maxResource: 3,
             rarity: 0.8,
             elementType: 'fishing',
-            energyCost: 20
+            energyCost: 15
         },
         {
             id: 'boatGrow',
             name: 'Boat Grow',
-            maxResource: 4,
+            maxResource: 3,
             rarity: 0.8,
             elementType: 'fishing',
-            energyCost: 10
+            energyCost: 15
         }
     ];
 

@@ -19,6 +19,7 @@ import { Inventory } from './gamification/Inventory';
 import { SafehouseInventory } from './gamification/SafehouseInventory';
 import { itemData } from './gamification/ItemData';
 import { ShopManager } from './gamification/ShopManager';
+import { COST_RANGE_BANDS } from './gamification/IslandManager';
 
 const fontSize = "80px";
 const fontColor = "#ffffff"
@@ -67,6 +68,10 @@ export default class IsometricScene extends Phaser.Scene {
     private lostText!: Phaser.GameObjects.Text;
     private lostOverlay!: Phaser.GameObjects.Rectangle;
     private isHandlingLostBoat: boolean = false;
+
+    // Inventory location
+    private inventoryButtonX: number = 0;
+    private inventoryButtonY: number = 0;
 
     // Energy bar
     private energy: number = 100; // Initial 100% energy
@@ -119,7 +124,7 @@ export default class IsometricScene extends Phaser.Scene {
     }
 
     preload(): void {
-        this.isMobileDevice = this.sys.game.device.os.android || this.sys.game.device.os.iOS
+        this.isMobileDevice = Math.min(window.innerWidth, window.innerHeight) <= 768;
 
         this.fireworkManager = new FireworkManager(this);
 
@@ -239,6 +244,8 @@ export default class IsometricScene extends Phaser.Scene {
                 }
             })
 
+            // (6.) Update all fishing buttons to reflect the currently equipped rod
+            this.updateAllFishingButtons();
 
             // not load order sensitive
             this.safehouseInventory = new SafehouseInventory();
@@ -288,6 +295,10 @@ export default class IsometricScene extends Phaser.Scene {
             this.add.existing(this.boat)
             console.log("Added boat")
 
+            // Show the tutorial overlay if the user has not visited before
+            if (savedPosition === null) {
+                this.showTutorialOverlay()
+            }
 
             // Add remaining layers
             for (let i = 2; i < this.map.layers.length; i++) {
@@ -328,16 +339,22 @@ export default class IsometricScene extends Phaser.Scene {
 
 
             this.cameras.main.setZoom(0.2);
-            this.cameras.main.centerOn(0, 500);
+            this.cameras.main.centerOn(0, 0);
 
             // Set up camera to follow the boat
             this.cameras.main.startFollow(this.boat, true);
 
             this.mapSystem = new MapSystem(this, this.interactionAreas);
 
+            // Must be created after the map system, it relies on the map system's
+            // bottom corner to position.
             this.createEnergyBar();
 
+            // Must be created after the map system, it relies on the map system's
+            // bottom corner to position.
             this.createInventoryButton();
+
+            this.createTutorialButton();
 
 
             this.islandManager.assignIslandGameElements(false)
@@ -548,6 +565,8 @@ export default class IsometricScene extends Phaser.Scene {
                         const { rodId } = event.data;
                         if (this.inventory?.equipRod(rodId)) {
                             console.log(`Equipped rod: ${rodId}`);
+
+                            this.updateAllFishingButtons();
                         }
                         break;
                     }
@@ -652,8 +671,10 @@ export default class IsometricScene extends Phaser.Scene {
         const savedEnergy = localStorage.getItem('energy');
         this.energy = savedEnergy ? parseInt(savedEnergy, 10) : 100;
         this.energyBarWidth = this.mapSystem.getMinimapWidth();
-        this.energyBarX = this.cameras.main.centerX + (this.cameras.main.width / (2 * this.cameras.main.zoom)) - (this.energyBarWidth * 1.025) // multiplied by some (seemingly) arbitrary constant i had to brute force lol
-        this.energyBarY = this.mapSystem.getMapBottomRight().y * 0.95 // another arbitrary brute forced constant
+
+        const mapBottomRight = this.mapSystem.getMapBottomRight();
+        this.energyBarX = mapBottomRight.x;
+        this.energyBarY = mapBottomRight.y + 200;
 
         // Background (Gray)
         this.energyBarBackground = this.add.graphics();
@@ -688,10 +709,11 @@ export default class IsometricScene extends Phaser.Scene {
     }
 
     private createInventoryButton(): void {
-        const buttonWidth = 900;
+        const buttonWidth = this.mapSystem.getMinimapWidth();
         const buttonHeight = 150;
-        const xPos = this.energyBarX;
-        const yPos = this.energyBarY * 0.75;;
+        const mapBottomRight = this.mapSystem.getMapBottomRight();
+        this.inventoryButtonX = mapBottomRight.x;
+        this.inventoryButtonY = mapBottomRight.y;
 
         const buttonBg = this.add.graphics();
         const drawButtonBg = (color: number) => {
@@ -709,7 +731,7 @@ export default class IsometricScene extends Phaser.Scene {
             color: "#ffffff",
         }).setOrigin(0.5);
 
-        const buttonContainer = this.add.container(xPos, yPos, [buttonBg, label]);
+        const buttonContainer = this.add.container(this.inventoryButtonX, this.inventoryButtonY, [buttonBg, label]);
         buttonContainer.setScrollFactor(0).setDepth(99);
 
         buttonContainer.setSize(buttonWidth, buttonHeight);
@@ -732,6 +754,57 @@ export default class IsometricScene extends Phaser.Scene {
         });
     }
 
+    private createTutorialButton(): void {
+        const buttonSize = 200;
+        const cornerRadius = 40;
+    
+        // Position in top right corner, below the energy bar (and thus minimap)
+        const mapBottomRight = this.mapSystem.getMapBottomRight();
+        const buttonX = mapBottomRight.x + this.mapSystem.getMinimapWidth() - buttonSize;
+        const buttonY = mapBottomRight.y + 350; // Arbitrary constant from trial and error
+    
+        const buttonBg = this.add.graphics();
+        const drawButtonBg = (color: number) => {
+            buttonBg.clear();
+            buttonBg.fillStyle(color, 1);
+            buttonBg.fillRoundedRect(0, 0, buttonSize, buttonSize, cornerRadius);
+            buttonBg.lineStyle(6, 0xffffff, 1);
+            buttonBg.strokeRoundedRect(0, 0, buttonSize, buttonSize, cornerRadius);
+        };
+        drawButtonBg(this.inventoryButtonColor);
+    
+        const label = this.add.text(buttonSize / 2, buttonSize / 2, "?", {
+            fontFamily: "Prompt",
+            fontSize: "90px",
+            color: "#ffffff"
+        }).setOrigin(0.5);
+    
+        // Create a container for the background + label
+        const buttonContainer = this.add.container(buttonX, buttonY, [buttonBg, label]);
+        buttonContainer.setScrollFactor(0).setDepth(99);
+    
+        // Match the container size to our square
+        buttonContainer.setSize(buttonSize, buttonSize);
+    
+        // Use a rectangular hit area matching the same size
+        buttonContainer.setInteractive(
+            new Phaser.Geom.Rectangle(buttonSize / 2, buttonSize / 2, buttonSize, buttonSize),
+            Phaser.Geom.Rectangle.Contains
+        );
+    
+        // Hover effect
+        buttonContainer.on('pointerover', () => {
+            drawButtonBg(this.inventoryButtonHoverColor);
+        });
+        buttonContainer.on('pointerout', () => {
+            drawButtonBg(this.inventoryButtonColor);
+        });
+    
+        // Click handler
+        buttonContainer.on('pointerdown', () => {
+            this.showTutorialOverlay();
+        });
+    }
 
 
     private createInteractionAreas(): void {
@@ -1200,6 +1273,7 @@ export default class IsometricScene extends Phaser.Scene {
         // If there's an existing overlay, remove it
         if (this.gameOverlayElement) {
             this.destroyGameOverlay(gameOverlayName);
+            this.updateAllFishingButtons(); // update the fishing rod button with the currently equipped rod
             return;
         }
 
@@ -1213,8 +1287,8 @@ export default class IsometricScene extends Phaser.Scene {
         iframe.style.position = 'fixed';
         iframe.style.top = '0';
         iframe.style.left = '0';
-        iframe.style.width = '100vw';
-        iframe.style.height = '100vh';
+        iframe.style.width = '100dvw';
+        iframe.style.height = '100dvh';
         iframe.style.zIndex = '9999';
         iframe.style.border = 'none';
 
@@ -1296,7 +1370,8 @@ export default class IsometricScene extends Phaser.Scene {
                 gameId: gameOverlayName,
                 energyCost: energyCost,
                 minCost: minCost,
-                maxCost: maxCost
+                maxCost: maxCost,
+                equippedRod: this.inventory?.getActiveRodDetails()
             }, "*");
         });
 
@@ -1313,6 +1388,8 @@ export default class IsometricScene extends Phaser.Scene {
             this.gameOverlayElement.style.transition = 'opacity 0.5s ease-in-out';
             this.gameOverlayElement.style.opacity = '0';
 
+            this.updateAllFishingButtons(); // Sync fishing rod button in case user changed equipped rods
+
             // Remove from the DOM after fade
             setTimeout(() => {
                 if (this.gameOverlayElement && this.gameOverlayElement.parentNode) {
@@ -1323,6 +1400,54 @@ export default class IsometricScene extends Phaser.Scene {
         } else {
             console.warn("No game overlay to destroy.");
         }
+    }
+
+    private showTutorialOverlay(): void {
+        // Prevent multiple overlays
+        if (this.gameOverlayElement) {
+            this.destroyGameOverlay("tutorial");
+            return;
+        }
+    
+        console.group("Creating help/tutorial overlay");
+    
+        // 1. Create iframe
+        const iframe = document.createElement('iframe');
+        iframe.id = 'game-overlay-iframe';
+        iframe.src = '../game-overlays/tutorial.html';
+        iframe.style.position = 'fixed';
+        iframe.style.top = '0';
+        iframe.style.left = '0';
+        iframe.style.width = '100vw';
+        iframe.style.height = '90%';
+        iframe.style.zIndex = '9999';
+        iframe.style.border = 'none';
+    
+        // 2. Fade in
+        iframe.style.opacity = '0';
+        iframe.style.transition = 'opacity 0.5s ease-in-out';
+    
+        // 3. Append to DOM
+        document.body.appendChild(iframe);
+        this.gameOverlayElement = iframe;
+
+        // Assume 'rod1' is the starter rod
+        const starterRod = itemData["rod1"];
+
+        iframe.addEventListener('load', () => {
+            // Also send costRangeBands if you need them for page 3
+            iframe.contentWindow?.postMessage({
+                type: "tutorialData",
+                costRangeBands: COST_RANGE_BANDS,
+                starterRod: starterRod
+            }, "*");
+        });
+    
+        setTimeout(() => {
+            iframe.style.opacity = '1';
+        }, 50);
+    
+        console.groupEnd();
     }
 
     private showInventoryOverlay(): void {
@@ -1387,6 +1512,8 @@ export default class IsometricScene extends Phaser.Scene {
         this.inventoryOverlayElement.style.transition = 'opacity 0.5s ease-in-out';
         this.inventoryOverlayElement.style.opacity = '0';
 
+        this.updateAllFishingButtons(); // Sync fishing rod button in case user changed equipped rods
+
         // Remove from the DOM after fade
         setTimeout(() => {
             this.inventoryOverlayElement?.parentNode?.removeChild(this.inventoryOverlayElement);
@@ -1395,4 +1522,11 @@ export default class IsometricScene extends Phaser.Scene {
     }
 
 
+    private updateAllFishingButtons(): void {
+        Object.values(this.interactionAreas).forEach(area => {
+            if (area.getGameElementType() === 'fishing') {
+                area.updateFishingButtonVisual();
+            }
+        });
+    }
 }

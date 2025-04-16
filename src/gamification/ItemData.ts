@@ -33,23 +33,23 @@ const itemData: Record<string, ItemData> = {
         name: "Yellowvent", 
         type: "fish", 
         imgSrc: "3.png", 
-        description: "Darting like a streak of sunlit lightning, this fish brings light to even the murkiest waters.", 
+        description: "Is that a fish, or somebody's radiator?", 
         cost: 13 
     },
     "fish4": { 
         id: "fish4", 
-        name: "Sherbert Dude", 
+        name: "Sherbert Swimmer", 
         type: "fish", 
         imgSrc: "4.png", 
-        description: "A swirled masterpiece of color, as if the ocean itself took a sip of summer’s sweetness.", 
-        cost: 18 
+        description: "Its beams of warmth make you feel like you're a child on a playground again.", 
+        cost: 65 
     },
     "fish5": { 
         id: "fish5", 
-        name: "Muddy Guy", 
+        name: "Big Rig", 
         type: "fish", 
         imgSrc: "5.png", 
-        description: "Rugged and unbothered, this fish carries the secrets of the riverbed on its scales.", 
+        description: "Rugged like a truck commercial, it barrels through the muck with brutality.", 
         cost: 23 
     },
     "fish6": { 
@@ -57,16 +57,16 @@ const itemData: Record<string, ItemData> = {
         name: "Swampy Guy", 
         type: "fish", 
         imgSrc: "6.png", 
-        description: "A silent guardian of murky waters, its greenish hues blend with nature’s untouched whispers.", 
+        description: "Touching it leaves you with a permanent body odor.", 
         cost: 12 
     },
     "fish7": { 
         id: "fish7", 
-        name: "Cool Mint", 
+        name: "Atlantic Iceberg", 
         type: "fish", 
         imgSrc: "7.png", 
-        description: "A refreshing presence, like the crisp ocean breeze on an early morning sail.", 
-        cost: 30 
+        description: "It reminds you of unbelievable icebergs, but with a fishy smell.", 
+        cost: 50 
     },
     "fish8": { 
         id: "fish8", 
@@ -81,8 +81,8 @@ const itemData: Record<string, ItemData> = {
         name: "Pacific Sunshine", 
         type: "fish", 
         imgSrc: "9.png", 
-        description: "A splash of pure joy, its golden glow mirrors the rising sun over the horizon.", 
-        cost: 27 
+        description: "A sparkle of light that turns the frowniest of frowns updside down.", 
+        cost: 52 
     },
     "fish10": { 
         id: "fish10", 
@@ -94,10 +94,10 @@ const itemData: Record<string, ItemData> = {
     },
     "fish11": { 
         id: "fish11", 
-        name: "Boring Fish", 
+        name: "Joe", 
         type: "fish", 
         imgSrc: "11.png", 
-        description: "This fish has no remarkable features... except that it exists.", 
+        description: "This might just be the most average fish to grace the seas.", 
         cost: 5 
     },
     "fish12": { 
@@ -153,8 +153,8 @@ const itemData: Record<string, ItemData> = {
         name: "Radioactive Fella", 
         type: "fish", 
         imgSrc: "18.png", 
-        description: "Glowing with an eerie green, this fish has seen some things it wishes it hadn't.", 
-        cost: 45 
+        description: "It hurts to touch, but otherwise seems like a laid back fella.", 
+        cost: 85 
     },
     "fish19": { 
         id: "fish19", 
@@ -166,11 +166,11 @@ const itemData: Record<string, ItemData> = {
     },
     "fish20": { 
         id: "fish20", 
-        name: "Highlighter Fish", 
+        name: "Highlighter Goblin", 
         type: "fish", 
         imgSrc: "20.png", 
-        description: "Glowing in brilliant neon, this fish looks like a school supply that came to life.", 
-        cost: 35 
+        description: "Somebody broke this fish's heart, so it trained for months in a sewer causing it to glow with power.", 
+        cost: 51 
     },
     "fish21": { 
         id: "fish21", 
@@ -182,11 +182,11 @@ const itemData: Record<string, ItemData> = {
     },
     "fish22": { 
         id: "fish22", 
-        name: "The Eyebrow", 
+        name: "Winter Whisperer", 
         type: "fish", 
         imgSrc: "22.png", 
-        description: "This fish looks at you with a knowing glance, as if it's judging your every move.", 
-        cost: 35 
+        description: "Like chewing minty gum in the winter, this fish gives you chills just by being around.", 
+        cost: 63 
     },
     "fish23": { 
         id: "fish23", 
@@ -234,7 +234,7 @@ const itemData: Record<string, ItemData> = {
         type: "fish", 
         imgSrc: "28.png", 
         description: "What?", 
-        cost: 55 
+        cost: 81 
     },
     "fish29": { 
         id: "fish29", 

@@ -71,21 +71,24 @@ export interface InteractionAreaData {
     customInteraction?: (scene: Phaser.Scene) => void;
 }
 
+const DEFAULT_COLOR = 0x4686d4;
 
 const projectColor = {
-    areaBaseColor: 0x78b0f5,
+    areaBaseColor: DEFAULT_COLOR,
     areaEdgeColor: 0,
     buttonBaseColor: 0x428ae3,
     buttonHoverColor: 0x78b0f5,
-    markerColor: 0x78b0f5
+    // markerColor: 0x78b0f5
+    markerColor: DEFAULT_COLOR
 }
 
 const workExpColor = {
-    areaBaseColor: 0xae41f2,
+    areaBaseColor: DEFAULT_COLOR,
     areaEdgeColor: 0,
     buttonBaseColor: 0xaa9cff,
     buttonHoverColor: 0x9887fa,
-    markerColor: 0xae41f2
+    // markerColor: 0xae41f2
+    markerColor: DEFAULT_COLOR
 }
 
 export const INTERACTION_AREAS: InteractionAreaData[] = [
@@ -214,7 +217,8 @@ export const INTERACTION_AREAS: InteractionAreaData[] = [
             offset: { x: 0, y: -1420 }
         },
         markerInfo: {
-            baseColor: 0x2d8038,
+            // baseColor: 0x2d8038,
+            baseColor: DEFAULT_COLOR,
             radius: 40,
             locationType: "Education"
         },
@@ -247,7 +251,8 @@ export const INTERACTION_AREAS: InteractionAreaData[] = [
             offset: { x: 0, y: -600 }
         },
         markerInfo: {
-            baseColor: 0xdbaf1f,
+            // baseColor: 0xdbaf1f,
+            baseColor: DEFAULT_COLOR,
             radius: 40,
             locationType: "Oly-Lifting"
         },
