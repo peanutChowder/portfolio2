@@ -1,4 +1,4 @@
-import { getRandomFishByCost } from "/src/gamification/ItemData.ts";
+import { getRandomFishByCost } from "/src/gamification/ItemData.js";
 
 // Global config + state
 let energyCost = 0;  
