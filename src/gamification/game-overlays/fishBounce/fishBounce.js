@@ -83,7 +83,7 @@ function initPingPongFish() {
     // Listen for fish data from parent
     window.addEventListener('message', event => {
         if (event.data?.fishData) {
-            selectedFish = event.data.fishData;
+            selectedFish = event.data.fishData; 
             console.log("Received fish data:", selectedFish);
         }
     });
@@ -208,6 +208,12 @@ function updatePhysics() {
                 fishY = paddleY - fishH;
                 fishVy = -Math.abs(fishVy);
                 fishVx += paddleVx * 0.3;
+
+                // Give it a horizontal nudge if it's too vertical
+                if (Math.abs(fishVx) < 100) {
+                    const nudge = Math.random() * 300 + 100; 
+                    fishVx += (Math.random() < 0.5 ? -1 : 1) * nudge;
+                }
 
                 bounces++;
                 updateHUD();
