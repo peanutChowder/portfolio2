@@ -16,7 +16,7 @@ const FISH_MAX_VX = 500;
 const FISH_MIN_VY = -300;
 const FISH_MAX_VY = -200;
 
-const REQUIRED_BOUNCES = 12;
+const REQUIRED_BOUNCES = 10;
 const MAX_LIVES = 5;
 let bounces = 0;
 let lives = MAX_LIVES;
@@ -28,9 +28,9 @@ let gameEnded = false; // game won/lost
 // Paddle
 let paddleX = 0, paddleVx = 0;
 const PADDLE_ACCEL = 1800;
-const PADDLE_FRICTION = 0.92;
-const PADDLE_MAX_SPEED = 400;
-let paddleWidth = 120, paddleHeight = 20;
+const PADDLE_FRICTION = 0.97;
+const PADDLE_MAX_SPEED = 2000;
+let paddleWidth = 0, paddleHeight = 20;
 
 // Arrow key states
 let leftKeyDown = false;
@@ -90,6 +90,11 @@ function initPingPongFish() {
 
     // init paddleX center
     const sandboxRect = document.getElementById('sandbox-content').getBoundingClientRect();
+    paddleX = sandboxRect.width / 2 - (paddleWidth / 2);
+
+
+    // Make paddle % of sandbox width
+    paddleWidth = sandboxRect.width * 0.15;
     paddleX = sandboxRect.width / 2 - (paddleWidth / 2);
 
     requestAnimationFrame(gameLoop);
@@ -201,7 +206,7 @@ function updatePhysics() {
             if (fishX + fishW > paddleLeft && fishX < paddleRight) {
                 // Collide with paddle
                 fishY = paddleY - fishH;
-                fishVy = -Math.abs(fishVy) * 0.9;
+                fishVy = -Math.abs(fishVy);
                 fishVx += paddleVx * 0.3;
 
                 bounces++;
@@ -236,6 +241,7 @@ function renderObjects() {
 
     const paddleEl = document.getElementById('paddle');
     paddleEl.style.left = paddleX + 'px';
+    paddleEl.style.width = paddleWidth + 'px';
 }
 
 function loseFish() {
