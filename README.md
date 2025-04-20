@@ -1,3 +1,3 @@
 Released at [jacobfeng.com!](https://www.jacobfeng.com)
 
-Currently working on gamification.
+Fishing update 0.1 dropped :)
