@@ -5,11 +5,22 @@
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-02ZGSPBB1P"></script>
     <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag() { dataLayer.push(arguments); }
-        gtag('js', new Date());
+        if (!location.hostname.includes('localhost')) {
+            console.log("loaded")
+            // Only load GA if not on localhost
+            const script = document.createElement('script');
+            script.setAttribute('async', '');
+            script.src = 'https://www.googletagmanager.com/gtag/js?id=G-02ZGSPBB1P';
+            document.head.appendChild(script);
 
-        gtag('config', 'G-02ZGSPBB1P');
+            window.dataLayer = window.dataLayer || [];
+            function gtag() { dataLayer.push(arguments); }
+
+            script.onload = () => {
+                gtag('js', new Date());
+                gtag('config', 'G-02ZGSPBB1P');
+            };
+        }
     </script>
 
     <meta charset="UTF-8">
