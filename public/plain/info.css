@@ -55,7 +55,7 @@ hr {
 }
 
 .img-container img {
-    max-width: 50vh;
+    max-width: 100%;
     object-fit: contain;
     border: 12px solid white;
     border-radius: 25px;
@@ -74,10 +74,15 @@ hr {
     position: relative;
 }
 
+#start-game-button-container {
+    width: 100%;
+}
+
 #start-game-button {
     font-family: 'Prompt';
     font-size: 32px;
-    width: 50vh;
+    width: 100%;
+    max-width: 600px;
     padding: 20px 20px;
     background-color: #D0B49F;
     color: white;
