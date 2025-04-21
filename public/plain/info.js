@@ -236,6 +236,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     wrap.style.height = '100%';
                     wrap.style.margin = '0';
                     wrap.style.padding = '0';
+                    wrap.style.overflow = 'hidden';
+                    wrap.style.position = 'fixed';
+                    wrap.style.top = '0';
+                    wrap.style.left = '0';
+                    wrap.style.pointerEvents = 'none';
                 }
             } catch (err) {
                 console.error('overlay patch failed:', err);
