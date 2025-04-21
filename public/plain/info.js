@@ -211,17 +211,25 @@ document.addEventListener('DOMContentLoaded', () => {
                 const doc = iframe.contentDocument || iframe.contentWindow?.document;
                 if (!doc) return;
 
-                // hook inner close‑button → call parent close
+                /* --- inject Font Awesome once --- */
+                if (!doc.getElementById('fa')) {
+                    const fa = doc.createElement('link');
+                    fa.id = 'fa';
+                    fa.rel = 'stylesheet';
+                    fa.href = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css';
+                    doc.head.appendChild(fa);
+                }
+
+                /* hook inner close button */
                 const innerClose = doc.querySelector('.close-button');
                 if (innerClose) {
                     innerClose.addEventListener('click', e => {
                         e.preventDefault();
-                        // call the parent function explicitly
                         window.closeExternalOverlay();
                     }, { once: true });
                 }
 
-                // stretch wrapper if present
+                /* stretch wrapper */
                 const wrap = doc.getElementById('overlay-wrapper');
                 if (wrap) {
                     wrap.style.width = '100%';
