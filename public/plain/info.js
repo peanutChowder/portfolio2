@@ -1,3 +1,18 @@
+// === Overlay lookup: card section -> overlay HTML file ===
+const overlayMap = {
+    "project-aiAsteroids": "abOverlay.html",
+    "project-concurrentCLI": "cpOverlay.html",
+    "education": "edOverlay.html",
+    "experience-apple": "expAppleOverlay.html",
+    "experience-teck": "expTeckOverlay.html",
+    "experience-rgrg": "expUAlbertaOverlay.html",
+    "project-formfitness": "ffOverlay.html",
+    "project-aiImageCaptioner": "icOverlay.html",
+    "project-inventoryManager": "imOverlay.html",
+    "extracurricular-olympicWeightlifting": "owOverlay.html",
+};
+
+
 function handleCardEffects() {
     const cards = document.querySelectorAll('.card:not(.section-header)');
     let currentCardIndex = -1;  // Start at -1 so first scroll hits index 0
@@ -177,6 +192,73 @@ document.addEventListener('DOMContentLoaded', () => {
     const sections = document.querySelectorAll('.content-section');
     const closeButtons = document.querySelectorAll('.close-button');
 
+    // <<< NEW ── overlay modal nodes
+    const modal = document.getElementById('external-overlay-modal');
+    const iframe = document.getElementById('external-overlay-iframe');
+    const btnClose = document.getElementById('close-external-overlay');
+
+    function openExternalOverlay(fileName) {
+        if (!fileName) { console.warn('overlayMap miss →', fileName); return; }
+
+        /**
+         * Sets up the iframe onload event to ensure the overlay wrapper fills the entire iframe.
+         * Once the iframe content is loaded, it retrieves the overlay wrapper element and adjusts
+         * its dimensions and spacing to occupy the full width and height of the iframe, removing 
+         * any margin or padding.
+         */
+        iframe.onload = () => {
+            try {
+                const doc = iframe.contentDocument || iframe.contentWindow?.document;
+                if (!doc) return;
+
+                // hook inner close‑button → call parent close
+                const innerClose = doc.querySelector('.close-button');
+                if (innerClose) {
+                    innerClose.addEventListener('click', e => {
+                        e.preventDefault();
+                        // call the parent function explicitly
+                        window.closeExternalOverlay();
+                    }, { once: true });
+                }
+
+                // stretch wrapper if present
+                const wrap = doc.getElementById('overlay-wrapper');
+                if (wrap) {
+                    wrap.style.width = '100%';
+                    wrap.style.height = '100%';
+                    wrap.style.margin = '0';
+                    wrap.style.padding = '0';
+                }
+            } catch (err) {
+                console.error('overlay patch failed:', err);
+            }
+        };
+
+        iframe.src = '/' + fileName;
+
+        // reset & show
+        const panel = modal.querySelector('.external-overlay-content');
+        if (panel) panel.classList.remove('show');
+        modal.classList.remove('external-overlay-hidden');
+
+        // allow reflow then add .show to trigger the transition
+        if (panel) requestAnimationFrame(() => panel.classList.add('show'));
+    }
+    function closeExternalOverlay() {
+        iframe.src = '';
+        modal.classList.add('external-overlay-hidden');
+        modal.querySelector('.external-overlay-content').classList.remove('show');
+    }
+
+    window.closeExternalOverlay = closeExternalOverlay;
+
+    // close via X, backdrop‑click, Esc
+    btnClose.addEventListener('click', closeExternalOverlay);
+    modal.addEventListener('click', e => { if (e.target === modal) closeExternalOverlay(); });
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape' && !modal.classList.contains('external-overlay-hidden')) closeExternalOverlay();
+    });
+
     // Show fireworks message for fishing update
     setTimeout(() => {
         showWelcomeFireworks();
@@ -223,16 +305,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Card click handlers
     cards.forEach(card => {
-        if (!card.classList.contains('section-header')) {
-            card.addEventListener('click', () => {
-                const sectionId = card.getAttribute('data-section');
+        if (card.classList.contains('section-header')) return;  // skip headers
+
+        card.addEventListener('click', () => {
+            const sectionId = card.getAttribute('data-section');
+            const overlayFile = overlayMap[sectionId];
+
+            if (overlayFile) {
+                openExternalOverlay(overlayFile);           // modal path
+            } else {
+                // fallback: original in‑page animated section
                 const section = document.getElementById(sectionId);
                 if (section) {
                     history.pushState(null, '', `#${sectionId}`);
                     animateOpen(card, section);
                 }
-            });
-        }
+            }
+        });
     });
 
     // Close handlers
