@@ -258,10 +258,17 @@ document.addEventListener('DOMContentLoaded', () => {
         if (panel) requestAnimationFrame(() => panel.classList.add('show'));
     }
     function closeExternalOverlay() {
-        iframe.src = '';
-        modal.classList.add('external-overlay-hidden');
-        modal.querySelector('.external-overlay-content').classList.remove('show');
-    }
+        const panel = modal.querySelector('.external-overlay-content');
+      
+        // Start closing animation
+        panel.classList.remove('show');
+      
+        // Wait for animation to finish before hiding
+        setTimeout(() => {
+          iframe.src = '';
+          modal.classList.add('external-overlay-hidden');
+        }, 300); 
+      }
 
     window.closeExternalOverlay = closeExternalOverlay;
 
