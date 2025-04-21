@@ -191,3 +191,11 @@
     object-fit: contain;
     margin: 10px auto;
 }
+
+/*────────────────  Olympic Weightlifting  ────────────────*/
+#ow-journey-text{
+    color:#757474;
+    font-size:16px;
+    text-align:left;
+    width:100%;
+}
