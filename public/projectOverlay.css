@@ -57,6 +57,12 @@
     margin-right: auto;
     border: none;
 }
+
+.project-demo {
+    background-color: #000000;
+    background-size: cover;
+    background-position: center;
+  }
    
 .content-inner h2 {
     margin-top: 0;

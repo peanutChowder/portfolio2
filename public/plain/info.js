@@ -198,14 +198,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnClose = document.getElementById('close-external-overlay');
 
     function openExternalOverlay(fileName) {
-        if (!fileName) { console.warn('overlayMap miss →', fileName); return; }
+        if (!fileName) {
+            console.warn('overlayMap miss →', fileName);
+            return;
+        }
 
-        /**
-         * Sets up the iframe onload event to ensure the overlay wrapper fills the entire iframe.
-         * Once the iframe content is loaded, it retrieves the overlay wrapper element and adjusts
-         * its dimensions and spacing to occupy the full width and height of the iframe, removing 
-         * any margin or padding.
-         */
         iframe.onload = () => {
             try {
                 const doc = iframe.contentDocument || iframe.contentWindow?.document;
@@ -242,6 +239,19 @@ document.addEventListener('DOMContentLoaded', () => {
                     wrap.style.left = '0';
                     wrap.style.pointerEvents = 'none';
                 }
+
+                // Defer iframe YouTube loading until after open animation completes
+                requestAnimationFrame(() => {
+                    setTimeout(() => {
+                        const delayedIframes = doc.querySelectorAll('iframe[data-src]');
+                        delayedIframes.forEach(el => {
+                            if (!el.src) {
+                                el.src = el.dataset.src;
+                            }
+                        });
+                    }, 300); // wait for open animation to finish
+                });
+
             } catch (err) {
                 console.error('overlay patch failed:', err);
             }
@@ -259,16 +269,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     function closeExternalOverlay() {
         const panel = modal.querySelector('.external-overlay-content');
-      
+
         // Start closing animation
         panel.classList.remove('show');
-      
+
         // Wait for animation to finish before hiding
         setTimeout(() => {
-          iframe.src = '';
-          modal.classList.add('external-overlay-hidden');
-        }, 300); 
-      }
+            iframe.src = '';
+            modal.classList.add('external-overlay-hidden');
+        }, 300);
+    }
 
     window.closeExternalOverlay = closeExternalOverlay;
 
