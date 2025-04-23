@@ -1,3 +1,19 @@
+// === Overlay lookup: card section -> overlay HTML file ===
+const overlayMap = {
+    "project-aiAsteroids": "abOverlay.html",
+    "project-concurrentCLI": "cpOverlay.html",
+    "education": "edOverlay.html",
+    "experience-apple": "expAppleOverlay.html",
+    "experience-teck": "expTeckOverlay.html",
+    "experience-rgrg": "expUAlbertaOverlay.html",
+    "project-formfitness": "ffOverlay.html",
+    "project-aiImageCaptioner": "icOverlay.html",
+    "project-inventoryManager": "imOverlay.html",
+    "extracurricular-olympicWeightlifting": "owOverlay.html",
+    "extracurricular-longboarding": "longboardingOverlay.html"
+};
+
+
 function handleCardEffects() {
     const cards = document.querySelectorAll('.card:not(.section-header)');
     let currentCardIndex = -1;  // Start at -1 so first scroll hits index 0
@@ -20,7 +36,6 @@ function handleCardEffects() {
         const windowWidth = window.innerWidth;
 
         if (windowWidth < 1024) {
-            console.log("aa")
             return windowHeight * 0.16;
         }
         return windowHeight * 0.12;
@@ -82,7 +97,7 @@ function handleScrollHintPersistent() {
     const scrollHint = document.getElementById('scroll-hint');
 
     function updateHintVisibility() {
-        const scrollPosition = window.pageYOffset || document.documentElement.scrollTop;
+        const scrollPosition = scrollContainer.scrollTop;
         const windowHeight = window.innerHeight;
         const windowWidth = window.innerWidth;
 
@@ -110,7 +125,8 @@ function handleScrollHintPersistent() {
         }
     }
 
-    window.addEventListener('scroll', onScroll);
+    const scrollContainer = document.getElementById('landing-page');
+    scrollContainer.addEventListener('scroll', onScroll);
     updateHintVisibility(); // run on load
 }
 
@@ -177,6 +193,103 @@ document.addEventListener('DOMContentLoaded', () => {
     const sections = document.querySelectorAll('.content-section');
     const closeButtons = document.querySelectorAll('.close-button');
 
+    // <<< NEW ── overlay modal nodes
+    const modal = document.getElementById('external-overlay-modal');
+    const iframe = document.getElementById('external-overlay-iframe');
+    const btnClose = document.getElementById('close-external-overlay');
+
+    function openExternalOverlay(fileName) {
+        if (!fileName) {
+            console.warn('overlayMap miss →', fileName);
+            return;
+        }
+
+        iframe.onload = () => {
+            try {
+                const doc = iframe.contentDocument || iframe.contentWindow?.document;
+                if (!doc) return;
+
+                /* --- inject Font Awesome once --- */
+                if (!doc.getElementById('fa')) {
+                    const fa = doc.createElement('link');
+                    fa.id = 'fa';
+                    fa.rel = 'stylesheet';
+                    fa.href = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css';
+                    doc.head.appendChild(fa);
+                }
+
+                /* hook inner close button */
+                const innerClose = doc.querySelector('.close-button');
+                if (innerClose) {
+                    innerClose.addEventListener('click', e => {
+                        e.preventDefault();
+                        window.closeExternalOverlay();
+                    }, { once: true });
+                }
+
+                /* stretch wrapper */
+                const wrap = doc.getElementById('overlay-wrapper');
+                if (wrap) {
+                    wrap.style.width = '100%';
+                    wrap.style.height = '100%';
+                    wrap.style.margin = '0';
+                    wrap.style.padding = '0';
+                    wrap.style.overflow = 'hidden';
+                    wrap.style.position = 'fixed';
+                    wrap.style.top = '0';
+                    wrap.style.left = '0';
+                    wrap.style.pointerEvents = 'none';
+                }
+
+                // Defer iframe YouTube loading until after open animation completes
+                requestAnimationFrame(() => {
+                    setTimeout(() => {
+                        const delayedIframes = doc.querySelectorAll('iframe[data-src]');
+                        delayedIframes.forEach(el => {
+                            if (!el.src) {
+                                el.src = el.dataset.src;
+                            }
+                        });
+                    }, 300); // wait for open animation to finish
+                });
+
+            } catch (err) {
+                console.error('overlay patch failed:', err);
+            }
+        };
+
+        iframe.src = '/' + fileName;
+
+        // reset & show
+        const panel = modal.querySelector('.external-overlay-content');
+        if (panel) panel.classList.remove('show');
+        modal.classList.remove('external-overlay-hidden');
+
+        // allow reflow then add .show to trigger the transition
+        if (panel) requestAnimationFrame(() => panel.classList.add('show'));
+    }
+    function closeExternalOverlay() {
+        const panel = modal.querySelector('.external-overlay-content');
+
+        // Start closing animation
+        panel.classList.remove('show');
+
+        // Wait for animation to finish before hiding
+        setTimeout(() => {
+            iframe.src = '';
+            modal.classList.add('external-overlay-hidden');
+        }, 300);
+    }
+
+    window.closeExternalOverlay = closeExternalOverlay;
+
+    // close via X, backdrop‑click, Esc
+    btnClose.addEventListener('click', closeExternalOverlay);
+    modal.addEventListener('click', e => { if (e.target === modal) closeExternalOverlay(); });
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape' && !modal.classList.contains('external-overlay-hidden')) closeExternalOverlay();
+    });
+
     // Show fireworks message for fishing update
     setTimeout(() => {
         showWelcomeFireworks();
@@ -223,16 +336,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Card click handlers
     cards.forEach(card => {
-        if (!card.classList.contains('section-header')) {
-            card.addEventListener('click', () => {
-                const sectionId = card.getAttribute('data-section');
+        if (card.classList.contains('section-header')) return;  // skip headers
+
+        card.addEventListener('click', () => {
+            const sectionId = card.getAttribute('data-section');
+            const overlayFile = overlayMap[sectionId];
+
+            if (overlayFile) {
+                openExternalOverlay(overlayFile);           // modal path
+            } else {
+                // fallback: original in‑page animated section
                 const section = document.getElementById(sectionId);
                 if (section) {
                     history.pushState(null, '', `#${sectionId}`);
                     animateOpen(card, section);
                 }
-            });
-        }
+            }
+        });
     });
 
     // Close handlers

@@ -149,6 +149,7 @@ export default class IsometricScene extends Phaser.Scene {
 
         // Load all overlays
         this.load.html('owOverlay', 'owOverlay.html');
+        this.load.html('longboardingOverlay', 'longboardingOverlay.html');
         // projects
         this.load.html('ffOverlay', 'ffOverlay.html');
         this.load.html('icOverlay', 'icOverlay.html');
@@ -160,7 +161,6 @@ export default class IsometricScene extends Phaser.Scene {
         this.load.html('experienceOverlay-Apple', 'expAppleOverlay.html');
         this.load.html('experienceOverlay-Teck', 'expTeckOverlay.html');
         this.load.html('experienceOverlay-UAlberta', 'expUAlbertaOverlay.html');
-        this.load.html('welcomeOverlay', 'welcomeOverlay.html');
 
         // Game element overlays
         IslandManager.preload(this)

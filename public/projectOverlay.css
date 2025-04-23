@@ -1,5 +1,5 @@
 #overlay-wrapper {
-    position: fixed;       
+    position: fixed;
     top: 0;
     left: 0;
     width: 100vw;
@@ -36,12 +36,12 @@
 .content-inner img {
     width: 100%;
     max-width: 400px;
-    aspect-ratio: 1/1;  
+    aspect-ratio: 1/1;
     object-fit: cover;
-    object-position: center; 
+    object-position: center;
     border-radius: 8px;
     margin-bottom: 20px;
-    display: block;  
+    display: block;
     margin-left: auto;
     margin-right: auto;
 }
@@ -52,12 +52,18 @@
     aspect-ratio: 16/9;
     border-radius: 8px;
     margin-bottom: 20px;
-    display: block;  
+    display: block;
     margin-left: auto;
     margin-right: auto;
     border: none;
 }
-   
+
+.project-demo {
+    background-color: #000000;
+    background-size: cover;
+    background-position: center;
+}
+
 .content-inner h2 {
     margin-top: 0;
     color: #7E6D5A;
@@ -86,7 +92,7 @@
 
 .content-inner li {
     margin-bottom: 10px;
-    color: #666;
+    color: #7E6D5A;
 }
 
 .content-inner::-webkit-scrollbar {
@@ -151,19 +157,19 @@
     color: #7E6D5A;
     font-size: 24px;
     cursor: pointer;
-    transition: all 0.3s ease; 
+    transition: all 0.3s ease;
     z-index: 2;
-    width: 40px;              
-    height: 40px;              
-    border-radius: 50%;      
-    display: flex;           
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
     align-items: center;
     justify-content: center;
 }
 
 .close-button:hover {
     transform: rotate(90deg);
-    background-color: #E6D9C2;  
+    background-color: #E6D9C2;
 }
 
 
@@ -184,10 +190,18 @@
 }
 
 #project-demo-inventory-manager {
-    width: auto;
+    width: 100%;
     height: auto;
     max-width: 500px;
-    max-height: 60vh;
+    min-height: 80%;
     object-fit: contain;
     margin: 10px auto;
+}
+
+/*────────────────  Olympic Weightlifting  ────────────────*/
+#ow-journey-text {
+    color: #7E6D5A;
+    font-size: 16px;
+    text-align: left;
+    width: 100%;
 }

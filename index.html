@@ -5,11 +5,22 @@
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-02ZGSPBB1P"></script>
     <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag() { dataLayer.push(arguments); }
-        gtag('js', new Date());
+        if (!location.hostname.includes('localhost')) {
+            console.log("loaded")
+            // Only load GA if not on localhost
+            const script = document.createElement('script');
+            script.setAttribute('async', '');
+            script.src = 'https://www.googletagmanager.com/gtag/js?id=G-02ZGSPBB1P';
+            document.head.appendChild(script);
 
-        gtag('config', 'G-02ZGSPBB1P');
+            window.dataLayer = window.dataLayer || [];
+            function gtag() { dataLayer.push(arguments); }
+
+            script.onload = () => {
+                gtag('js', new Date());
+                gtag('config', 'G-02ZGSPBB1P');
+            };
+        }
     </script>
 
     <meta charset="UTF-8">
@@ -26,7 +37,6 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Prompt:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="landingPage.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600&display=swap" rel="stylesheet">
@@ -50,11 +60,10 @@
             <p>
                 Hello, I'm Jacob.
                 <br>
-                <br>
                 Enter the map, or scroll down for a quick look.
             </p>
         </div>
-        <div>
+        <div id="start-game-button-container">
             <button id="start-game-button">Enter Map</button>
         </div>
 
@@ -78,117 +87,146 @@
                 <h2>Cards: A quick look</h2>
             </div>
 
-            <!-- Resume Cards (only one) -->
-            <div class="card-grid">
+            <!-- =================   RESUME   ================= -->
+            <!-- <div class="card-grid">
                 <div class="card section-header">
                     <h2>Resume</h2>
                 </div>
-                <a href="/images/Jacob_Feng.pdf" target="_blank" class="card" style="text-decoration: none;">
-                    <div class="card-image">
-                        <img src="/images/Jacob_Feng.png" alt="Resume">
-                    </div>
+
+                <a href="/images/Jacob_Feng.pdf" target="_blank" class="card" style="text-decoration:none;">
+                    <div class="card-image"><img src="/images/Jacob_Feng.png" alt="Resume"></div>
                     <div class="card-content">
                         <h3>Resume</h3>
                         <p>At a glance</p>
                     </div>
                 </a>
-            </div>
+            </div> -->
 
-            <!-- Experience Cards -->
+            <!-- ===============   EXPERIENCE   =============== -->
             <div class="card-grid">
                 <div class="card section-header">
-                    <h2>Experience</h2>
+                    <h2>Work</h2>
                 </div>
-                <div class="card" data-section="apple">
-                    <div class="card-image">
-                        <img src="/images/apple-logo.png" alt="Data Analysis">
-                    </div>
+
+                <div class="card" data-section="experience-apple">
+                    <div class="card-image"><img src="/images/apple-logo.png" alt="Apple logo"></div>
                     <div class="card-content">
                         <h3>Apple</h3>
                         <p>Software Engineer Intern</p>
                     </div>
                 </div>
-                <div class="card" id="middle-trigger-card" data-section="teck">
-                    <div class="card-image">
-                        <img src="/images/teck-logo.png" alt="Software Development">
-                    </div>
+
+                <div class="card" data-section="experience-teck">
+                    <div class="card-image"><img src="/images/teck-logo.png" alt="Teck logo"></div>
                     <div class="card-content">
                         <h3>Teck Resources</h3>
-                        <p>Wireless Engineer Co-op</p>
+                        <p>Wireless Engineer Co‑op</p>
                     </div>
                 </div>
-                <div class="card" data-section="rgrg">
-                    <div class="card-image">
-                        <img src="/images/rgrg-logo.png" alt="Research">
-                    </div>
+
+                <div class="card" data-section="experience-rgrg">
+                    <div class="card-image"><img src="/images/rgrg-logo.png" alt="RGRG logo"></div>
                     <div class="card-content">
-                        <h3>[RGRG]2</h3>
-                        <p>Data Analyst Co-op</p>
+                        <h3>[RGRG]²</h3>
+                        <p>Data Analyst Co‑op</p>
                     </div>
                 </div>
             </div>
 
-            <!-- Education Cards -->
+            <!-- divider -->
+            <hr class="section-divider" />
+
+            <!-- ===============   EDUCATION   =============== -->
             <div class="card-grid">
                 <div class="card section-header">
-                    <h2>Education</h2>
+                    <h2>School</h2>
                 </div>
-                <div class="card" data-section="compsci">
-                    <div class="card-image">
-                        <img src="/images/ualberta-logo.png" alt="UAlberta Crest">
-                    </div>
+
+                <!-- single overlay card that summarises education -->
+                <div class="card" data-section="education">
+                    <div class="card-image"><img src="/images/ualberta-logo.png" alt="UAlberta"></div>
                     <div class="card-content">
-                        <h3>Computer Science</h3>
-                    </div>
-                </div>
-                <div class="card" data-section="compEng">
-                    <div class="card-image">
-                        <img src="/images/ualberta-logo.png" alt="UAlberta Crest">
-                    </div>
-                    <div class="card-content">
-                        <h3>Computer Engineering</h3>
-                    </div>
-                </div>
-                <div class="card" data-section="biology">
-                    <div class="card-image">
-                        <img src="/images/ualberta-logo.png" alt="UAlberta Crest">
-                    </div>
-                    <div class="card-content">
-                        <h3>Biology</h3>
+                        <h3>University of Alberta</h3>
+                        <p>BSc Computer Science</p>
                     </div>
                 </div>
             </div>
 
-            <!-- Projects Cards -->
-            <div id="last-card-grid" class="card-grid">
+            <!-- divider -->
+            <hr class="section-divider" />
+
+            <!-- ================   PROJECTS   ================ -->
+            <div id="card-grid" class="card-grid">
                 <div class="card section-header">
                     <h2>Projects</h2>
                 </div>
-                <div class="card" data-section="formfitness">
-                    <div class="card-image">
-                        <img src="/images/formfitness-preview.jpg" alt="AR Preview">
-                    </div>
+
+                <div class="card" data-section="project-formfitness">
+                    <div class="card-image"><img src="/images/project-formfitness-demo.gif" alt="FormFitness"></div>
                     <div class="card-content">
                         <h3>FormFitness</h3>
-                        <p>AR form checking app on iOS</p>
+                        <p>AR form‑checking iOS app</p>
                     </div>
                 </div>
-                <div class="card" data-section="ai-asteroids">
-                    <div class="card-image">
-                        <img src="/images/project-kessler-preview.png" alt="Asteroid game-container">
-                    </div>
+
+                <div class="card" data-section="project-aiAsteroids">
+                    <div class="card-image"><img src="/images/project-kessler.gif" alt="AI Asteroids"></div>
                     <div class="card-content">
                         <h3>AI Asteroids Bot</h3>
                         <p>Genetic Fuzzy System</p>
                     </div>
                 </div>
-                <div class="card" data-section="ai-image-captioner">
-                    <div class="card-image">
-                        <img src="/images/project-image-captioner-preview.png" alt="Image Captioner Preview">
-                    </div>
+
+                <div class="card" data-section="project-aiImageCaptioner">
+                    <div class="card-image"><img src="/images/project-image-captioner-demo.gif"
+                            alt="Image Captioner"></div>
                     <div class="card-content">
                         <h3>AI Image Captioner</h3>
-                        <p>Seq2Seq Vit + GPT2</p>
+                        <p>ViT + GPT‑2</p>
+                    </div>
+                </div>
+
+                <div class="card" data-section="project-concurrentCLI">
+                    <div class="card-image"><img src="/images/cpDemo.gif" alt="Concurrent CLI"></div>
+                    <div class="card-content">
+                        <h3>Concurrent Process CLI</h3>
+                        <p>C++ Process Control Block</p>
+                    </div>
+                </div>
+
+                <div class="card" data-section="project-inventoryManager">
+                    <div class="card-image"><img src="/images/imDemo.gif" alt="Inventory Manager">
+                    </div>
+                    <div class="card-content">
+                        <h3>Inventory App</h3>
+                        <p>Android — Java</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- divider -->
+            <hr class="section-divider" />
+
+            <!-- ===========   EXTRACURRICULARS  =========== -->
+            <div id="last-card-grid" class="card-grid">
+                <div class="card section-header">
+                    <h2>Others</h2>
+                </div>
+
+                <div class="card" data-section="extracurricular-olympicWeightlifting">
+                    <div class="card-image"><img src="/images/olympiclifting-demo.gif" alt="Olympic Weightlifting"></div>
+                    <div class="card-content">
+                        <h3>Olympic Weightlifting</h3>
+                        <p>Provincial Athlete</p>
+                    </div>
+                </div>
+
+
+                <div class="card" data-section="extracurricular-longboarding">
+                    <div class="card-image"><img src="/images/longboarding-demo.gif" alt="Longboarding"></div>
+                    <div class="card-content">
+                        <h3>Longboarding</h3>
+                        <p>Downhill</p>
                     </div>
                 </div>
             </div>
@@ -208,7 +246,7 @@
                     <a href="https://github.com/peanutChowder/portfolio2">GitHub</a>.
                 </p>
                 <br><br>
-                <p>Last updated April 15, 2025 - <b>Fishing Version 0.1</b></p>
+                <p>Last updated April 23, 2025 - <b>Fishing Version 0.2</b></p>
                 <br><br>
             </div>
         </div>
@@ -532,6 +570,34 @@
             </div>
         </section>
     </div>
+
+    <!-- ───────── External Overlay Modal (hidden by default) ───────── -->
+    <div id="external-overlay-modal" class="external-overlay-hidden">
+        <div class="external-overlay-content">
+            <button id="close-external-overlay" aria-label="Close overlay">
+                <i class="fas fa-times"></i>
+            </button>
+
+            <!-- The overlay HTML will load here -->
+            <iframe id="external-overlay-iframe" src="" frameborder="0" loading="lazy" allowfullscreen></iframe>
+        </div>
+    </div>
+
+    <!-- ───────── SEO ───────── -->
+    <div id="overlay-sitemap" style="display:none;">
+        <a href="/ffOverlay.html">FormFitness overlay</a>
+        <a href="/abOverlay.html">AI Asteroids overlay</a>
+        <a href="/icOverlay.html">Image Captioner overlay</a>
+        <a href="/cpOverlay.html">Concurrent CLI overlay</a>
+        <a href="/imOverlay.html">Inventory Manager overlay</a>
+        <a href="/edOverlay.html">Education overlay</a>
+        <a href="/expAppleOverlay.html">Apple overlay</a>
+        <a href="/expTeckOverlay.html">Teck overlay</a>
+        <a href="/expUAlbertaOverlay.html">RGRG overlay</a>
+        <a href="/owOverlay.html">Olympic WL overlay</a>
+        <a href="/longboardingOverlay.html">Olympic WL overlay</a>
+    </div>
+
     <!-- Fireworks canvas -->
     <canvas id="fireworks-canvas"></canvas>
     <div id="welcome-popup">

@@ -56,7 +56,7 @@
 .timeline::before {
     content: '';
     position: absolute;
-    left: 30px;
+    left: 10px;
     width: 2px;
     height: 100%;
     background-color: #D0B49F;
@@ -72,7 +72,7 @@
 
 .timeline-dot {
     position: absolute;
-    left: 26px;
+    left: 3px;
     width: 10px;
     height: 10px;
     background-color: #D0B49F;
@@ -84,7 +84,7 @@
 .timeline-content {
     position: relative;
     width: calc(100% - 80px);
-    margin-left: 80px;
+    margin-left: 30px;
     background-color: white;
     padding: 20px;
     border-radius: 10px;

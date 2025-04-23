@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Resume Overlay</title>
     <link rel="stylesheet" href="expOverlay.css">
 </head>
+
 <body>
     <div id="overlay-wrapper">
         <div id="simple-overlay">
@@ -19,24 +21,34 @@
                     <img src="/images/apple.jpeg" alt="Apple Park">
                 </div>
                 <div class="experience">
-                    <h4>May - September 2024</h4>
+                    <h4>May - October 2024</h4>
                     <ul>
-                        <b>AI Log Analysis Workflow</b>
-                        <li>Built and optimized an AI workflow for triaging Apple Watch logs using foundation models to generate analysis for logs.</li>
-                        <li>Improved workflow reliability by 500% using defensive programming techniques.</li>
-                        <li>Improved runtime by 400% parallelizing API calls containing resized logs to fit the context window while maintaining global context.</li>
-                    
-                        <b>C++ Network Log Visualizer<br></b>
-                        <li>Implemented log visualization using Qt (C++) on an internal Mac App used by 15+ teams.</li>
-                        <li>Generated call flow graphs for 2GB logs in ~1 second by using file chunking.</li>
-                        <li>Features custom configurations, parallel operations such as searching + generating charts, and highlighting.</li>
+                        <li>
+                            Spearheaded a new automated bug diagnosis system using Retrieval Augmented Generation
+                            embedding search
+                            to support initial analysis for 20 GB+ system logs. Improved log processing speed by 5x by
+                            parallelizing log
+                            embeddings and model inference. Maintained strict data confidentiality by adhering to
+                            offline or internal tooling.
+                        </li>
+                        <li>
+                            Improved 5G systems monitoring ability by implementing interactive plot generation from logs
+                            on a high
+                            performance Qt C++ diagnostics app depended on by 15+ teams. Maintained a latency ceiling of
+                            100ms per
+                            render when generating interactive plots for 20GB+ log files.
+                        </li>
+                        <li>
+                            Created a Slack bot using Python that synchronizes internal ticket tracking system updates
+                            into relevant Slack
+                            channels.
+                        </li>
 
-                        <b>Slack bot</b>
-                        <li>Developed for issue tracking updates on milestones and progress using Python, hosted on internal cloud.</li>
                     </ul>
                 </div>
             </div>
         </div>
     </div>
 </body>
+
 </html>
