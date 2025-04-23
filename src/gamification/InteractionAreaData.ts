@@ -91,6 +91,15 @@ const workExpColor = {
     markerColor: DEFAULT_COLOR
 }
 
+const othersColor = {
+    areaBaseColor: DEFAULT_COLOR,
+    areaEdgeColor: 0,
+    buttonBaseColor: 0x1aa7ba,
+    buttonHoverColor: 0x1db7cc,
+    // markerColor: 0xae41f2
+    markerColor: DEFAULT_COLOR
+}
+
 export const INTERACTION_AREAS: InteractionAreaData[] = [
     {
         id: "experience-Apple",
@@ -225,6 +234,7 @@ export const INTERACTION_AREAS: InteractionAreaData[] = [
         gameElementType: "fishing",
         resourceBehavior: "depletable"
     },
+    // --------- Extracurriculars ---------
     {
         id: "olympicWeightlifting",
         positionX: 7780,
@@ -233,15 +243,15 @@ export const INTERACTION_AREAS: InteractionAreaData[] = [
         height: 1700,
         displayName: "Olympic\nWeightlifting",
         overlayKey: "owOverlay",
-        areaBaseColor: 0x145b66,
-        areaEdgeColor: 0,
+        areaBaseColor: othersColor.areaBaseColor,
+        areaEdgeColor: othersColor.areaEdgeColor,
 
         buttonConfig: {
             text: "Click to see Olympic\nWeightlifting Content",
             font: "Arial",
             fontColor: "#ffffff",
-            baseColor: 0x145b66,
-            hoverColor: 0x208999
+            baseColor: othersColor.buttonBaseColor,
+            hoverColor: othersColor.buttonHoverColor
         },
         floatingText: {
             text: "Olympic Weightlifting",
@@ -252,9 +262,43 @@ export const INTERACTION_AREAS: InteractionAreaData[] = [
         },
         markerInfo: {
             // baseColor: 0xdbaf1f,
-            baseColor: DEFAULT_COLOR,
+            baseColor: othersColor.markerColor,
             radius: 40,
             locationType: "Oly-Lifting"
+        },
+        gameElementType: "fishing",
+        resourceBehavior: "depletable"
+    },
+    {
+        id: "longboarding",
+        positionX: 1483,
+        positionY: 4352,
+        width: 2700,
+        height: 1700,
+        displayName: "Longboarding",
+        overlayKey: "longboardingOverlay",
+        areaBaseColor: othersColor.areaBaseColor,
+        areaEdgeColor: othersColor.areaEdgeColor,
+
+        buttonConfig: {
+            text: "Click to see Longboarding\nContent",
+            font: "Arial",
+            fontColor: "#ffffff",
+            baseColor: othersColor.buttonBaseColor,
+            hoverColor: othersColor.buttonHoverColor
+        },
+        floatingText: {
+            text: "Longboarding",
+            color: "#87cfff",
+            font: "Arial",
+            fontSize: "130px",
+            offset: { x: 0, y: -1200 }
+        },
+        markerInfo: {
+            // baseColor: 0xdbaf1f,
+            baseColor: othersColor.markerColor,
+            radius: 40,
+            locationType: "Longboarding"
         },
         gameElementType: "fishing",
         resourceBehavior: "depletable"

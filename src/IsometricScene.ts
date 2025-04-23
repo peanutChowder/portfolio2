@@ -149,6 +149,7 @@ export default class IsometricScene extends Phaser.Scene {
 
         // Load all overlays
         this.load.html('owOverlay', 'owOverlay.html');
+        this.load.html('longboardingOverlay', 'longboardingOverlay.html');
         // projects
         this.load.html('ffOverlay', 'ffOverlay.html');
         this.load.html('icOverlay', 'icOverlay.html');
