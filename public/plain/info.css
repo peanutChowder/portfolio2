@@ -13,7 +13,7 @@ html {
     align-items: center;
     height: 100%;
     background-color: rgba(255, 253, 240, 0.95);
-    padding: 20px;
+    padding: 10px;
     box-sizing: border-box;
     overflow-y: scroll;
 }
@@ -57,7 +57,7 @@ hr {
 .img-container img {
     max-width: 100%;
     object-fit: contain;
-    border: 12px solid white;
+    border: 3px solid white;
     border-radius: 25px;
     box-shadow:
         0 0 0 1px #ccc,
@@ -98,6 +98,7 @@ hr {
 #landing-text p {
     color: #A79B8E;
     font-size: 18px;
+    margin: 0px 10px;
 }
 
 #start-game-button:hover {
@@ -619,6 +620,8 @@ h1 {
 #welcome-popup.show {
     opacity: 1;
 }
+
+/* --------------- MOBILE RESPONSIVENESS --------------- */
 
 @media screen and (max-width: 768px) {
     #portfolio-page {
