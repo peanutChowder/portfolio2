@@ -35,7 +35,6 @@ function handleCardEffects() {
         const windowWidth = window.innerWidth;
 
         if (windowWidth < 1024) {
-            console.log("aa")
             return windowHeight * 0.16;
         }
         return windowHeight * 0.12;
@@ -97,7 +96,7 @@ function handleScrollHintPersistent() {
     const scrollHint = document.getElementById('scroll-hint');
 
     function updateHintVisibility() {
-        const scrollPosition = window.pageYOffset || document.documentElement.scrollTop;
+        const scrollPosition = scrollContainer.scrollTop;
         const windowHeight = window.innerHeight;
         const windowWidth = window.innerWidth;
 
@@ -125,7 +124,8 @@ function handleScrollHintPersistent() {
         }
     }
 
-    window.addEventListener('scroll', onScroll);
+    const scrollContainer = document.getElementById('landing-page');
+    scrollContainer.addEventListener('scroll', onScroll);
     updateHintVisibility(); // run on load
 }
 
