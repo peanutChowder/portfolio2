@@ -10,6 +10,7 @@ const overlayMap = {
     "project-aiImageCaptioner": "icOverlay.html",
     "project-inventoryManager": "imOverlay.html",
     "extracurricular-olympicWeightlifting": "owOverlay.html",
+    "extracurricular-longboarding": "longboardingOverlay.html"
 };
 
 
