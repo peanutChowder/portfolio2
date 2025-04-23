@@ -140,9 +140,13 @@ hr {
     margin-right: auto;
 }
 
+#about-site h2 {
+    font-size: 20px;
+}
+
 #about-site p {
     color: #A79B8E;
-    font-size: 18px;
+    font-size: 14px;
     margin-top: 0px;
     margin-bottom: 2em;
     text-align: center;
@@ -164,7 +168,7 @@ hr {
 a {
     color: #A79B8E;
     font-family: 'Prompt', sans-serif;
-    font-size: 20px;
+    font-size: 16px;
     transition: color 0.3s ease;
 }
 
