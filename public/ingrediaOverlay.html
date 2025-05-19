@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FormFitness Overlay</title>
+    <link rel="stylesheet" href="projectOverlay.css">
+</head>
+
+<body>
+    <div id="overlay-wrapper">
+        <div id="simple-overlay">
+            <div class="content-inner">
+                <button class="close-button">
+                    <i class="fas fa-times"></i>
+                </button>
+                <div class="content-header">
+                    <h2>Ingredia</h2>
+                </div>
+                <div class="video-container">
+                    <iframe class="project-demo" src="https://youtube.com/embed/9xGArfQqRlA" title="Project Demo"
+                        allowfullscreen></iframe>
+                </div>
+                <a class="github-button" href="https://github.com/HackED-2025/ingredia-ios">
+                    <i class="fas fa-link"></i>
+                    <span>GitHub</span>
+                </a>
+                <p>
+                    People with dietary restrictions are faced with the challenge of scanning through <b>every product
+                        and its
+                        bloated ingredients</b> list just to find a small word that indicates it may be unsafe for their
+                    consumption.
+                    <br>
+                    Ingredia is a hackathon project for <b>HackEd 2025</b>. It allows users to set their dietary
+                    restrictions & preferences once, then they can begin scanning items in grocery store shelves to get
+                    a quick score on if the product is suitable for their consumption.
+
+                </p>
+                <div class="skills-list">
+                    <span class="skill-tag">Swift</span>
+                    <span class="skill-tag">iOS</span>
+                    <span class="skill-tag">xCode</span>
+                    <span class="skill-tag">OCR</span>
+                </div>
+                <h3>How does it work?</h3>
+                <p>
+                    Ingredia uses optical character recognition (OCR) to read the name of a product, which then is
+                    semantically matched for a product within the USDA database. From there, the official list of
+                    ingredients is
+                    fed alonside user dietary restrictions into a machine learning model to
+                    determine if the product is safe for consumption.
+                </p>
+                <h3>Features:</h3>
+                <ul>
+                    <li>Real-time text scanning</li>
+                    <li>Rapid product lookup from USDA database</li>
+                    <li>Favoriting products</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

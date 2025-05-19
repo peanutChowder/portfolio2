@@ -7,6 +7,7 @@ const overlayMap = {
     "experience-apple": "expAppleOverlay.html",
     "experience-teck": "expTeckOverlay.html",
     "experience-rgrg": "expUAlbertaOverlay.html",
+    "project-ingredia": "ingrediaOverlay.html",
     "project-formfitness": "ffOverlay.html",
     "project-aiImageCaptioner": "icOverlay.html",
     "project-inventoryManager": "imOverlay.html",
