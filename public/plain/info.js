@@ -3,12 +3,14 @@ const overlayMap = {
     "project-aiAsteroids": "abOverlay.html",
     "project-concurrentCLI": "cpOverlay.html",
     "education": "edOverlay.html",
+    "experience-apple2": "expApple2Overlay.html",
     "experience-apple": "expAppleOverlay.html",
     "experience-teck": "expTeckOverlay.html",
     "experience-rgrg": "expUAlbertaOverlay.html",
     "project-formfitness": "ffOverlay.html",
     "project-aiImageCaptioner": "icOverlay.html",
     "project-inventoryManager": "imOverlay.html",
+    "extracurricular-tedx": "tedxOverlay.html",
     "extracurricular-olympicWeightlifting": "owOverlay.html",
     "extracurricular-longboarding": "longboardingOverlay.html"
 };
