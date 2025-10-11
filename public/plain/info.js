@@ -293,10 +293,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.key === 'Escape' && !modal.classList.contains('external-overlay-hidden')) closeExternalOverlay();
     });
 
-    // Show fireworks message for fishing update
-    setTimeout(() => {
-        showWelcomeFireworks();
-    }, 1000);
+    // Disabled for now - no more welcome message + fireworks
+    // setTimeout(() => {
+    //     showWelcomeFireworks();
+    // }, 1000);
 
     function animateOpen(card, section) {
         const cardRect = card.getBoundingClientRect();
